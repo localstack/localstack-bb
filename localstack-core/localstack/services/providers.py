@@ -6,15 +6,6 @@ from localstack.services.plugins import (
 
 
 @aws_provider()
-def acm():
-    from localstack.services.acm.provider import AcmProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = AcmProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
 def apigateway():
     from localstack.services.apigateway.next_gen.provider import ApigatewayNextGenProvider
     from localstack.services.moto import MotoFallbackDispatcher
@@ -57,15 +48,6 @@ def cloudformation_v2():
     return Service.for_provider(provider)
 
 
-@aws_provider(api="config")
-def awsconfig():
-    from localstack.services.configservice.provider import ConfigProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = ConfigProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
 @aws_provider(api="cloudwatch", name="default")
 def cloudwatch():
     from localstack.services.cloudwatch.provider_v2 import CloudwatchProvider
@@ -104,14 +86,6 @@ def dynamodb():
     )
 
 
-@aws_provider(api="dynamodbstreams", name="v2")
-def dynamodbstreams_v2():
-    from localstack.services.dynamodbstreams.v2.provider import DynamoDBStreamsProvider
-
-    provider = DynamoDBStreamsProvider()
-    return Service.for_provider(provider)
-
-
 @aws_provider(api="dynamodb", name="v2")
 def dynamodb_v2():
     from localstack.services.dynamodb.v2.provider import DynamoDBProvider
@@ -126,28 +100,12 @@ def dynamodb_v2():
 
 
 @aws_provider()
-def dynamodbstreams():
-    from localstack.services.dynamodbstreams.provider import DynamoDBStreamsProvider
-
-    provider = DynamoDBStreamsProvider()
-    return Service.for_provider(provider)
-
-
-@aws_provider()
 def ec2():
     from localstack.services.ec2.provider import Ec2Provider
     from localstack.services.moto import MotoFallbackDispatcher
 
     provider = Ec2Provider()
     return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def es():
-    from localstack.services.es.provider import EsProvider
-
-    provider = EsProvider()
-    return Service.for_provider(provider)
 
 
 @aws_provider()
@@ -164,15 +122,6 @@ def iam():
     from localstack.services.moto import MotoFallbackDispatcher
 
     provider = IamProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def sts():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.sts.provider import StsProvider
-
-    provider = StsProvider()
     return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
 
@@ -239,29 +188,11 @@ def opensearch():
 
 
 @aws_provider()
-def redshift():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.redshift.provider import RedshiftProvider
-
-    provider = RedshiftProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
 def route53():
     from localstack.services.moto import MotoFallbackDispatcher
     from localstack.services.route53.provider import Route53Provider
 
     provider = Route53Provider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def route53resolver():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.route53resolver.provider import Route53ResolverProvider
-
-    provider = Route53ResolverProvider()
     return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
 
@@ -274,38 +205,11 @@ def s3():
 
 
 @aws_provider()
-def s3control():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.s3control.provider import S3ControlProvider
-
-    provider = S3ControlProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def scheduler():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.scheduler.provider import SchedulerProvider
-
-    provider = SchedulerProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
 def secretsmanager():
     from localstack.services.moto import MotoFallbackDispatcher
     from localstack.services.secretsmanager.provider import SecretsmanagerProvider
 
     provider = SecretsmanagerProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def ses():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.ses.provider import SesProvider
-
-    provider = SesProvider()
     return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
 
@@ -323,15 +227,6 @@ def sqs():
 
     provider = SqsProvider()
     return Service.for_provider(provider)
-
-
-@aws_provider()
-def ssm():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.ssm.provider import SsmProvider
-
-    provider = SsmProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
 
 @aws_provider(api="events", name="default")
@@ -384,50 +279,3 @@ def stepfunctions_v2():
 
     provider = StepFunctionsProvider()
     return Service.for_provider(provider)
-
-
-@aws_provider()
-def swf():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.swf.provider import SWFProvider
-
-    provider = SWFProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def resourcegroupstaggingapi():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.resourcegroupstaggingapi.provider import (
-        ResourcegroupstaggingapiProvider,
-    )
-
-    provider = ResourcegroupstaggingapiProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider(api="resource-groups")
-def resource_groups():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.resource_groups.provider import ResourceGroupsProvider
-
-    provider = ResourceGroupsProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def support():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.support.provider import SupportProvider
-
-    provider = SupportProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def transcribe():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.transcribe.provider import TranscribeProvider
-
-    provider = TranscribeProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
