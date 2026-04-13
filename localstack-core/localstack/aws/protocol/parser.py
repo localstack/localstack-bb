@@ -1491,9 +1491,7 @@ class S3RequestParser(RestXMLRequestParser):
 
         @staticmethod
         def _is_vhost_address_get_bucket(request: Request) -> str | None:
-            from localstack.services.s3.utils import uses_host_addressing
-
-            return uses_host_addressing(request.headers)
+            return None
 
     @_handle_exceptions
     def parse(self, request: Request) -> tuple[OperationModel, Any]:

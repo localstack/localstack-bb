@@ -1,5 +1,4 @@
 from localstack.http import Response
-from localstack.services.s3.presigned_url import S3PreSignedURLRequestHandler
 
 from ..api import RequestContext
 from ..chain import Handler, HandlerChain
@@ -7,9 +6,7 @@ from ..chain import Handler, HandlerChain
 
 class ParsePreSignedUrlRequest(Handler):
     def __init__(self):
-        self.pre_signed_handlers: dict[str, Handler] = {
-            "s3": S3PreSignedURLRequestHandler(),
-        }
+        self.pre_signed_handlers: dict[str, Handler] = {}
 
     def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
         # TODO: handle other services pre-signed URL (CloudFront)
