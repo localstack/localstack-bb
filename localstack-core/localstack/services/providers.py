@@ -5,32 +5,6 @@ from localstack.services.plugins import (
 )
 
 
-@aws_provider()
-def apigateway():
-    from localstack.services.apigateway.next_gen.provider import ApigatewayNextGenProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = ApigatewayNextGenProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider(api="apigateway", name="next_gen")
-def apigateway_next_gen():
-    from localstack.services.apigateway.next_gen.provider import ApigatewayNextGenProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = ApigatewayNextGenProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider(api="apigateway", name="legacy")
-def apigateway_legacy():
-    from localstack.services.apigateway.legacy.provider import ApigatewayProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = ApigatewayProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
 
 @aws_provider(api="cloudformation", name="engine-legacy")
 def cloudformation():
@@ -75,23 +49,7 @@ def dynamodb_v2():
     )
 
 
-@aws_provider()
-def ec2():
-    from localstack.services.ec2.provider import Ec2Provider
-    from localstack.services.moto import MotoFallbackDispatcher
 
-    provider = Ec2Provider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-
-@aws_provider()
-def iam():
-    from localstack.services.iam.provider import IamProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = IamProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
 
 @aws_provider()
@@ -106,13 +64,6 @@ def kinesis():
         ),
     )
 
-
-@aws_provider()
-def kms():
-    from localstack.services.kms.provider import KmsProvider
-
-    provider = KmsProvider()
-    return Service.for_provider(provider)
 
 
 @aws_provider(api="lambda")
@@ -139,21 +90,6 @@ def lambda_v2():
     return Service.for_provider(provider)
 
 
-@aws_provider()
-def logs():
-    from localstack.services.logs.provider import LogsProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = LogsProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider()
-def opensearch():
-    from localstack.services.opensearch.provider import OpensearchProvider
-
-    provider = OpensearchProvider()
-    return Service.for_provider(provider)
 
 
 
