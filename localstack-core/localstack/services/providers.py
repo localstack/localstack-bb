@@ -48,30 +48,6 @@ def cloudformation_v2():
     return Service.for_provider(provider)
 
 
-@aws_provider(api="cloudwatch", name="default")
-def cloudwatch():
-    from localstack.services.cloudwatch.provider_v2 import CloudwatchProvider
-
-    provider = CloudwatchProvider()
-    return Service.for_provider(provider)
-
-
-@aws_provider(api="cloudwatch", name="v1")
-def cloudwatch_v1():
-    from localstack.services.cloudwatch.provider import CloudwatchProvider
-    from localstack.services.moto import MotoFallbackDispatcher
-
-    provider = CloudwatchProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
-
-@aws_provider(api="cloudwatch", name="v2")
-def cloudwatch_v2():
-    from localstack.services.cloudwatch.provider_v2 import CloudwatchProvider
-
-    provider = CloudwatchProvider()
-    return Service.for_provider(provider)
-
 
 @aws_provider()
 def dynamodb():
@@ -107,13 +83,6 @@ def ec2():
     provider = Ec2Provider()
     return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
-
-@aws_provider()
-def firehose():
-    from localstack.services.firehose.provider import FirehoseProvider
-
-    provider = FirehoseProvider()
-    return Service.for_provider(provider)
 
 
 @aws_provider()
@@ -187,14 +156,6 @@ def opensearch():
     return Service.for_provider(provider)
 
 
-@aws_provider()
-def route53():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.route53.provider import Route53Provider
-
-    provider = Route53Provider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
-
 
 @aws_provider()
 def s3():
@@ -203,14 +164,6 @@ def s3():
     provider = S3Provider()
     return Service.for_provider(provider)
 
-
-@aws_provider()
-def secretsmanager():
-    from localstack.services.moto import MotoFallbackDispatcher
-    from localstack.services.secretsmanager.provider import SecretsmanagerProvider
-
-    provider = SecretsmanagerProvider()
-    return Service.for_provider(provider, dispatch_table_factory=MotoFallbackDispatcher)
 
 
 @aws_provider()
