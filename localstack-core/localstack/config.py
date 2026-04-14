@@ -14,7 +14,6 @@ from typing import Any, TypeVar
 
 from localstack import constants
 from localstack.constants import (
-    DEFAULT_BUCKET_MARKER_LOCAL,
     DEFAULT_DEVELOP_PORT,
     DEFAULT_VOLUME_DIR,
     ENV_INTERNAL_TEST_COLLECT_METRIC,
@@ -448,13 +447,6 @@ if TMP_FOLDER.startswith("/var/folders/") and os.path.exists(f"/private{TMP_FOLD
 LS_LOG = eval_log_type("LS_LOG") or eval_log_type("LOG")
 DEBUG = is_env_true("DEBUG") or LS_LOG in TRACE_LOG_LEVELS
 
-# PUBLIC PREVIEW: 0 (default), 1 (preview)
-# When enabled it triggers specialised workflows for the debugging.
-LAMBDA_DEBUG_MODE = is_env_true("LAMBDA_DEBUG_MODE")
-
-# path to the lambda debug mode configuration file.
-LAMBDA_DEBUG_MODE_CONFIG_PATH = os.environ.get("LAMBDA_DEBUG_MODE_CONFIG_PATH")
-
 # EXPERIMENTAL: allow setting custom log levels for individual loggers
 LOG_LEVEL_OVERRIDES = os.environ.get("LOG_LEVEL_OVERRIDES", "")
 
@@ -472,10 +464,6 @@ USE_SSL = is_env_true("USE_SSL")
 
 # Whether to report internal failures as 500 or 501 errors.
 FAIL_FAST = is_env_true("FAIL_FAST")
-
-# whether to run in TF compatibility mode for TF integration tests
-# (e.g., returning verbatim ports for ELB resources, rather than edge port 4566, etc.)
-TF_COMPAT_MODE = is_env_true("TF_COMPAT_MODE")
 
 # default encoding used to convert strings to byte arrays (mainly for Python 3 compatibility)
 DEFAULT_ENCODING = "utf-8"
@@ -885,345 +873,13 @@ EXTERNAL_SERVICE_PORTS_END = int(
 # The default container runtime to use
 CONTAINER_RUNTIME = os.environ.get("CONTAINER_RUNTIME", "").strip() or "docker"
 
-# PUBLIC v1: -Xmx512M (example) Currently not supported in new provider but possible via custom entrypoint.
-# Allow passing custom JVM options to Java Lambdas executed in Docker.
-LAMBDA_JAVA_OPTS = os.environ.get("LAMBDA_JAVA_OPTS", "").strip()
-
-# limit in which to kinesis-mock will start throwing exceptions
-KINESIS_SHARD_LIMIT = os.environ.get("KINESIS_SHARD_LIMIT", "").strip() or "100"
-KINESIS_PERSISTENCE = is_env_not_false("KINESIS_PERSISTENCE")
-
-# limit in which to kinesis-mock will start throwing exceptions
-KINESIS_ON_DEMAND_STREAM_COUNT_LIMIT = (
-    os.environ.get("KINESIS_ON_DEMAND_STREAM_COUNT_LIMIT", "").strip() or "10"
-)
-
-# delay in kinesis-mock response when making changes to streams
-KINESIS_LATENCY = os.environ.get("KINESIS_LATENCY", "").strip() or "500"
-
-# Delay between data persistence (in seconds)
-KINESIS_MOCK_PERSIST_INTERVAL = os.environ.get("KINESIS_MOCK_PERSIST_INTERVAL", "").strip() or "5s"
-
-# Kinesis mock log level override when inconsistent with LS_LOG (e.g., when LS_LOG=debug)
-KINESIS_MOCK_LOG_LEVEL = os.environ.get("KINESIS_MOCK_LOG_LEVEL", "").strip()
-
-# randomly inject faults to Kinesis
-KINESIS_ERROR_PROBABILITY = float(os.environ.get("KINESIS_ERROR_PROBABILITY", "").strip() or 0.0)
-
-# SEMI-PUBLIC: "node" (default); not actively communicated
-# Select whether to use the node or scala build when running Kinesis Mock
-KINESIS_MOCK_PROVIDER_ENGINE = os.environ.get("KINESIS_MOCK_PROVIDER_ENGINE", "").strip() or "node"
-
-# set the maximum Java heap size corresponding to the '-Xmx<size>' flag
-KINESIS_MOCK_MAXIMUM_HEAP_SIZE = (
-    os.environ.get("KINESIS_MOCK_MAXIMUM_HEAP_SIZE", "").strip() or "512m"
-)
-
-# set the initial Java heap size corresponding to the '-Xms<size>' flag
-KINESIS_MOCK_INITIAL_HEAP_SIZE = (
-    os.environ.get("KINESIS_MOCK_INITIAL_HEAP_SIZE", "").strip() or "256m"
-)
-
-# randomly inject faults to DynamoDB
-DYNAMODB_ERROR_PROBABILITY = float(os.environ.get("DYNAMODB_ERROR_PROBABILITY", "").strip() or 0.0)
-DYNAMODB_READ_ERROR_PROBABILITY = float(
-    os.environ.get("DYNAMODB_READ_ERROR_PROBABILITY", "").strip() or 0.0
-)
-DYNAMODB_WRITE_ERROR_PROBABILITY = float(
-    os.environ.get("DYNAMODB_WRITE_ERROR_PROBABILITY", "").strip() or 0.0
-)
-
-# JAVA EE heap size for dynamodb
-DYNAMODB_HEAP_SIZE = os.environ.get("DYNAMODB_HEAP_SIZE", "").strip() or "256m"
-
-# single DB instance across multiple credentials are regions
-DYNAMODB_SHARE_DB = int(os.environ.get("DYNAMODB_SHARE_DB") or 0)
-
-# the port on which to expose dynamodblocal
-DYNAMODB_LOCAL_PORT = int(os.environ.get("DYNAMODB_LOCAL_PORT") or 0)
-
-# Enables the automatic removal of stale KV pais based on TTL
-DYNAMODB_REMOVE_EXPIRED_ITEMS = is_env_true("DYNAMODB_REMOVE_EXPIRED_ITEMS")
-
-# Used to toggle PurgeInProgress exceptions when calling purge within 60 seconds
-SQS_DELAY_PURGE_RETRY = is_env_true("SQS_DELAY_PURGE_RETRY")
-
-# Used to toggle QueueDeletedRecently errors when re-creating a queue within 60 seconds of deleting it
-SQS_DELAY_RECENTLY_DELETED = is_env_true("SQS_DELAY_RECENTLY_DELETED")
-
-# Used to toggle MessageRetentionPeriod functionality in SQS queues
-SQS_ENABLE_MESSAGE_RETENTION_PERIOD = is_env_true("SQS_ENABLE_MESSAGE_RETENTION_PERIOD")
-
-# Strategy used when creating SQS queue urls. can be "off", "standard" (default), "domain", "path", or "dynamic"
-SQS_ENDPOINT_STRATEGY = os.environ.get("SQS_ENDPOINT_STRATEGY", "") or "standard"
-
-# Disable the check for MaxNumberOfMessage in SQS ReceiveMessage
-SQS_DISABLE_MAX_NUMBER_OF_MESSAGE_LIMIT = is_env_true("SQS_DISABLE_MAX_NUMBER_OF_MESSAGE_LIMIT")
-
-# Disable cloudwatch metrics for SQS
-SQS_DISABLE_CLOUDWATCH_METRICS = is_env_true("SQS_DISABLE_CLOUDWATCH_METRICS")
-
-# Interval for reporting "approximate" metrics to cloudwatch, default is 60 seconds
-SQS_CLOUDWATCH_METRICS_REPORT_INTERVAL = int(
-    os.environ.get("SQS_CLOUDWATCH_METRICS_REPORT_INTERVAL") or 60
-)
-
-# PUBLIC: Endpoint host under which LocalStack APIs are accessible from Lambda Docker containers.
-HOSTNAME_FROM_LAMBDA = os.environ.get("HOSTNAME_FROM_LAMBDA", "").strip()
-
-# PUBLIC: hot-reload (default v2), __local__ (default v1)
-# Magic S3 bucket name for Hot Reloading. The S3Key points to the source code on the local file system.
-BUCKET_MARKER_LOCAL = (
-    os.environ.get("BUCKET_MARKER_LOCAL", "").strip() or DEFAULT_BUCKET_MARKER_LOCAL
-)
-
-# PUBLIC: Opt-out to inject the environment variable AWS_ENDPOINT_URL for automatic configuration of AWS SDKs:
-# https://docs.aws.amazon.com/sdkref/latest/guide/feature-ss-endpoints.html
-LAMBDA_DISABLE_AWS_ENDPOINT_URL = is_env_true("LAMBDA_DISABLE_AWS_ENDPOINT_URL")
-
-# PUBLIC: bridge (Docker default)
-# Docker network driver for the Lambda and ECS containers. https://docs.docker.com/network/
-LAMBDA_DOCKER_NETWORK = os.environ.get("LAMBDA_DOCKER_NETWORK", "").strip()
-
-# PUBLIC v1: LocalStack DNS (default)
-# Custom DNS server for the container running your lambda function.
-LAMBDA_DOCKER_DNS = os.environ.get("LAMBDA_DOCKER_DNS", "").strip()
-
-# PUBLIC: -e KEY=VALUE -v host:container
-# Additional flags passed to Docker run|create commands.
-LAMBDA_DOCKER_FLAGS = os.environ.get("LAMBDA_DOCKER_FLAGS", "").strip()
-
-# PUBLIC: 0 (default)
-# Enable this flag to run cross-platform compatible lambda functions natively (i.e., Docker selects architecture) and
-# ignore the AWS architectures (i.e., x86_64, arm64) configured for the lambda function.
-LAMBDA_IGNORE_ARCHITECTURE = is_env_true("LAMBDA_IGNORE_ARCHITECTURE")
-
-# TODO: test and add to docs
-# EXPERIMENTAL: 0 (default)
-# prebuild images before execution? Increased cold start time on the tradeoff of increased time until lambda is ACTIVE
-LAMBDA_PREBUILD_IMAGES = is_env_true("LAMBDA_PREBUILD_IMAGES")
-
-# PUBLIC: docker (default), kubernetes (pro)
-# Where Lambdas will be executed.
-LAMBDA_RUNTIME_EXECUTOR = os.environ.get("LAMBDA_RUNTIME_EXECUTOR", CONTAINER_RUNTIME).strip()
-
-# PUBLIC: 20 (default)
-# How many seconds Lambda will wait for the runtime environment to start up.
-LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT = int(os.environ.get("LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT") or 20)
-
-# PUBLIC: base images for Lambda (default) https://docs.aws.amazon.com/lambda/latest/dg/runtimes-images.html
-# localstack/services/lambda_/invocation/lambda_models.py:IMAGE_MAPPING
-# Customize the Docker image of Lambda runtimes, either by:
-# a) pattern with <runtime> placeholder, e.g. custom-repo/lambda-<runtime>:2022
-# b) json dict mapping the <runtime> to an image, e.g. {"python3.9": "custom-repo/lambda-py:thon3.9"}
-LAMBDA_RUNTIME_IMAGE_MAPPING = os.environ.get("LAMBDA_RUNTIME_IMAGE_MAPPING", "").strip()
-
-
-# PUBLIC: 0 (default)
-# Whether to disable usage of deprecated runtimes
-LAMBDA_RUNTIME_VALIDATION = int(os.environ.get("LAMBDA_RUNTIME_VALIDATION") or 0)
-
-# PUBLIC: 1 (default)
-# Whether to remove any Lambda Docker containers.
-LAMBDA_REMOVE_CONTAINERS = (
-    os.environ.get("LAMBDA_REMOVE_CONTAINERS", "").lower().strip() not in FALSE_STRINGS
-)
-
-# PUBLIC: 600000 (default 10min)
-# Time in milliseconds until lambda shuts down the execution environment after the last invocation has been processed.
-# Set to 0 to immediately shut down the execution environment after an invocation.
-LAMBDA_KEEPALIVE_MS = int(os.environ.get("LAMBDA_KEEPALIVE_MS", 600_000))
-
-# PUBLIC: 1000 (default)
-# The maximum number of events that functions can process simultaneously in the current Region.
-# See AWS service quotas: https://docs.aws.amazon.com/general/latest/gr/lambda-service.html
-# Concurrency limits. Like on AWS these apply per account and region.
-LAMBDA_LIMITS_CONCURRENT_EXECUTIONS = int(
-    os.environ.get("LAMBDA_LIMITS_CONCURRENT_EXECUTIONS", 1_000)
-)
-# SEMI-PUBLIC: not actively communicated
-# per account/region: there must be at least <LAMBDA_LIMITS_MINIMUM_UNRESERVED_CONCURRENCY> unreserved concurrency.
-LAMBDA_LIMITS_MINIMUM_UNRESERVED_CONCURRENCY = int(
-    os.environ.get("LAMBDA_LIMITS_MINIMUM_UNRESERVED_CONCURRENCY", 100)
-)
-# SEMI-PUBLIC: not actively communicated
-LAMBDA_LIMITS_TOTAL_CODE_SIZE = int(os.environ.get("LAMBDA_LIMITS_TOTAL_CODE_SIZE", 80_530_636_800))
-# PUBLIC: documented after AWS changed validation around 2023-11
-LAMBDA_LIMITS_CODE_SIZE_ZIPPED = int(os.environ.get("LAMBDA_LIMITS_CODE_SIZE_ZIPPED", 52_428_800))
-# SEMI-PUBLIC: not actively communicated
-LAMBDA_LIMITS_CODE_SIZE_UNZIPPED = int(
-    os.environ.get("LAMBDA_LIMITS_CODE_SIZE_UNZIPPED", 262_144_000)
-)
-# PUBLIC: documented upon customer request
-LAMBDA_LIMITS_CREATE_FUNCTION_REQUEST_SIZE = int(
-    os.environ.get("LAMBDA_LIMITS_CREATE_FUNCTION_REQUEST_SIZE", 70_167_211)
-)
-# SEMI-PUBLIC: not actively communicated
-LAMBDA_LIMITS_MAX_FUNCTION_ENVVAR_SIZE_BYTES = int(
-    os.environ.get("LAMBDA_LIMITS_MAX_FUNCTION_ENVVAR_SIZE_BYTES", 4 * 1024)
-)
-# SEMI-PUBLIC: not actively communicated
-LAMBDA_LIMITS_MAX_FUNCTION_PAYLOAD_SIZE_BYTES = int(
-    os.environ.get(
-        "LAMBDA_LIMITS_MAX_FUNCTION_PAYLOAD_SIZE_BYTES", 6 * 1024 * 1024 + 100
-    )  # the 100 comes from the init defaults
-)
-
-# DEV: 0 (default unless in host mode on macOS) For LS developers only. Only applies to Docker mode.
-# Whether to explicitly expose a free TCP port in lambda containers when invoking functions in host mode for
-# systems that cannot reach the container via its IPv4. For example, macOS cannot reach Docker containers:
-# https://docs.docker.com/desktop/networking/#i-cannot-ping-my-containers
-LAMBDA_DEV_PORT_EXPOSE = (
-    # Enable this dev flag by default on macOS in host mode (i.e., non-Docker environment)
-    is_env_not_false("LAMBDA_DEV_PORT_EXPOSE")
-    if not is_in_docker and is_in_macos
-    else is_env_true("LAMBDA_DEV_PORT_EXPOSE")
-)
-
-# DEV: only applies to new lambda provider. All LAMBDA_INIT_* configuration are for LS developers only.
-# There are NO stability guarantees, and they may break at any time.
-
-# DEV: Release version of https://github.com/localstack/lambda-runtime-init overriding the current default
-LAMBDA_INIT_RELEASE_VERSION = os.environ.get("LAMBDA_INIT_RELEASE_VERSION")
-# DEV: 0 (default) Enable for mounting of RIE init binary and delve debugger
-LAMBDA_INIT_DEBUG = is_env_true("LAMBDA_INIT_DEBUG")
-# DEV: path to RIE init binary (e.g., var/rapid/init)
-LAMBDA_INIT_BIN_PATH = os.environ.get("LAMBDA_INIT_BIN_PATH")
-# DEV: path to entrypoint script (e.g., var/rapid/entrypoint.sh)
-LAMBDA_INIT_BOOTSTRAP_PATH = os.environ.get("LAMBDA_INIT_BOOTSTRAP_PATH")
-# DEV: path to delve debugger (e.g., var/rapid/dlv)
-LAMBDA_INIT_DELVE_PATH = os.environ.get("LAMBDA_INIT_DELVE_PATH")
-# DEV: Go Delve debug port
-LAMBDA_INIT_DELVE_PORT = int(os.environ.get("LAMBDA_INIT_DELVE_PORT") or 40000)
-# DEV: Time to wait after every invoke as a workaround to fix a race condition in persistence tests
-LAMBDA_INIT_POST_INVOKE_WAIT_MS = os.environ.get("LAMBDA_INIT_POST_INVOKE_WAIT_MS")
-# DEV: sbx_user1051 (default when not provided) Alternative system user or empty string to skip dropping privileges.
-LAMBDA_INIT_USER = os.environ.get("LAMBDA_INIT_USER")
-
-# INTERNAL: 1 (default)
-# The duration (in seconds) to wait between each poll call to an event source.
-LAMBDA_EVENT_SOURCE_MAPPING_POLL_INTERVAL_SEC = float(
-    os.environ.get("LAMBDA_EVENT_SOURCE_MAPPING_POLL_INTERVAL_SEC") or 1
-)
-
-# INTERNAL: 60 (default)
-# Maximum duration (in seconds) to wait between retries when an event source poll fails.
-LAMBDA_EVENT_SOURCE_MAPPING_MAX_BACKOFF_ON_ERROR_SEC = float(
-    os.environ.get("LAMBDA_EVENT_SOURCE_MAPPING_MAX_BACKOFF_ON_ERROR_SEC") or 60
-)
-
-# INTERNAL: 10 (default)
-# Maximum duration (in seconds) to wait between polls when an event source returns empty results.
-LAMBDA_EVENT_SOURCE_MAPPING_MAX_BACKOFF_ON_EMPTY_POLL_SEC = float(
-    os.environ.get("LAMBDA_EVENT_SOURCE_MAPPING_MAX_BACKOFF_ON_EMPTY_POLL_SEC") or 10
-)
-
-# Specifies the path to the mock configuration file for Step Functions, commonly named MockConfigFile.json.
-SFN_MOCK_CONFIG = os.environ.get("SFN_MOCK_CONFIG", "").strip()
-
-# path prefix for windows volume mounting
-WINDOWS_DOCKER_MOUNT_PREFIX = os.environ.get("WINDOWS_DOCKER_MOUNT_PREFIX", "/host_mnt")
-
-# whether to skip S3 presign URL signature validation (TODO: currently enabled, until all issues are resolved)
-S3_SKIP_SIGNATURE_VALIDATION = is_env_not_false("S3_SKIP_SIGNATURE_VALIDATION")
-# whether to skip S3 validation of provided KMS key
-S3_SKIP_KMS_KEY_VALIDATION = is_env_not_false("S3_SKIP_KMS_KEY_VALIDATION")
-
-# PUBLIC: 2000 (default)
-# Allows increasing the default char limit for truncation of lambda log lines when printed in the console.
-# This does not affect the logs processing in CloudWatch.
-LAMBDA_TRUNCATE_STDOUT = int(os.getenv("LAMBDA_TRUNCATE_STDOUT") or 2000)
-
-# INTERNAL: 60 (default matching AWS) only applies to new lambda provider
-# Base delay in seconds for async retries. Further retries use: NUM_ATTEMPTS * LAMBDA_RETRY_BASE_DELAY_SECONDS
-# 300 (5min) is the maximum because NUM_ATTEMPTS can be at most 3 and SQS has a message timer limit of 15 min.
-# For example:
-# 1x LAMBDA_RETRY_BASE_DELAY_SECONDS: delay between initial invocation and first retry
-# 2x LAMBDA_RETRY_BASE_DELAY_SECONDS: delay between the first retry and the second retry
-# 3x LAMBDA_RETRY_BASE_DELAY_SECONDS: delay between the second retry and the third retry
-LAMBDA_RETRY_BASE_DELAY_SECONDS = int(os.getenv("LAMBDA_RETRY_BASE_DELAY") or 60)
-
-# PUBLIC: 0 (default)
-# Set to 1 to create lambda functions synchronously (not recommended).
-# Whether Lambda.CreateFunction will block until the function is in a terminal state (Active or Failed).
-# This technically breaks behavior parity but is provided as a simplification over the default AWS behavior and
-# to match the behavior of the old lambda provider.
-LAMBDA_SYNCHRONOUS_CREATE = is_env_true("LAMBDA_SYNCHRONOUS_CREATE")
-
-# URL to a custom OpenSearch/Elasticsearch backend cluster. If this is set to a valid URL, then localstack will not
-# create OpenSearch/Elasticsearch cluster instances, but instead forward all domains to the given backend.
-OPENSEARCH_CUSTOM_BACKEND = os.environ.get("OPENSEARCH_CUSTOM_BACKEND", "").strip()
-
-# Strategy used when creating OpenSearch/Elasticsearch domain endpoints routed through the edge proxy
-# valid values: domain | path | port (off)
-OPENSEARCH_ENDPOINT_STRATEGY = (
-    os.environ.get("OPENSEARCH_ENDPOINT_STRATEGY", "").strip() or "domain"
-)
-if OPENSEARCH_ENDPOINT_STRATEGY == "off":
-    OPENSEARCH_ENDPOINT_STRATEGY = "port"
-
-# Whether to start one cluster per domain (default), or multiplex opensearch domains to a single clusters
-OPENSEARCH_MULTI_CLUSTER = is_env_not_false("OPENSEARCH_MULTI_CLUSTER")
-
-# Whether to really publish to GCM while using SNS Platform Application (needs credentials)
-LEGACY_SNS_GCM_PUBLISHING = is_env_true("LEGACY_SNS_GCM_PUBLISHING")
-
-SNS_SES_SENDER_ADDRESS = os.environ.get("SNS_SES_SENDER_ADDRESS", "").strip()
-
-SNS_CERT_URL_HOST = os.environ.get("SNS_CERT_URL_HOST", "").strip()
-
-# Whether the Next Gen APIGW invocation logic is enabled (on by default)
-APIGW_NEXT_GEN_PROVIDER = os.environ.get("PROVIDER_OVERRIDE_APIGATEWAY", "") in ("next_gen", "")
-
-# Whether the DynamoDBStreams native provider is enabled
-DDB_STREAMS_PROVIDER_V2 = os.environ.get("PROVIDER_OVERRIDE_DYNAMODBSTREAMS", "") == "v2"
-_override_dynamodb_v2 = os.environ.get("PROVIDER_OVERRIDE_DYNAMODB", "")
-if DDB_STREAMS_PROVIDER_V2:
-    # in order to not have conflicts between the 2 implementations, as they are tightly coupled, we need to set DDB
-    # to be v2 as well
-    if not _override_dynamodb_v2:
-        os.environ["PROVIDER_OVERRIDE_DYNAMODB"] = "v2"
-elif _override_dynamodb_v2 == "v2":
-    os.environ["PROVIDER_OVERRIDE_DYNAMODBSTREAMS"] = "v2"
-    DDB_STREAMS_PROVIDER_V2 = True
-
-SNS_PROVIDER_V2 = os.environ.get("PROVIDER_OVERRIDE_SNS", "") == "v2"
-
-# TODO remove fallback to LAMBDA_DOCKER_NETWORK with next minor version
-MAIN_DOCKER_NETWORK = os.environ.get("MAIN_DOCKER_NETWORK", "") or LAMBDA_DOCKER_NETWORK
+MAIN_DOCKER_NETWORK = os.environ.get("MAIN_DOCKER_NETWORK", "").strip()
 
 # Whether to return and parse access key ids starting with an "A", like on AWS
 PARITY_AWS_ACCESS_KEY_ID = is_env_true("PARITY_AWS_ACCESS_KEY_ID")
 
-# Show exceptions for CloudFormation deploy errors
+# Show exceptions for CloudFormation deploy errors (retained until testing/pytest/fixtures.py is pruned in Phase 6)
 CFN_VERBOSE_ERRORS = is_env_true("CFN_VERBOSE_ERRORS")
-
-# The CFN_STRING_REPLACEMENT_DENY_LIST env variable is a comma separated list of strings that are not allowed to be
-# replaced in CloudFormation templates (e.g. AWS URLs that are usually edited by Localstack to point to itself if found
-# in a CFN template). They are extracted to a list of strings if the env variable is set.
-CFN_STRING_REPLACEMENT_DENY_LIST = [
-    x for x in os.environ.get("CFN_STRING_REPLACEMENT_DENY_LIST", "").split(",") if x
-]
-
-# Set the timeout to deploy each individual CloudFormation resource
-CFN_PER_RESOURCE_TIMEOUT = int(os.environ.get("CFN_PER_RESOURCE_TIMEOUT") or 300)
-
-# How localstack will react to encountering unsupported resource types.
-# By default unsupported resource types will be ignored.
-# EXPERIMENTAL
-CFN_IGNORE_UNSUPPORTED_RESOURCE_TYPES = is_env_not_false("CFN_IGNORE_UNSUPPORTED_RESOURCE_TYPES")
-
-# Comma-separated list of resource type names that CloudFormation will ignore on stack creation
-CFN_IGNORE_UNSUPPORTED_TYPE_CREATE = parse_comma_separated_list(
-    "CFN_IGNORE_UNSUPPORTED_TYPE_CREATE"
-)
-# Comma-separated list of resource type names that CloudFormation will ignore on stack update
-CFN_IGNORE_UNSUPPORTED_TYPE_UPDATE = parse_comma_separated_list(
-    "CFN_IGNORE_UNSUPPORTED_TYPE_UPDATE"
-)
-
-# Decrease the waiting time for resource deployment
-CFN_NO_WAIT_ITERATIONS: str | int | None = os.environ.get("CFN_NO_WAIT_ITERATIONS")
 
 # bind address of local DNS server
 DNS_ADDRESS = os.environ.get("DNS_ADDRESS") or "0.0.0.0"
@@ -1287,11 +943,7 @@ CONFIG_ENV_VARS = [
     "ALLOW_NONSTANDARD_REGIONS",
     "BOTO_WAITER_DELAY",
     "BOTO_WAITER_MAX_ATTEMPTS",
-    "BUCKET_MARKER_LOCAL",
-    "CFN_IGNORE_UNSUPPORTED_RESOURCE_TYPES",
-    "CFN_PER_RESOURCE_TIMEOUT",
-    "CFN_STRING_REPLACEMENT_DENY_LIST",
-    "CFN_VERBOSE_ERRORS",
+    "CFN_VERBOSE_ERRORS",  # retained until testing/pytest/fixtures.py is pruned in Phase 6
     "CI",
     "CONTAINER_RUNTIME",
     "CUSTOM_SSL_CERT_PATH",
@@ -1316,17 +968,8 @@ CONFIG_ENV_VARS = [
     "DNS_VERIFICATION_DOMAIN",
     "DOCKER_BRIDGE_IP",
     "DOCKER_SDK_DEFAULT_TIMEOUT_SECONDS",
-    "DYNAMODB_ERROR_PROBABILITY",
-    "DYNAMODB_HEAP_SIZE",
-    "DYNAMODB_IN_MEMORY",
-    "DYNAMODB_LOCAL_PORT",
-    "DYNAMODB_SHARE_DB",
-    "DYNAMODB_READ_ERROR_PROBABILITY",
-    "DYNAMODB_REMOVE_EXPIRED_ITEMS",
-    "DYNAMODB_WRITE_ERROR_PROBABILITY",
     "EAGER_SERVICE_LOADING",
     "ENABLE_CONFIG_UPDATES",
-    "EVENT_RULE_ENGINE",
     "EXTRA_CORS_ALLOWED_HEADERS",
     "EXTRA_CORS_ALLOWED_ORIGINS",
     "EXTRA_CORS_EXPOSE_HEADERS",
@@ -1334,51 +977,8 @@ CONFIG_ENV_VARS = [
     "GATEWAY_SERVER",
     "GATEWAY_WORKER_THREAD_COUNT",
     "HOSTNAME",
-    "HOSTNAME_FROM_LAMBDA",
     "IN_MEMORY_CLIENT",
-    "KINESIS_ERROR_PROBABILITY",
-    "KINESIS_MOCK_PERSIST_INTERVAL",
-    "KINESIS_MOCK_LOG_LEVEL",
-    "KINESIS_ON_DEMAND_STREAM_COUNT_LIMIT",
-    "KINESIS_PERSISTENCE",
-    "LAMBDA_DEBUG_MODE",
-    "LAMBDA_DEBUG_MODE_CONFIG",
-    "LAMBDA_DISABLE_AWS_ENDPOINT_URL",
-    "LAMBDA_DOCKER_DNS",
-    "LAMBDA_DOCKER_FLAGS",
-    "LAMBDA_DOCKER_NETWORK",
-    "LAMBDA_EVENTS_INTERNAL_SQS",
-    "LAMBDA_EVENT_SOURCE_MAPPING",
-    "LAMBDA_IGNORE_ARCHITECTURE",
-    "LAMBDA_INIT_DEBUG",
-    "LAMBDA_INIT_BIN_PATH",
-    "LAMBDA_INIT_BOOTSTRAP_PATH",
-    "LAMBDA_INIT_DELVE_PATH",
-    "LAMBDA_INIT_DELVE_PORT",
-    "LAMBDA_INIT_POST_INVOKE_WAIT_MS",
-    "LAMBDA_INIT_USER",
-    "LAMBDA_INIT_RELEASE_VERSION",
-    "LAMBDA_KEEPALIVE_MS",
-    "LAMBDA_LIMITS_CONCURRENT_EXECUTIONS",
-    "LAMBDA_LIMITS_MINIMUM_UNRESERVED_CONCURRENCY",
-    "LAMBDA_LIMITS_TOTAL_CODE_SIZE",
-    "LAMBDA_LIMITS_CODE_SIZE_ZIPPED",
-    "LAMBDA_LIMITS_CODE_SIZE_UNZIPPED",
-    "LAMBDA_LIMITS_CREATE_FUNCTION_REQUEST_SIZE",
-    "LAMBDA_LIMITS_MAX_FUNCTION_ENVVAR_SIZE_BYTES",
-    "LAMBDA_LIMITS_MAX_FUNCTION_PAYLOAD_SIZE_BYTES",
-    "LAMBDA_PREBUILD_IMAGES",
-    "LAMBDA_RUNTIME_IMAGE_MAPPING",
-    "LAMBDA_REMOVE_CONTAINERS",
-    "LAMBDA_RETRY_BASE_DELAY_SECONDS",
-    "LAMBDA_RUNTIME_EXECUTOR",
-    "LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT",
-    "LAMBDA_RUNTIME_VALIDATION",
-    "LAMBDA_SYNCHRONOUS_CREATE",
-    "LAMBDA_SQS_EVENT_SOURCE_MAPPING_INTERVAL",
-    "LAMBDA_TRUNCATE_STDOUT",
     "LEGACY_DOCKER_CLIENT",
-    "LEGACY_SNS_GCM_PUBLISHING",
     "LOCALSTACK_API_KEY",
     "LOCALSTACK_AUTH_TOKEN",
     "LOCALSTACK_HOST",
@@ -1389,7 +989,6 @@ CONFIG_ENV_VARS = [
     "MAIN_DOCKER_NETWORK",
     "OPENAPI_VALIDATE_REQUEST",
     "OPENAPI_VALIDATE_RESPONSE",
-    "OPENSEARCH_ENDPOINT_STRATEGY",
     "OUTBOUND_HTTP_PROXY",
     "OUTBOUND_HTTPS_PROXY",
     "PARITY_AWS_ACCESS_KEY_ID",
@@ -1397,60 +996,28 @@ CONFIG_ENV_VARS = [
     "PORTS_CHECK_DOCKER_IMAGE",
     "REQUESTS_CA_BUNDLE",
     "REMOVE_SSL_CERT",
-    "S3_SKIP_SIGNATURE_VALIDATION",
-    "S3_SKIP_KMS_KEY_VALIDATION",
     "SERVICES",
     "SKIP_INFRA_DOWNLOADS",
     "SKIP_SSL_CERT_DOWNLOAD",
     "SNAPSHOT_LOAD_STRATEGY",
     "SNAPSHOT_SAVE_STRATEGY",
     "SNAPSHOT_FLUSH_INTERVAL",
-    "SNS_SES_SENDER_ADDRESS",
-    "SQS_DELAY_PURGE_RETRY",
-    "SQS_DELAY_RECENTLY_DELETED",
-    "SQS_ENABLE_MESSAGE_RETENTION_PERIOD",
-    "SQS_ENDPOINT_STRATEGY",
-    "SQS_DISABLE_CLOUDWATCH_METRICS",
-    "SQS_CLOUDWATCH_METRICS_REPORT_INTERVAL",
     "STATE_SERIALIZATION_BACKEND",
     "STRICT_SERVICE_LOADING",
-    "TF_COMPAT_MODE",
     "USE_SSL",
     "WAIT_FOR_DEBUGGER",
-    "WINDOWS_DOCKER_MOUNT_PREFIX",
     # Removed legacy variables in 2.0.0
     # DATA_DIR => do *not* include in this list, as it is treated separately.  # deprecated since 1.0.0
     "LEGACY_DIRECTORIES",  # deprecated since 1.0.0
-    "SYNCHRONOUS_API_GATEWAY_EVENTS",  # deprecated since 1.3.0
-    "SYNCHRONOUS_DYNAMODB_EVENTS",  # deprecated since 1.3.0
-    "SYNCHRONOUS_SNS_EVENTS",  # deprecated since 1.3.0
-    "SYNCHRONOUS_SQS_EVENTS",  # deprecated since 1.3.0
     # Removed legacy variables in 3.0.0
     "DEFAULT_REGION",  # deprecated since 0.12.7
     "EDGE_BIND_HOST",  # deprecated since 2.0.0
     "EDGE_FORWARD_URL",  # deprecated since 1.4.0
     "EDGE_PORT",  # deprecated since 2.0.0
     "EDGE_PORT_HTTP",  # deprecated since 2.0.0
-    "ES_CUSTOM_BACKEND",  # deprecated since 0.14.0
-    "ES_ENDPOINT_STRATEGY",  # deprecated since 0.14.0
-    "ES_MULTI_CLUSTER",  # deprecated since 0.14.0
     "HOSTNAME_EXTERNAL",  # deprecated since 2.0.0
-    "KINESIS_INITIALIZE_STREAMS",  # deprecated since 1.4.0
-    "KINESIS_PROVIDER",  # deprecated since 1.3.0
-    "KMS_PROVIDER",  # deprecated since 1.4.0
-    "LAMBDA_XRAY_INIT",  # deprecated since 2.0.0
-    "LAMBDA_CODE_EXTRACT_TIME",  # deprecated since 2.0.0
-    "LAMBDA_CONTAINER_REGISTRY",  # deprecated since 2.0.0
-    "LAMBDA_EXECUTOR",  # deprecated since 2.0.0
-    "LAMBDA_FALLBACK_URL",  # deprecated since 2.0.0
-    "LAMBDA_FORWARD_URL",  # deprecated since 2.0.0
-    "LAMBDA_JAVA_OPTS",  # currently only supported in old Lambda provider but not officially deprecated
-    "LAMBDA_REMOTE_DOCKER",  # deprecated since 2.0.0
-    "LAMBDA_STAY_OPEN_MODE",  # deprecated since 2.0.0
     "LEGACY_EDGE_PROXY",  # deprecated since 1.0.0
     "LOCALSTACK_HOSTNAME",  # deprecated since 2.0.0
-    "SQS_PORT_EXTERNAL",  # deprecated only in docs since 2022-07-13
-    "SYNCHRONOUS_KINESIS_EVENTS",  # deprecated since 1.3.0
     "USE_SINGLE_REGION",  # deprecated since 0.12.7
     "MOCK_UNIMPLEMENTED",  # deprecated since 1.3.0
 ]
