@@ -25,18 +25,10 @@ LOCALHOST_HOSTNAME = "localhost.localstack.cloud"
 # User-agent string used in outgoing HTTP requests made by LocalStack
 USER_AGENT_STRING = f"localstack/{VERSION}"
 
-# version of the Maven dependency with Java utility code
-LOCALSTACK_MAVEN_VERSION = "0.2.21"
 MAVEN_REPO_URL = "https://repo1.maven.org/maven2"
-
-# URL of localstack's artifacts repository on GitHub
-ARTIFACTS_REPO = "https://github.com/localstack/localstack-artifacts"
 
 # Artifacts endpoint
 ASSETS_ENDPOINT = "https://assets.localstack.cloud"
-
-# Hugging Face endpoint for localstack
-HUGGING_FACE_ENDPOINT = "https://huggingface.co/localstack"
 
 # host to bind to when starting the services
 BIND_HOST = "0.0.0.0"
@@ -117,9 +109,6 @@ LOCALSTACK_INFRA_PROCESS = "LOCALSTACK_INFRA_PROCESS"
 # AWS region us-east-1
 AWS_REGION_US_EAST_1 = "us-east-1"
 
-# AWS region eu-west-1
-AWS_REGION_EU_WEST_1 = "eu-west-1"
-
 # environment variable to override max pool connections
 try:
     MAX_POOL_CONNECTIONS = int(os.environ["MAX_POOL_CONNECTIONS"])
@@ -147,11 +136,6 @@ OFFICIAL_IMAGES = [
 # port for debug py
 DEFAULT_DEVELOP_PORT = 5678
 
-# Default bucket name of the s3 bucket used for local lambda development
-# This name should be accepted by all IaC tools, so should respect s3 bucket naming conventions
-DEFAULT_BUCKET_MARKER_LOCAL = "hot-reload"
-LEGACY_DEFAULT_BUCKET_MARKER_LOCAL = "__local__"
-
 # output string that indicates that the stack is ready
 READY_MARKER_OUTPUT = "Ready."
 
@@ -162,5 +146,3 @@ READY_MARKER_OUTPUT = "Ready."
 #   Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request
 AUTH_CREDENTIAL_REGEX = r"Credential=(?P<access_key_id>[a-zA-Z0-9-_.]{1,})/(?P<date>\d{8})/(?P<region_name>[a-z0-9-]{1,})/(?P<service_name>[a-z0-9]{1,})/"
 
-# Custom resource tag to override the generated resource ID.
-TAG_KEY_CUSTOM_ID = "_custom_id_"
