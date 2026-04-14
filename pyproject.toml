@@ -83,26 +83,23 @@ runtime = [
     "localstack-core[base-runtime]",
     # pinned / updated by ASF update action
     "awscli==1.44.49",
+    # airspeed-ext: candidate for removal after Phase 5 audit of utils/aws/templating.py
     "airspeed-ext>=0.6.3",
-    # antlr4-python3-runtime: exact pin because antlr4 runtime is tightly coupled to the generated parser code
-    "antlr4-python3-runtime==4.13.2",
-    "apispec>=5.1.1",
-    # pinning it to a higher version than what moto-ext requires
-    "aws-sam-translator>=1.105.0",
-    "crontab>=0.22.6",
     "cryptography>=41.0.5",
     "jinja2>=3.1.6",
-    # allow Python programs full access to Java class libraries. Used for stepfunctions jsonata support
-    "jpype1>=1.6.0",
-    "jsonpath-ng==1.7.0",
     "jsonpath-rw>=1.4.0",
-    # version that has a built wheel
-    "kclpy-ext>=3.0.0",
     "moto-ext[all]>=5.1.22",
-    "opensearch-py>=2.4.1",
-    "pymongo>=4.2.0",
     "pyopenssl>=23.0.0",
-    "responses>=0.25.8",
+    # removed: antlr4-python3-runtime — Step Functions ASL parser (deleted); still a moto-ext transitive dep
+    # removed: apispec — no references in retained code
+    # removed: aws-sam-translator — CloudFormation SAM transform (deleted); still a moto-ext transitive dep via cfn-lint
+    # removed: crontab — no references in retained code
+    # removed: jpype1 — Step Functions JSONata engine (deleted)
+    # removed: jsonpath-ng — only used by testing/pytest/stepfunctions/utils.py (service-specific test helper)
+    # removed: kclpy-ext — Kinesis consumer library (deleted with service)
+    # removed: opensearch-py — OpenSearch provider (deleted); no framework references
+    # removed: pymongo — no references in retained code
+    # removed: responses — no references in retained code; still a moto-ext transitive dep
 ]
 
 # for running tests and coverage analysis
@@ -174,9 +171,6 @@ exclude = ["tests*"]
 ]
 "localstack" = [
     "aws/**/*.json",
-    "services/**/*.html",
-    "services/**/resource_providers/**/*.schema.json",
-    "utils/kinesis/java/cloud/localstack/*.*",
     "openapi.yaml",
     "http/resources/swagger/templates/index.html"
 ]
@@ -197,7 +191,6 @@ exclude = [
     ".filesystem",
     "localstack-core/.filesystem",
     ".git",
-    "localstack-core/localstack/services/stepfunctions/asl/antlr/runtime"
 ]
 
 [tool.ruff.per-file-target-version]
@@ -221,7 +214,6 @@ extend_exclude = [
     "localstack-core/localstack/aws/mocking.py", # not used at runtime
     "localstack-core/localstack/aws/scaffold.py", # not used at runtime
     "localstack-core/localstack/dev/**", # internal dev tooling
-    "localstack-core/localstack/services/stepfunctions/asl/antlr/runtime/**" # generated code
 ]
 pep621_dev_dependency_groups = ["dev", "typehint", "test"]
 
@@ -230,7 +222,6 @@ pep621_dev_dependency_groups = ["dev", "typehint", "test"]
 
 [tool.deptry.per_rule_ignores]
 DEP001 = [
-    "com", # This appears in jpype code and imports actual java packages like com.fasterxml.jackson.databind
     "stevedore", # used for CLI plugin debugging - TODO move this debugging CLI into plux
 ]
 DEP002 = [
@@ -263,7 +254,6 @@ extend-safe-fixes = [
 # Since F401 (removing unused imports) is currently an unsafe fix, these imports cannot be automatically removed.
 # Therefore, we temporarily disable the rules below for __init__ files.
 [tool.ruff.lint.per-file-ignores]
-"tests/aws/services/lambda_/functions/**" = ["UP"]  # lambda tests parametrize the runtime
 
 [tool.ruff.lint.pyupgrade]
 # Avoid PEP 604 rewrites (e.g. Union[str, int] -> str | int), even with the `from __future__ import annotations`
