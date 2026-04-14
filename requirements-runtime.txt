@@ -4,8 +4,6 @@
 #
 #    pip-compile --extra=runtime --output-file=requirements-runtime.txt --strip-extras --unsafe-package=distribute --unsafe-package=localstack-core --unsafe-package=pip --unsafe-package=setuptools pyproject.toml
 #
-airspeed-ext==0.6.9
-    # via localstack-core (pyproject.toml)
 annotated-types==0.7.0
     # via pydantic
 antlr4-python3-runtime==4.13.2
@@ -47,7 +45,6 @@ botocore==1.42.59
     #   s3transfer
 cachetools==7.0.2
     # via
-    #   airspeed-ext
     #   localstack-core
     #   localstack-core (pyproject.toml)
 cbor2==5.8.0
@@ -298,7 +295,6 @@ semver==3.0.4
     #   localstack-core (pyproject.toml)
 six==1.17.0
     # via
-    #   airspeed-ext
     #   jsonpath-rw
     #   python-dateutil
     #   rfc3339-validator

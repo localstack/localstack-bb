@@ -83,8 +83,6 @@ runtime = [
     "localstack-core[base-runtime]",
     # pinned / updated by ASF update action
     "awscli==1.44.49",
-    # airspeed-ext: candidate for removal after Phase 5 audit of utils/aws/templating.py
-    "airspeed-ext>=0.6.3",
     "cryptography>=41.0.5",
     "jinja2>=3.1.6",
     "jsonpath-rw>=1.4.0",
