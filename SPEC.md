@@ -400,7 +400,7 @@ This must succeed with zero providers loaded (not an error).
 **Step 3.1 — Update `pyproject.toml`** ✅
 - Removed from `runtime` group: `antlr4-python3-runtime`, `aws-sam-translator`, `jpype1`, `kclpy-ext`, `opensearch-py`, `pymongo`, `apispec`, `crontab`, `responses`, `jsonpath-ng`
 - `localstack-dualstack-proxy` was not present in `pyproject.toml` — nothing to remove
-- `airspeed-ext` annotated as candidate for removal pending Phase 5 audit of `utils/aws/templating.py`
+- `airspeed-ext` removed in Phase 5.3 (its sole consumer `templating.py` was deleted)
 - Stale `package-data` globs, `ruff` exclude paths, `deptry` exclude paths, and `DEP001` ignore entries cleaned up
 
 **Step 3.2 — Update requirements files** ✅
@@ -425,7 +425,7 @@ This must succeed with zero providers loaded (not an error).
   - `PARITY_AWS_ACCESS_KEY_ID` — `aws/accounts.py`
   - `MAIN_DOCKER_NETWORK` — `utils/container_networking.py` (LAMBDA_DOCKER_NETWORK fallback removed)
   - `DISABLE_CUSTOM_CORS_S3`, `DISABLE_CUSTOM_CORS_APIGATEWAY` — `aws/handlers/cors.py`
-  - `S3_VIRTUAL_HOSTNAME`, `S3_STATIC_WEBSITE_HOSTNAME` — `utils/aws/aws_stack.py` (Phase 5 target)
+  - `S3_VIRTUAL_HOSTNAME`, `S3_STATIC_WEBSITE_HOSTNAME` — `utils/aws/aws_stack.py` (retained — `aws_stack.py` kept in Phase 5.3)
   - `CFN_VERBOSE_ERRORS` — `testing/pytest/fixtures.py` (Phase 6 target)
 
 **Step 4.2 — Audit `constants.py`** ✅
@@ -439,24 +439,27 @@ This must succeed with zero providers loaded (not an error).
 
 ---
 
-### Phase 5 — Prune Utilities
+### Phase 5 — Prune Utilities ✅ DONE
 
-**Step 5.1 — Remove `localstack/utils/kinesis/`**
-- Delete entire directory
-- Check for any imports outside the removed Kinesis service
+**Step 5.1 — Remove `localstack/utils/kinesis/`** ✅
+- Deleted: `__init__.py`, `kclipy_helper.py`, `kinesis_connector.py`, `java/logging.properties`
+- Verified zero retained-code callers before deletion
 
-**Step 5.2 — Remove `localstack/utils/cloudwatch/`**
-- Delete entire directory
-- Check for any imports outside removed CloudWatch service
+**Step 5.2 — Remove `localstack/utils/cloudwatch/`** ✅
+- Deleted: `__init__.py`, `cloudwatch_util.py`
+- Verified zero retained-code callers before deletion
 
-**Step 5.3 — Audit `localstack/utils/aws/`**
-- Run grep for each function/class exported from this module
-- Remove helper functions that are exclusively used by removed service code
-- Keep utilities used by: `aws/handlers/`, `aws/protocol/`, `runtime/`, `testing/`
+**Step 5.3 — Audit `localstack/utils/aws/`** ✅
+- **Deleted** (zero retained callers, service-specific): `aws_responses.py`, `dead_letter_queue.py`, `message_forwarding.py`, `queries.py`, `templating.py`
+- **Kept** (used by framework): `arns.py`, `aws_stack.py`, `client.py`, `client_types.py`, `request_context.py`, `resources.py`
+- `airspeed-ext` dependency removed from `pyproject.toml` and `requirements-runtime.txt` (its sole consumer `templating.py` was deleted)
+- `S3_VIRTUAL_HOSTNAME`, `S3_STATIC_WEBSITE_HOSTNAME` in `config.py` retained — used by `aws_stack.py`
 
-**Step 5.4 — Audit `localstack/dev/`**
-- Remove service-specific mock builders and test helpers for deleted services
-- Keep: `bootstrap.py`, `docker_utils.py`, `run.py`, `server/`, `kubernetes/`, `debugger/`, `analytics/`
+**Step 5.4 — Audit `localstack/dev/`** ✅ — No changes needed
+- All files are framework-level developer tooling with no service-specific imports
+- `debugger/plugins.py` — uses `config.DEVELOP`, `packages.debugpy` (framework)
+- `run/` (configurators, __main__, paths, watcher) — container runner using bootstrap/docker_utils framework
+- `kubernetes/__main__.py` — k8s cluster config generator; pro env var names are plain strings, not Python imports
 
 ---
 
