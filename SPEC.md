@@ -306,7 +306,7 @@ git tag pre-strip-baseline
 
 ---
 
-### Phase 1 — Remove Service Implementations
+### Phase 1 — Remove Service Implementations ✅ DONE
 
 Work service-by-service. For each service, the micro-process is:
 
@@ -364,7 +364,7 @@ After all service directories are deleted:
 
 ---
 
-### Phase 2 — Clean Up plux.ini
+### Phase 2 — Clean Up plux.ini ✅ DONE
 
 **Step 2.1 — Clear `[localstack.aws.provider]`**
 - Remove all service provider entries
@@ -395,51 +395,47 @@ This must succeed with zero providers loaded (not an error).
 
 ---
 
-### Phase 3 — Prune Dependencies
+### Phase 3 — Prune Dependencies ✅ DONE
 
-**Step 3.1 — Update `pyproject.toml`**
-- Remove from `[project.optional-dependencies] runtime`: `aws-sam-translator`, `antlr4-python3-runtime`, `jpype1`, `opensearch-py`, `kclpy-ext`, `localstack-dualstack-proxy`
-- Keep `moto-ext` — required by the retained `services/moto.py` adapter
-- Remove from `base-runtime` any service-specific packages confirmed absent after Phase 1
-- Annotate each removed package with a comment noting which service used it
+**Step 3.1 — Update `pyproject.toml`** ✅
+- Removed from `runtime` group: `antlr4-python3-runtime`, `aws-sam-translator`, `jpype1`, `kclpy-ext`, `opensearch-py`, `pymongo`, `apispec`, `crontab`, `responses`, `jsonpath-ng`
+- `localstack-dualstack-proxy` was not present in `pyproject.toml` — nothing to remove
+- `airspeed-ext` annotated as candidate for removal pending Phase 5 audit of `utils/aws/templating.py`
+- Stale `package-data` globs, `ruff` exclude paths, `deptry` exclude paths, and `DEP001` ignore entries cleaned up
 
-**Step 3.2 — Update requirements files**
-- Re-run the freeze process for each requirements tier:
-  ```
-  make freeze
-  ```
-- Alternatively, manually remove the confirmed-absent packages from:
-  - `requirements-base-runtime.txt`
-  - `requirements-runtime.txt`
-  - `requirements-test.txt` (only if test deps were service-specific)
+**Step 3.2 — Update requirements files** ✅
+- `requirements-runtime.txt` manually updated to remove direct-dependency attributions for all removed packages; transitive deps still present via `moto-ext` retained with updated attribution comments
 
-**Step 3.3 — Retain service package installers**
-- Keep `localstack/packages/java.py`, `ffmpeg.py`, and `debugpy.py` unchanged
-- Verify all imports in `packages/plugins.py` still resolve after service directories are deleted (the installers themselves have no service-directory imports)
+**Step 3.3 — Retain service package installers** ✅
+- `packages/java.py`, `ffmpeg.py`, `debugpy.py` verified to compile cleanly
 
-**Step 3.4 — Verify installation**
-```bash
-pip install -e ".[runtime]" --dry-run 2>&1 | grep -E "Would install|error"
-```
-Confirm no resolution errors and the install count has decreased.
+**Step 3.4 — Verify installation** ✅
+- `pip install -e ".[runtime]" --dry-run` resolves cleanly with no errors
 
 ---
 
-### Phase 4 — Prune Configuration
+### Phase 4 — Prune Configuration ✅ DONE
 
-**Step 4.1 — Audit `config.py` for service-specific variables**
-- Use a script to find all `LAMBDA_*`, `KINESIS_*`, `DYNAMODB_*`, `SQS_*`, `SNS_*`, `S3_*`, `OPENSEARCH_*`, `STEPFUNCTIONS_*` variables
-- For each: grep the retained codebase for usages outside service directories
-- Remove variables that have zero references in retained code
-- Keep variables that cross-cut (e.g., feature flags, port configs used by the framework's SERVICES loader)
+**Step 4.1 — Audit `config.py` for service-specific variables** ✅
+- Removed all `LAMBDA_*`, `KINESIS_*`, `DYNAMODB_*`, `SQS_*`, `OPENSEARCH_*`, `SNS_*`, `APIGW_*`, `CFN_*` (except `CFN_VERBOSE_ERRORS`), `SFN_*`, `DDB_STREAMS_PROVIDER_V2`, `SNS_PROVIDER_V2`, `TF_COMPAT_MODE`, `WINDOWS_DOCKER_MOUNT_PREFIX`, `BUCKET_MARKER_LOCAL`, `HOSTNAME_FROM_LAMBDA`, `S3_SKIP_SIGNATURE_VALIDATION`, `S3_SKIP_KMS_KEY_VALIDATION`
+- `CONFIG_ENV_VARS` list pruned to match; `analytics.py` `TRACKED_ENV_VAR`/`PRESENCE_ENV_VAR` lists also cleaned
+- **Kept with framework references:**
+  - `EXTERNAL_SERVICE_PORTS_START/END` — `utils/common.py` (PortsManager), `utils/bootstrap.py`
+  - `CONTAINER_RUNTIME` — `dev/kubernetes/__main__.py`
+  - `PARITY_AWS_ACCESS_KEY_ID` — `aws/accounts.py`
+  - `MAIN_DOCKER_NETWORK` — `utils/container_networking.py` (LAMBDA_DOCKER_NETWORK fallback removed)
+  - `DISABLE_CUSTOM_CORS_S3`, `DISABLE_CUSTOM_CORS_APIGATEWAY` — `aws/handlers/cors.py`
+  - `S3_VIRTUAL_HOSTNAME`, `S3_STATIC_WEBSITE_HOSTNAME` — `utils/aws/aws_stack.py` (Phase 5 target)
+  - `CFN_VERBOSE_ERRORS` — `testing/pytest/fixtures.py` (Phase 6 target)
 
-**Step 4.2 — Audit `constants.py`**
-- Remove service-specific constants (service names hardcoded as strings, magic values only used in service code)
-- Keep constants used by the protocol framework and routing
+**Step 4.2 — Audit `constants.py`** ✅
+- Removed: `LOCALSTACK_MAVEN_VERSION`, `ARTIFACTS_REPO`, `HUGGING_FACE_ENDPOINT`, `AWS_REGION_EU_WEST_1`, `DEFAULT_BUCKET_MARKER_LOCAL`, `LEGACY_DEFAULT_BUCKET_MARKER_LOCAL`, `TAG_KEY_CUSTOM_ID`
+- All other constants have retained-code references and were kept
 
-**Step 4.3 — Audit `deprecations.py`**
-- Remove deprecation notices for removed service-specific config variables
-- Keep deprecations for framework-level variables
+**Step 4.3 — Audit `deprecations.py`** ✅ — No changes needed
+- No imports from `config.py`; all env var names are plain strings read via `os.environ`
+- None of the removed config variables appeared in `DEPRECATIONS` (they were active options, not deprecated ones)
+- Existing entries for legacy deprecated variables (`KINESIS_PROVIDER`, `LAMBDA_EXECUTOR`, etc.) kept — still useful for users with stale env vars
 
 ---
 
