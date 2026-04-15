@@ -50,11 +50,8 @@ class CatalogPlugin(Plugin):
 
     @staticmethod
     def _get_cfn_resources_available_at_runtime() -> set[CfnResourceName]:
-        from localstack.services.cloudformation.resource_provider import (
-            plugin_manager as cfn_plugin_manager,
-        )
+        return set()
 
-        return set(cfn_plugin_manager.list_names())
 
     @abstractmethod
     def get_aws_service_status(
