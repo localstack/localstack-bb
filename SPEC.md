@@ -472,22 +472,12 @@ Skipped intentionally. Rationale:
 
 ---
 
-### Phase 7 — Update Docker
+### Phase 7 — Update Docker ⏭ SKIPPED
 
-**Step 7.1 — Audit `Dockerfile`**
-- Remove `apt` packages only needed by removed services (e.g., Java runtime for DynamoDB-local)
-- Remove Node.js installation if only used by a Lambda runtime (verify Lambda executor removed)
-- Remove any `COPY` or `RUN` steps that install service-specific binaries
-
-**Step 7.2 — Remove `Dockerfile.s3`**
-- This file is an S3-only image variant; it should be removed or repurposed as a documentation artifact since S3 is no longer bundled
-
-**Step 7.3 — Update `docker-compose.yml`**
-- Remove service-specific environment variables
-- Simplify to the minimal set needed to start the stripped framework
-
-**Step 7.4 — Update `bin/docker-entrypoint.sh`**
-- Remove any service-specific initialization steps (e.g., waiting for DynamoDB-local to start, initializing Kinesis mock)
+Skipped intentionally. Rationale:
+- This is an experiment with no shippable Docker artifact required
+- LocalStack is run in host mode for the duration of the experiment
+- Docker artifacts can be updated if/when the experiment produces a result worth packaging
 
 ---
 
