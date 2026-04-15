@@ -463,29 +463,12 @@ This must succeed with zero providers loaded (not an error).
 
 ---
 
-### Phase 6 — Prune Tests
+### Phase 6 — Prune Tests ⏭ SKIPPED
 
-**Step 6.1 — Remove service test directories**
-```
-rm -rf tests/aws/services/
-rm -rf tests/aws/templates/
-rm -rf tests/aws/cdk_templates/
-rm -rf tests/aws/serverless/
-rm -rf tests/aws/terraform/
-rm -rf tests/aws/scenario/
-rm -rf tests/integration/services/
-```
-
-**Step 6.2 — Audit remaining test directories**
-- `tests/unit/` — remove any test module that imports from a removed service directory
-- `tests/integration/aws/` — audit file by file; remove service-level tests, keep protocol tests
-- `tests/bootstrap/` — review; keep framework bootstrap tests, remove service-init tests
-- `tests/performance/` — remove service benchmarks
-
-**Step 6.3 — Prune `conftest.py` files**
-- Remove all service-level pytest fixtures (AWS service clients for removed services)
-- Keep framework-level fixtures: gateway URL, account ID, region, Docker client, etc.
-- Verify `pytest --collect-only` runs without import errors
+Skipped intentionally. Rationale:
+- Tests have no impact on the deployed framework artifact
+- Existing service tests serve as a useful reference and guardrail if/when services are re-implemented against this framework skeleton
+- Service-specific tests will fail at collection time due to missing service imports, but that is acceptable — they are not run as part of the stripped build
 
 ---
 
