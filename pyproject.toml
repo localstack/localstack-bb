@@ -8,7 +8,7 @@ name = "localstack-core"
 authors = [
     { name = "LocalStack Contributors", email = "info@localstack.cloud" }
 ]
-description = "Minimal host-mode-runnable framework skeleton of LocalStack"
+description = "he core library and runtime of LocalStack"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 dependencies = [
