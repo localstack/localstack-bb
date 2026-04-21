@@ -1,8 +1,0 @@
-Resources:
-  MyResource:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Type: String
-      Value: Something
-    DependsOn:
-      - NonExistingResource

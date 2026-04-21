@@ -1,3 +1,0 @@
-{
-  "Statement": [{"Effect": "Allow", "Action": "Update:*", "Principal": "*", "Resource": "*"}]
-}

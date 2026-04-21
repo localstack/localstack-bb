@@ -1,8 +1,0 @@
-{
-  "Type": "Task",
-  "Resource": "arn:aws:states:::aws-sdk:lambda:getFunction",
-  "Parameters": {
-    "FunctionName.$": "$.FunctionName",
-  },
-  "End": true
-}

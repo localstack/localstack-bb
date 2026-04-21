@@ -1,9 +1,0 @@
-{
-  "Type": "Task",
-  "Resource": "arn:aws:states:::aws-sdk:kms:encrypt",
-  "Parameters": {
-    "KeyId.$": "$.KeyId",
-    "Plaintext.$": "$.Plaintext"
-  },
-  "End": true
-}
