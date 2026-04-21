@@ -194,7 +194,6 @@ exclude = [
 [tool.ruff.per-file-target-version]
 # Only allow minimum version for code used in the CLI
 "localstack-core/localstack/cli/**" = "py310"
-"localstack-core/localstack/packages/**" = "py310"
 "localstack-core/localstack/config.py" = "py310"
 "localstack-core/localstack/constants.py" = "py310"
 "localstack-core/localstack/utils/**" = "py310"  # imported by CLI tests
@@ -204,7 +203,6 @@ exclude = [
 [tool.deptry]
 known_first_party = [
     "vosk", # managed by localstack package manager
-    "debugpy", # managed by localstack package manager
 ]
 extend_exclude = [
     "scripts/**", # dependencies not handled by pyproject.toml
