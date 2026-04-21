@@ -162,11 +162,12 @@ localstack/testing/
 │   ├── fixtures.py          KEEP — aws_client, snapshot, account_id fixtures
 │   ├── bootstrap.py         KEEP — fixture dependencies
 │   ├── container.py         KEEP — fixture dependencies
+│   ├── path_filter.py       REMOVE — CI-only --path-filter plugin; depends on testselection/
 │   ├── cloudformation/      REMOVE — no Transfer consumers
 │   └── stepfunctions/       REMOVE — no Transfer consumers
 ├── scenario/                REMOVE — no Transfer consumers
-├── testselection/           REMOVE — no Transfer consumers
-└── config.py                REMOVE — no Transfer consumers
+├── testselection/           REMOVE — only caller was path_filter.py (also removed)
+└── config.py                KEEP — imported by fixtures.py, in_memory_localstack.py, testutil.py, testing/aws/util.py
 ```
 
 After removing the sub-packages, verify:

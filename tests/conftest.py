@@ -17,8 +17,6 @@ pytest_plugins = [
     "localstack.testing.pytest.marker_report",
     "localstack.testing.pytest.in_memory_localstack",
     "localstack.testing.pytest.validation_tracking",
-    "localstack.testing.pytest.path_filter",
-    "localstack.testing.pytest.cloudformation.fixtures",
 ]
 
 
