@@ -13,7 +13,6 @@ from localstack.aws.spec import (
     is_protocol_in_service_model_identifier,
 )
 from localstack.http import Request
-from localstack.utils.strings import to_bytes
 
 LOG = logging.getLogger(__name__)
 

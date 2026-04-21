@@ -1,7 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import IO, TypedDict
-from collections.abc import Iterable, Iterator
+from typing import TypedDict
 
 from localstack.aws.api import handler, RequestContext, ServiceException, ServiceRequest
 AddressAllocationId = str

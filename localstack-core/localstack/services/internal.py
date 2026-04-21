@@ -14,7 +14,6 @@ from localstack.http import Request, Resource, Response, Router
 from localstack.http.dispatcher import handler_dispatcher
 from localstack.runtime.legacy import signal_supervisor_restart
 from localstack.utils.collections import merge_recursive
-from localstack.utils.functions import call_safe
 from localstack.utils.numbers import is_number
 from localstack.utils.objects import singleton_factory
 

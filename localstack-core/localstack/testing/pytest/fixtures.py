@@ -1,13 +1,8 @@
 import contextlib
-import dataclasses
 import json
 import logging
-import os
-import re
-import textwrap
-import time
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Unpack
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
 import botocore.auth
@@ -23,7 +18,6 @@ from pytest_httpserver import HTTPServer
 from werkzeug import Request, Response
 
 from localstack import config
-from localstack.aws.connect import ServiceLevelClientFactory
 from localstack.services.stores import (
     AccountRegionBundle,
     BaseStore,
@@ -31,7 +25,7 @@ from localstack.services.stores import (
     CrossRegionAttribute,
     LocalAttribute,
 )
-from localstack.testing.aws.util import get_lambda_logs, is_aws_cloud, wait_for_user
+from localstack.testing.aws.util import is_aws_cloud, wait_for_user
 from localstack.testing.config import (
     SECONDARY_TEST_AWS_ACCOUNT_ID,
     SECONDARY_TEST_AWS_REGION_NAME,
@@ -41,14 +35,14 @@ from localstack.testing.config import (
 from localstack.utils.aws.arns import get_partition
 from localstack.utils.aws.client import SigningHttpClient
 from localstack.utils.bootstrap import is_api_enabled
-from localstack.utils.collections import ensure_list, select_from_typed_dict
-from localstack.utils.functions import call_safe, run_safe
+from localstack.utils.collections import ensure_list
+from localstack.utils.functions import call_safe
 from localstack.utils.http import safe_requests as requests
 from localstack.utils.id_generator import ResourceIdentifier, localstack_id_manager
-from localstack.utils.json import CustomEncoder, json_safe
+from localstack.utils.json import json_safe
 from localstack.utils.net import wait_for_port_open
 from localstack.utils.strings import short_uid, to_str
-from localstack.utils.sync import ShortCircuitWaitException, poll_condition, retry, wait_until
+from localstack.utils.sync import poll_condition, retry
 
 LOG = logging.getLogger(__name__)
 

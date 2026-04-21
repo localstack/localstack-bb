@@ -11,11 +11,9 @@ from urllib.parse import urlparse
 import dns.resolver
 from dnslib import DNSRecord
 
-from localstack import config, constants
 
 from .collections import CustomExpiryTTLCache
 from .numbers import is_number
-from .objects import singleton_factory
 from .sync import retry
 
 LOG = logging.getLogger(__name__)

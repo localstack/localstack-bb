@@ -1,8 +1,6 @@
-import json
 import logging
 import re
 from datetime import datetime
-from json import JSONDecodeError
 from re import Pattern
 
 from localstack_snapshot.snapshots.transformer import (
@@ -12,7 +10,6 @@ from localstack_snapshot.snapshots.transformer import (
     KeyValueBasedTransformer,
     RegexTransformer,
     ResponseMetaDataTransformer,
-    SortingTransformer,
     TimestampTransformer,
 )
 

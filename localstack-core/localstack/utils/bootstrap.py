@@ -4,7 +4,7 @@ import functools
 import logging
 import os
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from functools import wraps
 
 from localstack import config, constants
