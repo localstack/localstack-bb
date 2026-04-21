@@ -18,7 +18,6 @@ default_log_levels = {
     "docker": logging.WARNING,
     "elasticsearch": logging.ERROR,
     "hpack": logging.ERROR,
-    "moto": logging.WARNING,
     "requests": logging.WARNING,
     "s3transfer": logging.INFO,
     "urllib3": logging.WARNING,

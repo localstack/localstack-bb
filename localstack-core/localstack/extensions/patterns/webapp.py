@@ -13,7 +13,6 @@ from localstack.aws.api import RequestContext
 from localstack.extensions.api import Extension, http
 
 if t.TYPE_CHECKING:
-    # although jinja2 is included transitively via moto, let's make sure jinja2 stays optional
     import jinja2
 
 LOG = logging.getLogger(__name__)

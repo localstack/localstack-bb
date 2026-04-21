@@ -1,5 +1,4 @@
 import logging
-import re
 import socket
 from functools import lru_cache
 
@@ -10,7 +9,7 @@ from localstack.config import S3_VIRTUAL_HOSTNAME
 from localstack.constants import (
     LOCALHOST,
 )
-from localstack.utils.strings import is_string_or_bytes, to_str
+from localstack.utils.strings import to_str
 
 # set up logger
 LOG = logging.getLogger(__name__)
@@ -67,29 +66,6 @@ def get_s3_hostname():
     if CACHE_S3_HOSTNAME_DNS_STATUS:
         return S3_VIRTUAL_HOSTNAME
     return LOCALHOST
-
-
-def fix_account_id_in_arns(
-    response, replacement: str, colon_delimiter: str = ":", existing: str | list[str] = None
-):
-    """Fix the account ID in the ARNs returned in the given Flask response or string"""
-    from moto.core import DEFAULT_ACCOUNT_ID
-
-    existing = existing or ["123456789", "1234567890", DEFAULT_ACCOUNT_ID]
-    existing = existing if isinstance(existing, list) else [existing]
-    is_str_obj = is_string_or_bytes(response)
-    content = to_str(response if is_str_obj else response._content)
-
-    replacement = rf"arn{colon_delimiter}aws{colon_delimiter}\1{colon_delimiter}\2{colon_delimiter}{replacement}{colon_delimiter}"
-    for acc_id in existing:
-        regex = rf"arn{colon_delimiter}aws{colon_delimiter}([^:%]+){colon_delimiter}([^:%]*){colon_delimiter}{acc_id}{colon_delimiter}"
-        content = re.sub(regex, replacement, content)
-
-    if not is_str_obj:
-        response._content = content
-        response.headers["Content-Length"] = len(response._content)
-        return response
-    return content
 
 
 def inject_test_credentials_into_env(env):

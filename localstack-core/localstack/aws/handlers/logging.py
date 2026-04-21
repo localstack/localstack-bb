@@ -20,18 +20,7 @@ class ExceptionLogger(ExceptionHandler):
 
     def __init__(self, logger=None):
         self.logger = logger or LOG
-
-        try:
-            import moto.core.exceptions
-
-            self._skip_exceptions(
-                ServiceException,
-                moto.core.exceptions.ServiceException,
-                moto.core.exceptions.RESTError,
-            )
-        except (ModuleNotFoundError, AttributeError):
-            # Moto may not be available in stripped-down versions of LocalStack, like LocalStack S3 image.
-            self._skip_exceptions = (ServiceException,)
+        self._skip_exceptions = (ServiceException,)
 
     def __call__(
         self,

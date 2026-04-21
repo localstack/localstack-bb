@@ -134,8 +134,7 @@ class Service:
         band-aids/adapters to make persistence visitors work, while providing compatibility with the legacy edge proxy.
 
         :param provider: the service provider, i.e., the implementation of the generated ASF service API.
-        :param dispatch_table_factory: a `MotoFallbackDispatcher` or something similar that uses the provider to
-            create a dispatch table. this one's a bit clumsy.
+        :param dispatch_table_factory: optional factory that uses the provider to create a dispatch table.
         :param service_lifecycle_hook: if left empty, the factory checks whether the provider is a ServiceLifecycleHook.
         :return: a service instance
         """

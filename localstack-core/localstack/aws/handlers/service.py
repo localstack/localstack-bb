@@ -2,7 +2,6 @@
 
 import logging
 import traceback
-import types
 from collections import defaultdict
 from typing import Any
 
@@ -158,18 +157,6 @@ class ServiceExceptionSerializer(ExceptionHandler):
     def __init__(self):
         self.handle_internal_failures = True
 
-        self._moto_service_exception = types.EllipsisType
-        self._moto_rest_error = types.EllipsisType
-
-        try:
-            import moto.core.exceptions
-
-            self._moto_service_exception = moto.core.exceptions.ServiceException
-            self._moto_rest_error = moto.core.exceptions.RESTError
-        except (ModuleNotFoundError, AttributeError) as exc:
-            # Moto may not be available in stripped-down versions of LocalStack, like LocalStack S3 image.
-            LOG.debug("Unable to set up Moto exception translation: %s", exc)
-
     def __call__(
         self,
         chain: HandlerChain,
@@ -201,20 +188,6 @@ class ServiceExceptionSerializer(ExceptionHandler):
                 message = error.message
             LOG.info(message)
             context.service_exception = error
-        elif isinstance(exception, self._moto_service_exception):
-            # Translate Moto ServiceException to native ServiceException if Moto is available.
-            # This allows handler chain to gracefully handles Moto errors when provider handlers invoke Moto methods directly.
-            error = CommonServiceException(
-                code=exception.code,
-                message=exception.message,
-            )
-        elif isinstance(exception, self._moto_rest_error):
-            # Some Moto exceptions (like ones raised by EC2) are of type RESTError.
-            error = CommonServiceException(
-                code=exception.error_type,
-                message=exception.message,
-            )
-
         elif not isinstance(exception, ServiceException):
             if not self.handle_internal_failures:
                 return

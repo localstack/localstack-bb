@@ -10,7 +10,7 @@ authors = [
 ]
 description = "The core library and runtime of LocalStack"
 license = "Apache-2.0"
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.10"
 dependencies = [
     "asn1crypto==1.5.1",
     "click==8.3.2",
@@ -74,18 +74,7 @@ runtime = [
     "localstack-core[base-runtime]",
     "cryptography==46.0.7",
     "jinja2==3.1.6",
-    "moto-ext[all]==5.1.31",
     "pyopenssl==26.0.0",
-    # removed: antlr4-python3-runtime — Step Functions ASL parser (deleted); still a moto-ext transitive dep
-    # removed: apispec — no references in retained code
-    # removed: aws-sam-translator — CloudFormation SAM transform (deleted); still a moto-ext transitive dep via cfn-lint
-    # removed: crontab — no references in retained code
-    # removed: jpype1 — Step Functions JSONata engine (deleted)
-    # removed: jsonpath-ng — only used by testing/pytest/stepfunctions/utils.py (service-specific test helper)
-    # removed: kclpy-ext — Kinesis consumer library (deleted with service)
-    # removed: opensearch-py — OpenSearch provider (deleted); no framework references
-    # removed: pymongo — no references in retained code
-    # removed: responses — no references in retained code; still a moto-ext transitive dep
 ]
 
 # for running tests and coverage analysis
