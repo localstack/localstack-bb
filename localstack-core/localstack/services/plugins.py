@@ -15,7 +15,6 @@ from localstack.aws.skeleton import DispatchTable, Skeleton
 from localstack.aws.spec import load_service
 from localstack.config import ServiceProviderConfig
 from localstack.runtime import hooks
-from localstack.state import StateLifecycleHook, StateVisitable, StateVisitor
 from localstack.utils.bootstrap import get_enabled_apis, is_api_enabled, log_duration
 from localstack.utils.functions import call_safe
 from localstack.utils.sync import SynchronizedDefaultDict, poll_condition
@@ -46,7 +45,7 @@ class ServiceStateException(ServiceException):
     pass
 
 
-class ServiceLifecycleHook(StateLifecycleHook):
+class ServiceLifecycleHook:
     def on_after_init(self):
         pass
 
@@ -123,21 +122,6 @@ class Service:
 
     def is_enabled(self):
         return is_api_enabled(self.plugin_name)
-
-    def accept_state_visitor(self, visitor: StateVisitor):
-        """
-        Passes the StateVisitor to the ASF provider if it is set and implements the StateVisitable. Otherwise, it uses
-        the ReflectionStateLocator to visit the service state.
-
-        :param visitor: the visitor
-        """
-        if self._provider and isinstance(self._provider, StateVisitable):
-            self._provider.accept_state_visitor(visitor)
-            return
-
-        from localstack.state.inspect import ReflectionStateLocator
-
-        ReflectionStateLocator(service=self.name()).accept_state_visitor(visitor)
 
     @staticmethod
     def for_provider(
