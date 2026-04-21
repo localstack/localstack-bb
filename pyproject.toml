@@ -8,7 +8,7 @@ name = "localstack-core"
 authors = [
     { name = "LocalStack Contributors", email = "info@localstack.cloud" }
 ]
-description = "The core library and runtime of LocalStack"
+description = "Minimal host-mode-runnable framework skeleton of LocalStack"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 dependencies = [
@@ -179,15 +179,10 @@ exclude = [
 "localstack-core/localstack/aws/connect.py" = "py310" # imported by CLI tests
 
 [tool.deptry]
-known_first_party = [
-    "vosk", # managed by localstack package manager
-]
 extend_exclude = [
-    "scripts/**", # dependencies not handled by pyproject.toml
     "localstack-core/localstack/testing/**", # utilities for testing
     "localstack-core/localstack/aws/mocking.py", # not used at runtime
     "localstack-core/localstack/aws/scaffold.py", # not used at runtime
-    "localstack-core/localstack/dev/**", # internal dev tooling
 ]
 pep621_dev_dependency_groups = ["dev", "typehint", "test"]
 
@@ -195,9 +190,6 @@ pep621_dev_dependency_groups = ["dev", "typehint", "test"]
 "localstack-core" = ["localstack"]
 
 [tool.deptry.per_rule_ignores]
-DEP001 = [
-    "stevedore", # used for CLI plugin debugging - TODO move this debugging CLI into plux
-]
 DEP002 = [
     "awscrt", # defined to ignore a specific version - TODO evaluate and clean up
 ]
