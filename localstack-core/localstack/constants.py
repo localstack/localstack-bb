@@ -4,9 +4,6 @@ from localstack.version import __version__
 
 VERSION = __version__
 
-# HTTP headers used to forward proxy request URLs
-HEADER_LOCALSTACK_EDGE_URL = "x-localstack-edge"
-HEADER_LOCALSTACK_REQUEST_URL = "x-localstack-request-url"
 # HTTP header optionally added to LocalStack responses
 HEADER_LOCALSTACK_IDENTIFIER = "x-localstack"
 # xXx custom localstack authorization header only used in ext
@@ -55,14 +52,6 @@ DEFAULT_VOLUME_DIR = "/var/lib/localstack"
 # API Gateway path to indicate a user request sent to the gateway
 PATH_USER_REQUEST = "_user_request_"
 
-# name of LocalStack Docker image
-DOCKER_IMAGE_NAME = "localstack/localstack"
-DOCKER_IMAGE_NAME_PRO = "localstack/localstack-pro"
-DOCKER_IMAGE_NAME_FULL = "localstack/localstack-full"
-
-# backdoor API path used to retrieve or update config variables
-CONFIG_UPDATE_PATH = "/?_config_"
-
 # API path for localstack internal resources
 INTERNAL_RESOURCE_PATH = "/_localstack"
 
@@ -75,9 +64,6 @@ ENV_INTERNAL_TEST_COLLECT_METRIC = "LOCALSTACK_INTERNAL_TEST_COLLECT_METRIC"
 # environment variable name to indicate that metrics should be stored within the container
 ENV_INTERNAL_TEST_STORE_METRICS_IN_LOCALSTACK = "LOCALSTACK_INTERNAL_TEST_METRICS_IN_LOCALSTACK"
 ENV_INTERNAL_TEST_STORE_METRICS_PATH = "LOCALSTACK_INTERNAL_TEST_STORE_METRICS_PATH"
-
-# environment variable that flags whether pro was activated. do not use it for security purposes!
-ENV_PRO_ACTIVATED = "PRO_ACTIVATED"
 
 # content types / encodings
 HEADER_CONTENT_TYPE = "Content-Type"
@@ -100,8 +86,6 @@ LOG_LEVELS = ("trace-internal", "trace", "debug", "info", "warn", "error", "warn
 
 # API endpoint for analytics events
 API_ENDPOINT = os.environ.get("API_ENDPOINT") or "https://api.localstack.cloud/v1"
-# new analytics API endpoint
-ANALYTICS_API = os.environ.get("ANALYTICS_API") or "https://analytics.localstack.cloud/v1"
 
 # environment variable to indicate this process should run the localstack infrastructure
 LOCALSTACK_INFRA_PROCESS = "LOCALSTACK_INFRA_PROCESS"
@@ -126,15 +110,6 @@ INTERNAL_AWS_SECRET_ACCESS_KEY = "__internal_call__"
 LS_LOG_TRACE = "trace"
 LS_LOG_TRACE_INTERNAL = "trace-internal"
 TRACE_LOG_LEVELS = [LS_LOG_TRACE, LS_LOG_TRACE_INTERNAL]
-
-# list of official docker images
-OFFICIAL_IMAGES = [
-    "localstack/localstack",
-    "localstack/localstack-pro",
-]
-
-# port for debug py
-DEFAULT_DEVELOP_PORT = 5678
 
 # output string that indicates that the stack is ready
 READY_MARKER_OUTPUT = "Ready."

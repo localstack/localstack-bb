@@ -10,7 +10,6 @@ from datetime import datetime
 from plux import PluginManager
 
 from localstack import config, constants
-from localstack.deprecations import deprecated_endpoint
 from localstack.http import Request, Resource, Response, Router
 from localstack.http.dispatcher import handler_dispatcher
 from localstack.runtime.legacy import signal_supervisor_restart
@@ -22,26 +21,6 @@ from localstack.utils.objects import singleton_factory
 LOG = logging.getLogger(__name__)
 
 HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"]
-
-
-class DeprecatedResource:
-    """
-    Resource class which wraps a given resource in the deprecated_endpoint (i.e. logs deprecation warnings on every
-    invocation).
-    """
-
-    def __init__(self, resource, previous_path: str, deprecation_version: str, new_path: str):
-        for http_method in HTTP_METHODS:
-            fn_name = f"on_{http_method.lower()}"
-            fn = getattr(resource, fn_name, None)
-            if fn:
-                wrapped = deprecated_endpoint(
-                    fn,
-                    previous_path=previous_path,
-                    deprecation_version=deprecation_version,
-                    new_path=new_path,
-                )
-                setattr(self, fn_name, wrapped)
 
 
 class HealthResource:

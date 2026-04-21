@@ -13,7 +13,6 @@ from typing import Any, TypeVar
 
 from localstack import constants
 from localstack.constants import (
-    DEFAULT_DEVELOP_PORT,
     DEFAULT_VOLUME_DIR,
     ENV_INTERNAL_TEST_COLLECT_METRIC,
     ENV_INTERNAL_TEST_RUN,
@@ -384,16 +383,12 @@ is_in_windows = is_windows()
 is_in_wsl = is_wsl()
 default_ip = "0.0.0.0" if is_in_docker else "127.0.0.1"
 
-# CLI specific: the configuration profile to load
-CONFIG_PROFILE = os.environ.get("CONFIG_PROFILE", "").strip()
-
 # CLI specific: host configuration directory
 CONFIG_DIR = os.environ.get("CONFIG_DIR", os.path.expanduser("~/.localstack"))
 
 # keep this on top to populate the environment
 try:
-    # CLI specific: the actually loaded configuration profile
-    LOADED_PROFILES = load_environment(CONFIG_PROFILE)
+    LOADED_PROFILES = load_environment("")
 except ImportError:
     # dotenv may not be available in lambdas or other environments where config is loaded
     LOADED_PROFILES = None
@@ -435,15 +430,6 @@ DEBUG = is_env_true("DEBUG") or LS_LOG in TRACE_LOG_LEVELS
 
 # EXPERIMENTAL: allow setting custom log levels for individual loggers
 LOG_LEVEL_OVERRIDES = os.environ.get("LOG_LEVEL_OVERRIDES", "")
-
-# whether to enable debugpy
-DEVELOP = is_env_true("DEVELOP")
-
-# PORT FOR DEBUGGER
-DEVELOP_PORT = int(os.environ.get("DEVELOP_PORT", "").strip() or DEFAULT_DEVELOP_PORT)
-
-# whether to make debugpy wait for a debbuger client
-WAIT_FOR_DEBUGGER = is_env_true("WAIT_FOR_DEBUGGER")
 
 # whether to assume http or https for `get_protocol`
 USE_SSL = is_env_true("USE_SSL")
@@ -728,10 +714,6 @@ EXTRA_CORS_EXPOSE_HEADERS = os.environ.get("EXTRA_CORS_EXPOSE_HEADERS", "").stri
 EXTRA_CORS_ALLOWED_ORIGINS = os.environ.get("EXTRA_CORS_ALLOWED_ORIGINS", "").strip()
 DISABLE_PREFLIGHT_PROCESSING = is_env_true("DISABLE_PREFLIGHT_PROCESSING")
 
-# whether to disable publishing events to the API
-DISABLE_EVENTS = is_env_true("DISABLE_EVENTS")
-DEBUG_ANALYTICS = is_env_true("DEBUG_ANALYTICS")
-
 # whether to log fine-grained debugging information for the handler chain
 DEBUG_HANDLER_CHAIN = is_env_true("DEBUG_HANDLER_CHAIN")
 
@@ -740,9 +722,6 @@ EAGER_SERVICE_LOADING = is_env_true("EAGER_SERVICE_LOADING")
 
 # whether to selectively load services in SERVICES
 STRICT_SERVICE_LOADING = is_env_not_false("STRICT_SERVICE_LOADING")
-
-# Whether to skip downloading additional infrastructure components (e.g., custom Elasticsearch versions)
-SKIP_INFRA_DOWNLOADS = os.environ.get("SKIP_INFRA_DOWNLOADS", "").strip()
 
 # Whether to skip downloading our signed SSL cert.
 SKIP_SSL_CERT_DOWNLOAD = is_env_true("SKIP_SSL_CERT_DOWNLOAD")
@@ -801,12 +780,6 @@ INTERNAL_RESOURCE_ACCOUNT = os.environ.get("INTERNAL_RESOURCE_ACCOUNT") or "9493
 # -----
 # SERVICE-SPECIFIC CONFIGS BELOW
 # -----
-
-# Whether to return and parse access key ids starting with an "A", like on AWS
-PARITY_AWS_ACCESS_KEY_ID = is_env_true("PARITY_AWS_ACCESS_KEY_ID")
-
-# Show exceptions for CloudFormation deploy errors (retained until testing/pytest/fixtures.py is pruned in Phase 6)
-CFN_VERBOSE_ERRORS = is_env_true("CFN_VERBOSE_ERRORS")
 
 # bind address of local DNS server
 DNS_ADDRESS = os.environ.get("DNS_ADDRESS") or "0.0.0.0"
@@ -875,15 +848,12 @@ CONFIG_ENV_VARS = [
     "CUSTOM_SSL_CERT_PATH",
     "DEBUG",
     "DEBUG_HANDLER_CHAIN",
-    "DEVELOP",
-    "DEVELOP_PORT",
     "DISABLE_BOTO_RETRIES",
     "DISABLE_CORS_CHECKS",
     "DISABLE_CORS_HEADERS",
     "DISABLE_CUSTOM_BOTO_WAITER_CONFIG",
     "DISABLE_CUSTOM_CORS_APIGATEWAY",
     "DISABLE_CUSTOM_CORS_S3",
-    "DISABLE_EVENTS",
     "DISTRIBUTED_MODE",
     "DNS_ADDRESS",
     "DNS_PORT",
@@ -912,12 +882,10 @@ CONFIG_ENV_VARS = [
     "OPENAPI_VALIDATE_RESPONSE",
     "OUTBOUND_HTTP_PROXY",
     "OUTBOUND_HTTPS_PROXY",
-    "PARITY_AWS_ACCESS_KEY_ID",
     "PERSISTENCE",
     "REQUESTS_CA_BUNDLE",
     "REMOVE_SSL_CERT",
     "SERVICES",
-    "SKIP_INFRA_DOWNLOADS",
     "SKIP_SSL_CERT_DOWNLOAD",
     "SNAPSHOT_LOAD_STRATEGY",
     "SNAPSHOT_SAVE_STRATEGY",
@@ -925,7 +893,6 @@ CONFIG_ENV_VARS = [
     "STATE_SERIALIZATION_BACKEND",
     "STRICT_SERVICE_LOADING",
     "USE_SSL",
-    "WAIT_FOR_DEBUGGER",
     # Removed legacy variables in 2.0.0
     # DATA_DIR => do *not* include in this list, as it is treated separately.  # deprecated since 1.0.0
     "LEGACY_DIRECTORIES",  # deprecated since 1.0.0
