@@ -145,37 +145,6 @@ class InfoResource:
         }
 
 
-class UsageResource:
-    def on_get(self, request):
-        from localstack.utils import diagnose
-
-        return call_safe(diagnose.get_usage) or {}
-
-
-class DiagnoseResource:
-    def on_get(self, request):
-        from localstack.utils import diagnose
-
-        return {
-            "version": {
-                "image-version": call_safe(diagnose.get_docker_image_details),
-                "localstack-version": call_safe(diagnose.get_localstack_version),
-                "host": {
-                    "kernel": call_safe(diagnose.get_host_kernel_version),
-                },
-            },
-            "info": call_safe(InfoResource.get_info_data),
-            "services": call_safe(diagnose.get_service_stats),
-            "config": call_safe(diagnose.get_localstack_config),
-            "docker-inspect": call_safe(diagnose.inspect_main_container),
-            "docker-dependent-image-hashes": call_safe(diagnose.get_important_image_hashes),
-            "file-tree": call_safe(diagnose.get_file_tree),
-            "important-endpoints": call_safe(diagnose.resolve_endpoints),
-            "logs": call_safe(diagnose.get_localstack_logs),
-            "usage": call_safe(diagnose.get_usage),
-        }
-
-
 class PluginsResource:
     """
     Resource to list information about plux plugins.
@@ -277,9 +246,7 @@ class InitScriptsStageResource:
 
 class ConfigResource:
     def on_get(self, request):
-        from localstack.utils import diagnose
-
-        return call_safe(diagnose.get_localstack_config)
+        return {}
 
     def on_post(self, request: Request):
         from localstack.utils.config_listener import update_config_variable
@@ -326,13 +293,6 @@ class LocalstackResources(Router):
             )
             self.add(Resource("/_localstack/config", ConfigResource()))
 
-        if config.DEBUG:
-            LOG.warning(
-                "Enabling diagnose endpoint, "
-                "please be aware that this can expose sensitive information via your network."
-            )
-            self.add(Resource("/_localstack/diagnose", DiagnoseResource()))
-            self.add(Resource("/_localstack/usage", UsageResource()))
 
 
 @singleton_factory
