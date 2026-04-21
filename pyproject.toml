@@ -59,7 +59,6 @@ base-runtime = [
     "cbor2>=5.5.0",
     "dill==0.3.6",
     "dnspython>=1.16.0",
-    "docker>=6.1.1",
     "jsonpatch>=1.24",
     "jsonpointer>=3.0.0",
     "jsonschema>=4.25.1",
@@ -81,11 +80,8 @@ base-runtime = [
 # required to actually run localstack on the host
 runtime = [
     "localstack-core[base-runtime]",
-    # pinned / updated by ASF update action
-    "awscli==1.44.49",
     "cryptography>=41.0.5",
     "jinja2>=3.1.6",
-    "jsonpath-rw>=1.4.0",
     "moto-ext[all]>=5.1.22",
     "pyopenssl>=23.0.0",
     # removed: antlr4-python3-runtime — Step Functions ASL parser (deleted); still a moto-ext transitive dep
@@ -105,16 +101,9 @@ test = [
     # runtime dependencies are required for running the tests
     "localstack-core[runtime]",
     "coverage[toml]>=5.5",
-    "httpx[http2]>=0.25",
-    "json5>=0.12.1",
     "pluggy>=1.3.0",
     "pytest>=7.4.2",
-    "pytest-split>=0.8.0",
     "pytest-httpserver>=1.1.2",
-    "pytest-rerunfailures>=12.0",
-    "pytest-tinybird>=0.5.0",
-    "aws-cdk-lib>=2.88.0",
-    "websocket-client>=1.7.0",
     "localstack-snapshot>=0.1.1",
 ]
 
@@ -122,18 +111,9 @@ test = [
 dev = [
     # test dependencies are required for developing localstack
     "localstack-core[test]",
-    "coveralls>=3.3.1",
     "deptry>=0.13.0",
-    "Cython",
-    "networkx>=2.8.4",
-    "openapi-spec-validator>=0.7.1",
-    "pandoc",
-    "pre-commit>=3.5.0",
-    "pypandoc",
     "ruff>=0.3.3",
-    "rstr>=3.2.0",
     "mypy",
-    "watchdog>=6",
 ]
 
 # not strictly necessary for development, but provides type hint support for a better developer experience
@@ -141,16 +121,14 @@ typehint = [
     # typehint is an optional extension of the dev dependencies
     "localstack-core[dev]",
     # pinned / updated by ASF update action
-    "boto3-stubs[acm,acm-pca,amplify,apigateway,apigatewayv2,appconfig,appconfigdata,application-autoscaling,appsync,athena,autoscaling,backup,batch,ce,cloudcontrol,cloudformation,cloudfront,cloudtrail,cloudwatch,codebuild,codecommit,codeconnections,codedeploy,codepipeline,codestar-connections,cognito-identity,cognito-idp,dms,docdb,dynamodb,dynamodbstreams,ec2,ecr,ecs,efs,eks,elasticache,elasticbeanstalk,elbv2,emr,emr-serverless,es,events,firehose,fis,glacier,glue,iam,identitystore,iot,iot-data,iotwireless,kafka,kinesis,kinesisanalyticsv2,kms,lakeformation,lambda,logs,managedblockchain,mediaconvert,mq,mwaa,neptune,opensearch,organizations,pi,pipes,pinpoint,rds,rds-data,redshift,redshift-data,resource-groups,resourcegroupstaggingapi,route53,route53resolver,s3,s3control,sagemaker,sagemaker-runtime,secretsmanager,serverlessrepo,servicediscovery,ses,sesv2,sns,sqs,ssm,sso-admin,stepfunctions,sts,timestream-query,timestream-write,transcribe,verifiedpermissions,wafv2,xray]",
+    "boto3-stubs[iam,kms,s3,sns,sqs,sts,transfer]",
 ]
 
 [tool.setuptools]
 include-package-data = false
 # TODO using this is discouraged by setuptools, `project.scripts` should be used instead
 # However, `project.scripts` does not support non-python scripts.
-script-files = [
-    "bin/localstack-supervisor",
-]
+script-files = []
 package-dir = { "" = "localstack-core" }
 
 [tool.setuptools.dynamic]
@@ -221,7 +199,6 @@ DEP001 = [
     "stevedore", # used for CLI plugin debugging - TODO move this debugging CLI into plux
 ]
 DEP002 = [
-    "awscli", # necessary for python init scripts - TODO deprecate python init scripts and remove this
     "awscrt", # defined to ignore a specific version - TODO evaluate and clean up
 ]
 
