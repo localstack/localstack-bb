@@ -8,23 +8,23 @@ name = "localstack-core"
 authors = [
     { name = "LocalStack Contributors", email = "info@localstack.cloud" }
 ]
-description = "he core library and runtime of LocalStack"
+description = "The core library and runtime of LocalStack"
 license = "Apache-2.0"
-requires-python = ">=3.10"
+requires-python = ">=3.13,<3.14"
 dependencies = [
-    "asn1crypto>=1.5.1",
-    "click>=8.2.0",
-    "cachetools>=5.0",
-    "cryptography",
-    "dnslib>=0.9.10",
-    "dnspython>=1.16.0",
-    "plux>=1.14.0",
-    "psutil>=5.4.8",
-    "python-dotenv>=0.19.1",
-    "pyyaml>=5.1",
-    "rich>=12.3.0",
-    "requests>=2.20.0",
-    "semver>=2.10",
+    "asn1crypto==1.5.1",
+    "click==8.3.2",
+    "cachetools==7.0.5",
+    "cryptography==46.0.7",
+    "dnslib==0.9.26",
+    "dnspython==2.8.0",
+    "plux==1.16.0",
+    "psutil==7.2.2",
+    "python-dotenv==1.2.2",
+    "pyyaml==6.0.3",
+    "rich==15.0.0",
+    "requests==2.33.1",
+    "semver==3.0.4",
 ]
 dynamic = ["version", "entry-points"]
 classifiers = [
@@ -50,40 +50,36 @@ Issues = "https://github.com/localstack/localstack/issues"
 [project.optional-dependencies]
 # minimal required to actually run localstack on the host for services natively implemented in python
 base-runtime = [
-    # pinned / updated by ASF update action
     "boto3==1.42.59",
-    # pinned / updated by ASF update action
     "botocore==1.42.59",
-    # transitive dependency of botocore, added to avoid specific version
-    "awscrt>=0.13.14,!=0.27.1",
-    "cbor2>=5.5.0",
+    "awscrt==0.32.0",
+    "cbor2==5.9.0",
     "dill==0.3.6",
-    "dnspython>=1.16.0",
-    "jsonpatch>=1.24",
-    "jsonpointer>=3.0.0",
-    "jsonschema>=4.25.1",
-    "hypercorn>=0.14.4",
-    "localstack-twisted>=25.0",
-    "openapi-core>=0.19.2",
-    "pydantic>=2.11.9",
-    "pyopenssl>=23.0.0",
-    "python-dateutil>=2.9.0",
-    "readerwriterlock>=1.0.7",
-    "requests-aws4auth>=1.0",
-    # explicitly set urllib3 to force its usage / ensure compatibility
-    "urllib3>=2.0.7",
-    "Werkzeug>=3.1.3",
-    "xmltodict>=0.13.0",
-    "rolo>=0.8.1",
+    "dnspython==2.8.0",
+    "jsonpatch==1.33",
+    "jsonpointer==3.1.1",
+    "jsonschema==4.26.0",
+    "hypercorn==0.18.0",
+    "localstack-twisted==25.5.0",
+    "openapi-core==0.22.0",
+    "pydantic==2.12.5",
+    "pyopenssl==26.0.0",
+    "python-dateutil==2.9.0.post0",
+    "readerwriterlock==1.0.9",
+    "requests-aws4auth==1.3.1",
+    "urllib3==2.6.3",
+    "Werkzeug==3.1.8",
+    "xmltodict==1.0.4",
+    "rolo==0.8.2",
 ]
 
 # required to actually run localstack on the host
 runtime = [
     "localstack-core[base-runtime]",
-    "cryptography>=41.0.5",
-    "jinja2>=3.1.6",
-    "moto-ext[all]>=5.1.22",
-    "pyopenssl>=23.0.0",
+    "cryptography==46.0.7",
+    "jinja2==3.1.6",
+    "moto-ext[all]==5.1.31",
+    "pyopenssl==26.0.0",
     # removed: antlr4-python3-runtime — Step Functions ASL parser (deleted); still a moto-ext transitive dep
     # removed: apispec — no references in retained code
     # removed: aws-sam-translator — CloudFormation SAM transform (deleted); still a moto-ext transitive dep via cfn-lint
@@ -98,30 +94,27 @@ runtime = [
 
 # for running tests and coverage analysis
 test = [
-    # runtime dependencies are required for running the tests
     "localstack-core[runtime]",
-    "coverage[toml]>=5.5",
-    "pluggy>=1.3.0",
-    "pytest>=7.4.2",
-    "pytest-httpserver>=1.1.2",
-    "localstack-snapshot>=0.1.1",
+    "coverage[toml]==7.13.5",
+    "pluggy==1.6.0",
+    "pytest==9.0.3",
+    "pytest-httpserver==1.1.5",
+    "localstack-snapshot==0.3.3",
 ]
 
 # for developing localstack
 dev = [
-    # test dependencies are required for developing localstack
     "localstack-core[test]",
-    "deptry>=0.13.0",
-    "ruff>=0.3.3",
-    "mypy",
+    "deptry==0.25.1",
+    "ruff==0.15.10",
+    "mypy==1.20.1",
 ]
 
 # not strictly necessary for development, but provides type hint support for a better developer experience
 typehint = [
     # typehint is an optional extension of the dev dependencies
     "localstack-core[dev]",
-    # pinned / updated by ASF update action
-    "boto3-stubs[iam,kms,s3,sns,sqs,sts,transfer]",
+    "boto3-stubs[iam,kms,s3,sns,sqs,sts,transfer]==1.42.89",
 ]
 
 [tool.setuptools]
