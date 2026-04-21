@@ -16,7 +16,6 @@ from localstack.http.router import GreedyPathConverter
 from localstack.utils.collections import split_list_by
 from localstack.utils.net import get_free_tcp_port
 from localstack.utils.run import is_root, run
-from localstack.utils.server.tcp_proxy import TCPProxy
 from localstack.utils.threads import start_thread
 
 T = TypeVar("T")
@@ -75,9 +74,7 @@ def start_component(
     raise Exception(f"Unexpected component name '{component}' received during start up")
 
 
-def start_proxy(
-    listen_str: str, target_address: HostAndPort, asynchronous: bool = False
-) -> TCPProxy:
+def start_proxy(listen_str: str, target_address: HostAndPort, asynchronous: bool = False):
     """
     Starts a TCP proxy to perform a low-level forwarding of incoming requests.
 
@@ -95,9 +92,9 @@ def start_proxy(
     return do_start_tcp_proxy(listen, target_address, asynchronous)
 
 
-def do_start_tcp_proxy(
-    listen: HostAndPort, target_address: HostAndPort, asynchronous: bool = False
-) -> TCPProxy:
+def do_start_tcp_proxy(listen: HostAndPort, target_address: HostAndPort, asynchronous: bool = False):
+    from localstack.utils.server.tcp_proxy import TCPProxy
+
     src = str(listen)
     dst = str(target_address)
 

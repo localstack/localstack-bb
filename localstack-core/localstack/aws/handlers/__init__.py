@@ -2,7 +2,6 @@
 
 from .. import chain
 from . import (
-    analytics,
     auth,
     codec,
     cors,
@@ -14,7 +13,6 @@ from . import (
     presigned_url,
     region,
     service,
-    tracing,
     validation,
 )
 
@@ -34,7 +32,6 @@ validate_request_schema = validation.OpenAPIRequestValidator()
 validate_response_schema = validation.OpenAPIResponseValidator()
 log_exception = logging.ExceptionLogger()
 log_response = logging.ResponseLogger()
-count_service_request = analytics.ServiceRequestCounter()
 handle_service_exception = service.ServiceExceptionSerializer()
 handle_internal_failure = fallback.InternalFailureHandler()
 serve_custom_service_request_handlers = chain.CompositeHandler()
@@ -42,7 +39,6 @@ serve_localstack_resources = internal.LocalstackResourceHandler()
 run_custom_response_handlers = chain.CompositeResponseHandler()
 modify_service_response = service.ServiceResponseHandlers()
 parse_service_response = service.ServiceResponseParser()
-parse_trace_context = tracing.TraceContextParser()
 parse_pre_signed_url_request = presigned_url.ParsePreSignedUrlRequest()
 run_custom_finalizers = chain.CompositeFinalizer()
 serve_custom_exception_handlers = chain.CompositeExceptionHandler()

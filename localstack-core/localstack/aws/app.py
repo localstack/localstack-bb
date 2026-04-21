@@ -45,7 +45,6 @@ class LocalstackAwsGateway(Gateway):
                 handlers.add_region_from_header,
                 handlers.rewrite_region,
                 handlers.add_account_id,
-                handlers.parse_trace_context,
                 handlers.parse_service_request,
                 metric_collector.record_parsed_request,
                 handlers.serve_custom_service_request_handlers,
@@ -75,7 +74,6 @@ class LocalstackAwsGateway(Gateway):
                 handlers.run_custom_response_handlers,
                 handlers.add_cors_response_headers,
                 handlers.log_response,
-                handlers.count_service_request,
                 metric_collector.update_metric_collection,
             ]
         )

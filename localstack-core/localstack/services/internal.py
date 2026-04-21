@@ -14,11 +14,6 @@ from localstack.deprecations import deprecated_endpoint
 from localstack.http import Request, Resource, Response, Router
 from localstack.http.dispatcher import handler_dispatcher
 from localstack.runtime.legacy import signal_supervisor_restart
-from localstack.utils.analytics.metadata import (
-    get_client_metadata,
-    get_localstack_edition,
-    is_license_activated,
-)
 from localstack.utils.collections import merge_recursive
 from localstack.utils.functions import call_safe
 from localstack.utils.numbers import is_number
@@ -91,7 +86,7 @@ class HealthResource:
         # build state dict from internal state and merge into it the service states
         result = dict(self.state)
         result = merge_recursive({"services": services}, result)
-        result["edition"] = get_localstack_edition()
+        result["edition"] = "unknown"
         result["version"] = constants.VERSION
         return result
 
@@ -129,17 +124,12 @@ class InfoResource:
 
     @staticmethod
     def get_info_data() -> dict:
-        client_metadata = get_client_metadata()
         uptime = int(time.time() - config.load_start_time)
 
         return {
-            "version": client_metadata.version,
-            "edition": get_localstack_edition(),
-            "is_license_activated": is_license_activated(),
-            "session_id": client_metadata.session_id,
-            "machine_id": client_metadata.machine_id,
-            "system": client_metadata.system,
-            "is_docker": client_metadata.is_docker,
+            "version": constants.VERSION,
+            "edition": "unknown",
+            "is_license_activated": False,
             "server_time_utc": datetime.utcnow().isoformat(timespec="seconds"),
             "uptime": uptime,
         }

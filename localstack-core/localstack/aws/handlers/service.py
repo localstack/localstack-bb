@@ -11,7 +11,6 @@ from botocore.model import OperationModel, ServiceModel
 from localstack import config
 from localstack.http import Response
 
-from ...utils.catalog.plugins import get_aws_catalog
 from ..api import CommonServiceException, RequestContext, ServiceException
 from ..api.core import ServiceOperation
 from ..catalog_exceptions import get_service_availability_exception
@@ -197,18 +196,8 @@ class ServiceExceptionSerializer(ExceptionHandler):
                 message = exception_message
                 error = CommonServiceException("InternalFailure", message, status_code=501)
             else:
-                catalog = get_aws_catalog()
-                if isinstance(exception, PluginNotIncludedInUserLicenseError):
-                    # Operation name is provided when a plugin fails to load, although it is not relevant.
-                    # In such cases, we should return an error without the operation name
-                    service_status = catalog.get_aws_service_status(
-                        service_name, operation_name=None
-                    )
-                else:
-                    service_status = catalog.get_aws_service_status(service_name, operation_name)
-                error = get_service_availability_exception(
-                    service_name, operation_name, service_status
-                )
+                op = None if isinstance(exception, PluginNotIncludedInUserLicenseError) else operation_name
+                error = get_service_availability_exception(service_name, op)
                 message = error.message
             LOG.info(message)
             context.service_exception = error

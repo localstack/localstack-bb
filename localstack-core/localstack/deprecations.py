@@ -4,8 +4,6 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from localstack.utils.analytics import log
-
 LOG = logging.getLogger(__name__)
 
 
@@ -364,8 +362,6 @@ def log_env_warning(deprecations: list[EnvVarDeprecation]) -> None:
             )
             env_vars.append(deprecation.env_var)
 
-        # Log an event if deprecated env vars are used
-        log.event(event="deprecated_env_usage", payload={"deprecated_env_vars": env_vars})
 
 
 def log_deprecation_warnings(deprecations: list[EnvVarDeprecation] | None = None) -> None:

@@ -17,8 +17,6 @@ from localstack.aws.protocol.parser import create_parser
 from localstack.aws.protocol.serializer import ResponseSerializer, create_serializer
 from localstack.aws.spec import load_service
 from localstack.http import Response
-from localstack.utils import analytics
-from localstack.utils.catalog.plugins import get_aws_catalog
 
 LOG = logging.getLogger(__name__)
 
@@ -219,22 +217,9 @@ class Skeleton:
         if exception_message is not None:
             message = exception_message
             error = CommonServiceException("InternalFailure", message, status_code=501)
-            # record event
-            analytics.log.event(
-                "services_notimplemented", payload={"s": service_name, "a": operation_name}
-            )
         else:
-            service_status = get_aws_catalog().get_aws_service_status(service_name, operation_name)
-            error = get_service_availability_exception(service_name, operation_name, service_status)
+            error = get_service_availability_exception(service_name, operation_name)
             message = error.message
-            analytics.log.event(
-                "services_notimplemented",
-                payload={
-                    "s": service_name,
-                    "a": operation_name,
-                    "c": error.error_code,
-                },
-            )
 
         LOG.info(message)
         context.service_exception = error

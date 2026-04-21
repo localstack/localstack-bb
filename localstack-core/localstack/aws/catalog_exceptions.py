@@ -1,9 +1,4 @@
 from localstack.aws.api import CommonServiceException
-from localstack.utils.catalog.common import (
-    AwsServiceOperationsSupportInLatest,
-    AwsServicesSupportInLatest,
-    AwsServiceSupportAtRuntime,
-)
 
 _DOCS_COVERAGE_URL = "https://docs.localstack.cloud/references/coverage"
 
@@ -50,24 +45,5 @@ class LicenseUpgradeRequiredException(AwsServiceAvailabilityException):
 def get_service_availability_exception(
     service_name: str,
     operation_name: str | None,
-    status: AwsServicesSupportInLatest | AwsServiceOperationsSupportInLatest | None,
 ) -> AwsServiceAvailabilityException:
-    match status:
-        case AwsServicesSupportInLatest.SUPPORTED:
-            return LatestVersionRequiredException(service_name)
-        case AwsServiceOperationsSupportInLatest.SUPPORTED:
-            return LatestVersionRequiredException(service_name, operation_name)
-        case (
-            AwsServicesSupportInLatest.SUPPORTED_WITH_LICENSE_UPGRADE
-            | AwsServiceSupportAtRuntime.AVAILABLE_WITH_LICENSE_UPGRADE
-        ):
-            return LicenseUpgradeRequiredException(service_name)
-        case AwsServiceOperationsSupportInLatest.SUPPORTED_WITH_LICENSE_UPGRADE:
-            return LicenseUpgradeRequiredException(service_name, operation_name)
-        case AwsServicesSupportInLatest.NOT_SUPPORTED | AwsServiceSupportAtRuntime.NOT_IMPLEMENTED:
-            return ServiceOrOperationNotSupportedException(service_name, operation_name)
-        case _:
-            return AwsServiceAvailabilityException(
-                message=f"The API for service {service_name} is either not included in your current license plan or has not yet been emulated by LocalStack.",
-                error_code=4,
-            )
+    return ServiceOrOperationNotSupportedException(service_name, operation_name)

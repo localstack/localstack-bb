@@ -4,7 +4,6 @@ import dataclasses
 import logging
 import os.path
 import subprocess
-import time
 from enum import Enum
 from functools import cached_property
 
@@ -253,14 +252,7 @@ def _run_init_scripts_on_shutdown():
 
 
 def _run_and_log(stage: Stage):
-    from localstack.utils.analytics import log
-
-    then = time.time()
-    scripts = init_script_manager().run_stage(stage)
-    took = (time.time() - then) * 1000
-
-    if scripts:
-        log.event("run_init", {"stage": stage.name, "scripts": len(scripts), "duration": took})
+    init_script_manager().run_stage(stage)
 
 
 def main():
