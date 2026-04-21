@@ -16,13 +16,6 @@ from localstack_snapshot.snapshots.transformer import (
     TimestampTransformer,
 )
 
-from localstack.aws.api.secretsmanager import CreateSecretResponse
-from localstack.aws.api.stepfunctions import (
-    CreateStateMachineOutput,
-    LongArn,
-    StartExecutionOutput,
-    StartSyncExecutionOutput,
-)
 from localstack.utils.net import IP_REGEX
 
 LOG = logging.getLogger(__name__)
@@ -655,150 +648,6 @@ class TransformerUtility:
             TransformerUtility.key_value("nextToken", "<next_token>", reference_replacement=False),
         ]
 
-    @staticmethod
-    def secretsmanager_api():
-        return [
-            KeyValueBasedTransformer(
-                lambda k, v: (
-                    k
-                    if (isinstance(k, str) and isinstance(v, list) and re.match(PATTERN_UUID, k))
-                    else None
-                ),
-                "version_uuid",
-            ),
-            KeyValueBasedTransformer(
-                lambda k, v: (
-                    v
-                    if (
-                        isinstance(k, str)
-                        and k == "VersionId"
-                        and isinstance(v, str)
-                        and re.match(PATTERN_UUID, v)
-                    )
-                    else None
-                ),
-                "version_uuid",
-            ),
-            KeyValueBasedTransformer(
-                lambda k, v: (
-                    v
-                    if (
-                        isinstance(k, str)
-                        and k == "RotationLambdaARN"
-                        and isinstance(v, str)
-                        and re.match(PATTERN_ARN, v)
-                    )
-                    else None
-                ),
-                "lambda-arn",
-            ),
-            SortingTransformer("VersionStages"),
-            SortingTransformer("Versions", lambda e: e.get("CreatedDate")),
-        ]
-
-    @staticmethod
-    def secretsmanager_secret_id_arn(create_secret_res: CreateSecretResponse, index: int):
-        secret_id_repl = f"<SecretId-{index}idx>"
-        arn_part_repl = f"<ArnPart-{index}idx>"
-
-        secret_id: str = create_secret_res["Name"]
-        arn_part: str = "".join(create_secret_res["ARN"].rpartition("-")[-2:])
-
-        return [
-            RegexTransformer(arn_part, arn_part_repl),
-            RegexTransformer(secret_id, secret_id_repl),
-        ]
-
-    @staticmethod
-    def sfn_sm_create_arn(create_sm_res: CreateStateMachineOutput, index: int):
-        arn_part_repl = f"<ArnPart_{index}idx>"
-        arn_part: str = "".join(create_sm_res["stateMachineArn"].rpartition(":")[-1])
-        return RegexTransformer(arn_part, arn_part_repl)
-
-    @staticmethod
-    def sfn_sm_exec_arn(start_exec: StartExecutionOutput, index: int):
-        arn_part_repl = f"<ExecArnPart_{index}idx>"
-        arn_part: str = "".join(start_exec["executionArn"].rpartition(":")[-1])
-        return RegexTransformer(arn_part, arn_part_repl)
-
-    @staticmethod
-    def sfn_sm_express_exec_arn(start_exec: StartExecutionOutput, index: int):
-        arn_parts = start_exec["executionArn"].split(":")
-        return [
-            RegexTransformer(arn_parts[-2], f"<ExpressExecArn_Part1_{index}idx>"),
-            RegexTransformer(arn_parts[-1], f"<ExpressExecArn_Part2_{index}idx>"),
-        ]
-
-    @staticmethod
-    def sfn_sm_sync_exec_arn(start_exec: StartSyncExecutionOutput, index: int):
-        arn_parts = start_exec["executionArn"].split(":")
-        return [
-            RegexTransformer(arn_parts[-2], f"<SyncExecArn_Part1_{index}idx>"),
-            RegexTransformer(arn_parts[-1], f"<SyncExecArn_Part2_{index}idx>"),
-        ]
-
-    @staticmethod
-    def sfn_map_run_arn(map_run_arn: LongArn, index: int) -> list[RegexTransformer]:
-        map_run_arn_part = map_run_arn.split("/")[-1]
-        arn_parts = map_run_arn_part.split(":")
-        transformers = [
-            RegexTransformer(arn_parts[1], f"<MapRunArnPart1_{index}idx>"),
-        ]
-        if re.match(PATTERN_UUID, arn_parts[0]):
-            transformers.append(RegexTransformer(arn_parts[0], f"<MapRunArnPart0_{index}idx>"))
-        return transformers
-
-    @staticmethod
-    def sfn_sqs_integration():
-        return [
-            *TransformerUtility.sqs_api(),
-            # Transform MD5OfMessageBody value bindings as in StepFunctions these are not deterministic
-            # about the input message.
-            TransformerUtility.key_value("MD5OfMessageBody"),
-            TransformerUtility.key_value("MD5OfMessageAttributes"),
-        ]
-
-    @staticmethod
-    def stepfunctions_api():
-        return [
-            JsonpathTransformer(
-                "$..SdkHttpMetadata..Date",
-                "date",
-                replace_reference=False,
-            ),
-            JsonpathTransformer(
-                "$..SdkResponseMetadata..RequestId",
-                "RequestId",
-                replace_reference=False,
-            ),
-            JsonpathTransformer(
-                "$..X-Amzn-Trace-Id",
-                "X-Amzn-Trace-Id",
-                replace_reference=False,
-            ),
-            JsonpathTransformer(
-                "$..X-Amzn-Trace-Id",
-                "X-Amzn-Trace-Id",
-                replace_reference=False,
-            ),
-            JsonpathTransformer(
-                "$..x-amz-crc32",
-                "x-amz-crc32",
-                replace_reference=False,
-            ),
-            JsonpathTransformer(
-                "$..x-amzn-RequestId",
-                "x-amzn-RequestId",
-                replace_reference=False,
-            ),
-            JsonpathTransformer(
-                "$..x-amzn-requestid",
-                "x-amzn-requestid",
-                replace_reference=False,
-            ),
-            KeyValueBasedTransformer(_transform_stepfunctions_cause_details, "json-input"),
-        ]
-
     # TODO add example
     # @staticmethod
     # def custom(fn: Callable[[dict], dict]) -> Transformer:
@@ -872,22 +721,6 @@ def _resource_name_transformer(key: str, val: str) -> str:
                 return res.split(":")[-1]  # TODO might not work for every replacement
             return res
         return None
-
-
-def _transform_stepfunctions_cause_details(key: str, val: str) -> str:
-    if key == "cause" and isinstance(val, str):
-        # the cause might contain the entire input, including http metadata (date, request-ids etc).
-        # the input is a json: if we can match the regex and parse it as a json, we remove this part from the response
-        regex = r".*'({.*})'"
-        match = re.match(regex, val)
-        if match:
-            json_input = match.groups()[0]
-            try:
-                json.loads(json_input)
-                return json_input
-            except JSONDecodeError:
-                return None
-    return None
 
 
 def _change_set_id_transformer(key: str, val: str) -> str:
