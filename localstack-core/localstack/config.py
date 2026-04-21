@@ -4,7 +4,6 @@ import os
 import platform
 import re
 import socket
-import subprocess
 import tempfile
 import time
 import warnings
@@ -287,19 +286,6 @@ def is_wsl() -> bool:
     return platform.system().lower() == "linux" and os.environ.get("WSL_DISTRO_NAME") is not None
 
 
-def ping(host):
-    """Returns True if the host responds to a ping request"""
-    is_in_windows = is_windows()
-    ping_opts = "-n 1 -w 2000" if is_in_windows else "-c 1 -W 2"
-    args = f"ping {ping_opts} {host}"
-    return (
-        subprocess.call(
-            args, shell=not is_in_windows, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        == 0
-    )
-
-
 def in_docker():
     """
     Returns True if running in a docker container, else False
@@ -467,25 +453,6 @@ FAIL_FAST = is_env_true("FAIL_FAST")
 
 # default encoding used to convert strings to byte arrays (mainly for Python 3 compatibility)
 DEFAULT_ENCODING = "utf-8"
-
-# path to local Docker UNIX domain socket
-DOCKER_SOCK = os.environ.get("DOCKER_SOCK", "").strip() or "/var/run/docker.sock"
-
-# additional flags to pass to "docker run" when starting the stack in Docker
-DOCKER_FLAGS = os.environ.get("DOCKER_FLAGS", "").strip()
-
-# command used to run Docker containers (e.g., set to "sudo docker" to run as sudo)
-DOCKER_CMD = os.environ.get("DOCKER_CMD", "").strip() or "docker"
-
-# use the command line docker client instead of the new sdk version, might get removed in the future
-LEGACY_DOCKER_CLIENT = is_env_true("LEGACY_DOCKER_CLIENT")
-
-# Docker image to use when starting up containers for port checks
-PORTS_CHECK_DOCKER_IMAGE = os.environ.get("PORTS_CHECK_DOCKER_IMAGE", "").strip()
-
-# global prefix to prepend to Docker image names (e.g., for using a custom registry mirror)
-DOCKER_GLOBAL_IMAGE_PREFIX = os.environ.get("DOCKER_GLOBAL_IMAGE_PREFIX", "").strip()
-
 
 def is_trace_logging_enabled():
     if LS_LOG:
@@ -748,15 +715,6 @@ GATEWAY_WORKER_COUNT = int(os.environ.get("GATEWAY_WORKER_COUNT") or 1000)
 # the gateway server that should be used (supported: hypercorn, twisted dev: werkzeug)
 GATEWAY_SERVER = os.environ.get("GATEWAY_SERVER", "").strip() or "twisted"
 
-# IP of the docker bridge used to enable access between containers
-DOCKER_BRIDGE_IP = os.environ.get("DOCKER_BRIDGE_IP", "").strip()
-
-# Default timeout for Docker API calls sent by the Docker SDK client, in seconds.
-DOCKER_SDK_DEFAULT_TIMEOUT_SECONDS = int(os.environ.get("DOCKER_SDK_DEFAULT_TIMEOUT_SECONDS") or 60)
-
-# Default number of retries to connect to the Docker API by the Docker SDK client.
-DOCKER_SDK_DEFAULT_RETRIES = int(os.environ.get("DOCKER_SDK_DEFAULT_RETRIES") or 0)
-
 # whether to enable API-based updates of configuration variables at runtime
 ENABLE_CONFIG_UPDATES = is_env_true("ENABLE_CONFIG_UPDATES")
 
@@ -800,9 +758,6 @@ ALLOW_NONSTANDARD_REGIONS = is_env_true("ALLOW_NONSTANDARD_REGIONS")
 if ALLOW_NONSTANDARD_REGIONS:
     os.environ["MOTO_ALLOW_NONEXISTENT_REGION"] = "true"
 
-# name of the main Docker container
-MAIN_CONTAINER_NAME = os.environ.get("MAIN_CONTAINER_NAME", "").strip() or "localstack-main"
-
 # the latest commit id of the repository when the docker image was created
 LOCALSTACK_BUILD_GIT_HASH = os.environ.get("LOCALSTACK_BUILD_GIT_HASH", "").strip() or None
 
@@ -838,17 +793,6 @@ else:
 # additional CLI commands, can be set by plugins
 CLI_COMMANDS = {}
 
-# determine IP of Docker bridge
-if not DOCKER_BRIDGE_IP:
-    DOCKER_BRIDGE_IP = "172.17.0.1"
-    if is_in_docker:
-        candidates = (DOCKER_BRIDGE_IP, "172.18.0.1")
-        for ip in candidates:
-            # TODO: remove from here - should not perform I/O operations in top-level config.py
-            if ping(ip):
-                DOCKER_BRIDGE_IP = ip
-                break
-
 # AWS account used to store internal resources such as Lambda archives or internal SQS queues.
 # It should not be modified by the user, or visible to him, except as through a presigned url with the
 # get-function call.
@@ -857,23 +801,6 @@ INTERNAL_RESOURCE_ACCOUNT = os.environ.get("INTERNAL_RESOURCE_ACCOUNT") or "9493
 # -----
 # SERVICE-SPECIFIC CONFIGS BELOW
 # -----
-
-# port ranges for external service instances (f.e. elasticsearch clusters, opensearch clusters,...)
-EXTERNAL_SERVICE_PORTS_START = int(
-    os.environ.get("EXTERNAL_SERVICE_PORTS_START")
-    or os.environ.get("SERVICE_INSTANCES_PORTS_START")
-    or 4510
-)
-EXTERNAL_SERVICE_PORTS_END = int(
-    os.environ.get("EXTERNAL_SERVICE_PORTS_END")
-    or os.environ.get("SERVICE_INSTANCES_PORTS_END")
-    or (EXTERNAL_SERVICE_PORTS_START + 50)
-)
-
-# The default container runtime to use
-CONTAINER_RUNTIME = os.environ.get("CONTAINER_RUNTIME", "").strip() or "docker"
-
-MAIN_DOCKER_NETWORK = os.environ.get("MAIN_DOCKER_NETWORK", "").strip()
 
 # Whether to return and parse access key ids starting with an "A", like on AWS
 PARITY_AWS_ACCESS_KEY_ID = is_env_true("PARITY_AWS_ACCESS_KEY_ID")
@@ -945,7 +872,6 @@ CONFIG_ENV_VARS = [
     "BOTO_WAITER_MAX_ATTEMPTS",
     "CFN_VERBOSE_ERRORS",  # retained until testing/pytest/fixtures.py is pruned in Phase 6
     "CI",
-    "CONTAINER_RUNTIME",
     "CUSTOM_SSL_CERT_PATH",
     "DEBUG",
     "DEBUG_HANDLER_CHAIN",
@@ -966,8 +892,6 @@ CONFIG_ENV_VARS = [
     "DNS_RESOLVE_IP",
     "DNS_SERVER",
     "DNS_VERIFICATION_DOMAIN",
-    "DOCKER_BRIDGE_IP",
-    "DOCKER_SDK_DEFAULT_TIMEOUT_SECONDS",
     "EAGER_SERVICE_LOADING",
     "ENABLE_CONFIG_UPDATES",
     "EXTRA_CORS_ALLOWED_HEADERS",
@@ -978,22 +902,18 @@ CONFIG_ENV_VARS = [
     "GATEWAY_WORKER_THREAD_COUNT",
     "HOSTNAME",
     "IN_MEMORY_CLIENT",
-    "LEGACY_DOCKER_CLIENT",
     "LOCALSTACK_API_KEY",
     "LOCALSTACK_AUTH_TOKEN",
     "LOCALSTACK_HOST",
     "LOCALSTACK_RESPONSE_HEADER_ENABLED",
     "LOG_LICENSE_ISSUES",
     "LS_LOG",
-    "MAIN_CONTAINER_NAME",
-    "MAIN_DOCKER_NETWORK",
     "OPENAPI_VALIDATE_REQUEST",
     "OPENAPI_VALIDATE_RESPONSE",
     "OUTBOUND_HTTP_PROXY",
     "OUTBOUND_HTTPS_PROXY",
     "PARITY_AWS_ACCESS_KEY_ID",
     "PERSISTENCE",
-    "PORTS_CHECK_DOCKER_IMAGE",
     "REQUESTS_CA_BUNDLE",
     "REMOVE_SSL_CERT",
     "SERVICES",

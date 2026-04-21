@@ -457,47 +457,6 @@ class PortRange:
         return f"PortRange({self.start}:{self.end})"
 
 
-@singleton_factory
-def get_docker_host_from_container() -> str:
-    """
-    Get the hostname/IP to connect to the host from within a Docker container (e.g., Lambda function).
-    The logic is roughly as follows:
-      1. return `host.docker.internal` if we're running in host mode, in a non-Linux OS
-      2. return the IP address that `host.docker.internal` (or alternatively `host.containers.internal`)
-        resolves to, if we're inside Docker
-      3. return the Docker bridge IP (config.DOCKER_BRIDGE_IP) as a fallback, if option (2) fails
-    """
-    result = config.DOCKER_BRIDGE_IP
-    try:
-        if not config.is_in_docker and not config.is_in_linux:
-            # If we're running outside Docker (in host mode), and would like the Lambda containers to be able
-            # to access services running on the local machine, return `host.docker.internal` accordingly
-            result = "host.docker.internal"
-        if config.is_in_docker:
-            try:
-                result = socket.gethostbyname("host.docker.internal")
-            except OSError:
-                result = socket.gethostbyname("host.containers.internal")
-    except OSError:
-        # TODO if neither host resolves, we might be in linux. We could just use the default gateway then
-        pass
-    return result
-
-
-def get_addressable_container_host(default_local_hostname: str = None) -> str:
-    """
-    Return the target host to address endpoints exposed by Docker containers, depending on
-    the current execution context.
-
-    If we're currently executing within Docker, then return get_docker_host_from_container(); otherwise, return
-    the value of `LOCALHOST_HOSTNAME`, assuming that container endpoints are exposed and accessible under localhost.
-
-    :param default_local_hostname: local hostname to return, if running outside Docker (defaults to LOCALHOST_HOSTNAME)
-    """
-    default_local_hostname = default_local_hostname or constants.LOCALHOST_HOSTNAME
-    return get_docker_host_from_container() if config.is_in_docker else default_local_hostname
-
-
 def send_dns_query(
     name: str,
     port: int = 53,

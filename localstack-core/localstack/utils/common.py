@@ -210,18 +210,6 @@ from localstack.utils.urls import path_from_url  # noqa
 from localstack.utils.xml import obj_to_xml, strip_xmlns  # noqa
 
 
-# TODO: move somewhere sensible (probably localstack.runtime)
-class ExternalServicePortsManager(PortRange):
-    """Manages the ports used for starting external services like ElasticSearch, OpenSearch,..."""
-
-    def __init__(self):
-        super().__init__(config.EXTERNAL_SERVICE_PORTS_START, config.EXTERNAL_SERVICE_PORTS_END)
-
-
-external_service_ports = ExternalServicePortsManager()
-"""The PortRange object of LocalStack's external service port range. This port range is by default exposed by the
-localstack container when starting via the CLI."""
-
 # TODO: replace references with config.get_protocol/config.edge_ports_info
 get_service_protocol = config.get_protocol
 
