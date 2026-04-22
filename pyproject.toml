@@ -207,7 +207,6 @@ source = [
 ]
 omit = [
     "*/aws/api/*",
-    "*/extensions/api/*",
     "*/services/stepfunctions/asl/antlr/runtime/*"
 ]
 dynamic_context = "test_function"
