@@ -74,3 +74,4 @@ gen/
 # RAW snapshots
 *.raw.snapshot.json
 
+requirements.txt
