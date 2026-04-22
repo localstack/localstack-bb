@@ -1,0 +1,12 @@
+{
+  "targets": {
+    "run": {
+      "label": "localstack",
+      "command": "cd localstack-core; ACTIVATE_PRO=0 DEBUG=0 LOCALSTACK_API_KEY=test python -m localstack.runtime.main"
+    },
+    "test": {
+      "label": "tests",
+      "command": "PYTHONPATH=$PYTHONPATH:localstack-core python -m pytest tests/aws/services/transfer/"
+    }
+  }
+}
