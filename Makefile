@@ -5,7 +5,7 @@ start:                ## Start LocalStack in host mode
 	python3 -m localstack.runtime.main
 
 test-transfer:        ## Run Transfer service tests
-	pytest tests/aws/services/transfer/ -x -q
+	pytest tests/aws/services/transfer/
 
 clean:                ## Remove pyc files, .filesystem, and .mypy_cache
 	find . -name "*.pyc" -delete && find . -name "__pycache__" -type d -empty -delete
