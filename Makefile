@@ -1,14 +1,18 @@
-install:              ## Install dependencies
+install:
 	pip install -e ".[runtime,test]"
 
-start:                ## Start LocalStack in host mode
+start:
 	python3 -m localstack.runtime.main
 
-test-transfer:        ## Run Transfer service tests
-	pytest tests/aws/services/transfer/
+test:
+	pytest tests/
 
-clean:                ## Remove pyc files, .filesystem, and .mypy_cache
+clean:
 	find . -name "*.pyc" -delete && find . -name "__pycache__" -type d -empty -delete
 	rm -rf .filesystem localstack-core/.filesystem .mypy_cache
+	rm requirements.txt
 
-.PHONY: install start test-transfer clean
+requirements.txt:
+	uv pip compile pyproject.toml -o requirements.txt --extra runtime,test,dev
+
+.PHONY: install start test clean
