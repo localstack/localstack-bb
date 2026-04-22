@@ -8,10 +8,6 @@ from contextlib import closing
 from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
-import dns.resolver
-from dnslib import DNSRecord
-
-
 from .collections import CustomExpiryTTLCache
 from .numbers import is_number
 from .sync import retry
@@ -82,17 +78,8 @@ def is_port_open(
             sock.settimeout(1)
             if nw_protocol == socket.SOCK_DGRAM:
                 try:
-                    if port == 53:
-                        dnshost = "127.0.0.1" if host == "localhost" else host
-                        resolver = dns.resolver.Resolver()
-                        resolver.nameservers = [dnshost]
-                        resolver.timeout = 1
-                        resolver.lifetime = 1
-                        answers = resolver.query("google.com", "A")
-                        assert len(answers) > 0
-                    else:
-                        sock.sendto(b"", (host, port))
-                        sock.recvfrom(1024)
+                    sock.sendto(b"", (host, port))
+                    sock.recvfrom(1024)
                 except Exception:
                     if not quiet:
                         LOG.error(
@@ -453,20 +440,6 @@ class PortRange:
 
     def __repr__(self):
         return f"PortRange({self.start}:{self.end})"
-
-
-def send_dns_query(
-    name: str,
-    port: int = 53,
-    ip_address: str = "127.0.0.1",
-    qtype: str = "A",
-    timeout: float = 1.0,
-    tcp: bool = False,
-) -> DNSRecord:
-    LOG.debug("querying %s:%d for name %s", ip_address, port, name)
-    request = DNSRecord.question(qname=name, qtype=qtype)
-    reply_bytes = request.send(dest=ip_address, port=port, tcp=tcp, timeout=timeout, ipv6=False)
-    return DNSRecord.parse(reply_bytes)
 
 
 dynamic_port_range = PortRange(DYNAMIC_PORT_RANGE_START, DYNAMIC_PORT_RANGE_END)

@@ -13,22 +13,12 @@ import threading
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import lru_cache, partial
-from random import choice
 from socket import socket
 from typing import Any, Generic, TypedDict, TypeVar
 
-import dns.message
-import dns.query
 from boto3.session import Session
-from botocore.awsrequest import (
-    AWSHTTPConnection,
-    AWSHTTPConnectionPool,
-    AWSHTTPSConnection,
-    AWSHTTPSConnectionPool,
-)
 from botocore.client import BaseClient
 from botocore.config import Config
-from botocore.httpsession import URLLib3Session
 from botocore.waiter import Waiter
 
 from localstack import config as localstack_config
@@ -662,110 +652,6 @@ class ExternalAwsClientFactory(ClientFactory):
             aws_secret_access_key=aws_secret_access_key,
             aws_session_token=aws_session_token,
         )
-
-
-def resolve_dns_from_upstream(hostname: str) -> str:
-    from localstack.dns.server import get_fallback_dns_server
-
-    upstream_dns = get_fallback_dns_server()
-    request = dns.message.make_query(hostname, "A")
-    response = dns.query.udp(request, upstream_dns, port=53, timeout=5)
-    if len(response.answer) == 0:
-        raise ValueError(f"No DNS response found for hostname '{hostname}'")
-
-    ip_addresses = []
-    for answer in response.answer:
-        if answer.match(dns.rdataclass.IN, dns.rdatatype.A, dns.rdatatype.NONE):
-            ip_addresses.extend(answer.items.keys())
-
-    if not ip_addresses:
-        raise ValueError(f"No DNS records of type 'A' found for hostname '{hostname}'")
-
-    return choice(ip_addresses).address
-
-
-class ExternalBypassDnsClientFactory(ExternalAwsClientFactory):
-    """
-    Client factory that makes requests against AWS ensuring that DNS resolution is not affected by the LocalStack DNS
-    server.
-    """
-
-    def __init__(
-        self,
-        session: Session = None,
-        config: Config = None,
-    ):
-        if ca_cert := os.getenv("REQUESTS_CA_BUNDLE"):
-            LOG.debug("Creating External AWS Client with REQUESTS_CA_BUNDLE=%s", ca_cert)
-
-        proxy_config = Config(
-            proxies={
-                "http": localstack_config.OUTBOUND_HTTP_PROXY,
-                "https": localstack_config.OUTBOUND_HTTPS_PROXY,
-            }
-        )
-
-        super().__init__(
-            use_ssl=localstack_config.is_env_not_false("USE_SSL"),
-            verify=ca_cert or True,
-            session=session,
-            config=config.merge(proxy_config) if config else proxy_config,
-        )
-
-    def _get_client_post_hook(self, client: BaseClient) -> BaseClient:
-        client = super()._get_client_post_hook(client)
-        client._endpoint.http_session = ExternalBypassDnsSession(
-            verify=self._verify, proxies=self._config.proxies
-        )
-        return client
-
-
-class ExternalBypassDnsHTTPConnection(AWSHTTPConnection):
-    """
-    Connection class that bypasses the LocalStack DNS server for HTTP connections
-    """
-
-    def _new_conn(self) -> socket:
-        orig_host = self._dns_host
-        try:
-            self._dns_host = resolve_dns_from_upstream(self._dns_host)
-            return super()._new_conn()
-        finally:
-            self._dns_host = orig_host
-
-
-class ExternalBypassDnsHTTPSConnection(AWSHTTPSConnection):
-    """
-    Connection class that bypasses the LocalStack DNS server for HTTPS connections
-    """
-
-    def _new_conn(self) -> socket:
-        orig_host = self._dns_host
-        try:
-            self._dns_host = resolve_dns_from_upstream(self._dns_host)
-            return super()._new_conn()
-        finally:
-            self._dns_host = orig_host
-
-
-class ExternalBypassDnsHTTPConnectionPool(AWSHTTPConnectionPool):
-    ConnectionCls = ExternalBypassDnsHTTPConnection
-
-
-class ExternalBypassDnsHTTPSConnectionPool(AWSHTTPSConnectionPool):
-    ConnectionCls = ExternalBypassDnsHTTPSConnection
-
-
-class ExternalBypassDnsSession(URLLib3Session):
-    """
-    urllib3 session wrapper that uses our custom connection pool.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._pool_classes_by_scheme["https"] = ExternalBypassDnsHTTPSConnectionPool
-        self._pool_classes_by_scheme["http"] = ExternalBypassDnsHTTPConnectionPool
 
 
 connect_to = InternalClientFactory(use_ssl=localstack_config.DISTRIBUTED_MODE)
