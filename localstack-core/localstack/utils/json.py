@@ -186,7 +186,9 @@ def assign_to_path(target: dict, path: str, value: any, delimiter: str = ".") ->
         return target
 
     path_to_parent = delimiter.join(parts[:-1])
-    parent = extract_from_jsonpointer_path(target, path_to_parent, delimiter, auto_create=True)
+    parent = extract_from_jsonpointer_path(
+        target, path_to_parent, delimiter, auto_create=True
+    )
     if not isinstance(parent, dict):
         LOG.debug(
             'Unable to find parent (type %s) for path "%s" in object: %s',
@@ -200,7 +202,9 @@ def assign_to_path(target: dict, path: str, value: any, delimiter: str = ".") ->
     return target
 
 
-def extract_from_jsonpointer_path(target, path: str, delimiter: str = "/", auto_create=False):
+def extract_from_jsonpointer_path(
+    target, path: str, delimiter: str = "/", auto_create=False
+):
     parts = path.strip(delimiter).split(delimiter)
     for part in parts:
         path_part = int(part) if is_number(part) else part
@@ -208,9 +212,15 @@ def extract_from_jsonpointer_path(target, path: str, delimiter: str = "/", auto_
             if path_part == "-":
                 # special case where path is like /path/to/list/- where "/-" means "append to list"
                 continue
-            LOG.warning('Attempting to extract non-int index "%s" from list: %s', path_part, target)
+            LOG.warning(
+                'Attempting to extract non-int index "%s" from list: %s',
+                path_part,
+                target,
+            )
             return None
-        target_new = target[path_part] if isinstance(target, list) else target.get(path_part)
+        target_new = (
+            target[path_part] if isinstance(target, list) else target.get(path_part)
+        )
         if target_new is None:
             if not auto_create:
                 return

@@ -17,7 +17,10 @@ from ..chain import CompositeResponseHandler, ExceptionHandler, Handler, Handler
 from ..client import parse_response, parse_service_exception
 from ..protocol.parser import RequestParser, create_parser
 from ..protocol.serializer import create_serializer
-from ..protocol.service_router import determine_aws_protocol, determine_aws_service_model
+from ..protocol.service_router import (
+    determine_aws_protocol,
+    determine_aws_service_model,
+)
 from ..skeleton import Skeleton, create_skeleton
 from .exceptions import PluginNotIncludedInUserLicenseError
 
@@ -29,13 +32,17 @@ class ServiceNameParser(Handler):
     A handler that parses heuristically from the request the AWS service the request is addressed to.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         # Some early handlers can already determine the AWS service the request is directed to (the S3 CORS handler for
         # example). If it is already set, we can skip the parsing of the request. It is very important for S3, because
         # parsing the request will consume the data stream and prevent streaming.
         if context.service:
             if not context.protocol:
-                context.protocol = determine_aws_protocol(context.request, context.service)
+                context.protocol = determine_aws_protocol(
+                    context.request, context.service
+                )
             return
 
         service_model = determine_aws_service_model(context.request)
@@ -58,7 +65,9 @@ class ServiceRequestParser(Handler):
     def __init__(self):
         self.parsers = {}
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         # determine service
         if not context.service:
             LOG.debug("no service set in context, skipping request parsing")
@@ -83,7 +92,9 @@ class SkeletonHandler(Handler):
     def __init__(self, skeleton: Skeleton):
         self.skeleton = skeleton
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         skeleton_response = self.skeleton.invoke(context)
         response.update_from(skeleton_response)
 
@@ -98,7 +109,9 @@ class ServiceRequestRouter(Handler):
     def __init__(self):
         self.handlers = {}
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if not context.service:
             return
 
@@ -139,7 +152,9 @@ class ServiceRequestRouter(Handler):
         operation = context.operation
         service_name = operation.service_model.service_name
         operation_name = operation.name
-        message = f"no handler for operation '{operation_name}' on service '{service_name}'"
+        message = (
+            f"no handler for operation '{operation_name}' on service '{service_name}'"
+        )
         error = CommonServiceException("InternalFailure", message, status_code=501)
         serializer = create_serializer(context.service, context.protocol)
         return serializer.serialize_error_to_response(
@@ -178,12 +193,20 @@ class ServiceExceptionSerializer(ExceptionHandler):
 
         if operation and isinstance(exception, NotImplementedError):
             operation_name = operation.name
-            exception_message: str | None = exception.args[0] if exception.args else None
+            exception_message: str | None = (
+                exception.args[0] if exception.args else None
+            )
             if exception_message:
                 message = exception_message
-                error = CommonServiceException("InternalFailure", message, status_code=501)
+                error = CommonServiceException(
+                    "InternalFailure", message, status_code=501
+                )
             else:
-                op = None if isinstance(exception, PluginNotIncludedInUserLicenseError) else operation_name
+                op = (
+                    None
+                    if isinstance(exception, PluginNotIncludedInUserLicenseError)
+                    else operation_name
+                )
                 error = get_service_availability_exception(service_name, op)
                 message = error.message
             LOG.info(message)
@@ -207,7 +230,9 @@ class ServiceExceptionSerializer(ExceptionHandler):
                 msg = f"exception while calling {service_name}.{operation_name}: {message}"
             else:
                 # just use any operation for mocking purposes (the parser needs it to populate the default response)
-                operation = context.service.operation_model(context.service.operation_names[0])
+                operation = context.service.operation_model(
+                    context.service.operation_names[0]
+                )
                 msg = f"exception while calling {service_name} with unknown operation: {message}"
 
             status_code = 501 if config.FAIL_FAST else 500
@@ -236,7 +261,9 @@ class ServiceResponseParser(Handler):
     code, sender_fault, and message have values.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if not context.operation:
             return
 
@@ -262,7 +289,10 @@ class ServiceResponseParser(Handler):
 
         # in this case we need to parse the raw response
         parsed = parse_response(
-            context.operation, context.protocol, response, include_response_metadata=False
+            context.operation,
+            context.protocol,
+            response,
+            include_response_metadata=False,
         )
         if service_exception := parse_service_exception(response, parsed):
             context.service_exception = service_exception
@@ -291,7 +321,9 @@ class ServiceResponseHandlers(Handler):
     def __init__(self):
         self.handlers = defaultdict(CompositeResponseHandler)
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if not context.service:
             return
 

@@ -18,7 +18,12 @@ from localstack.runtime import hooks
 from localstack.utils.patch import Patch, patch
 from localstack.utils.strings import to_str
 
-from .api import CommonServiceException, RequestContext, ServiceException, ServiceResponse
+from .api import (
+    CommonServiceException,
+    RequestContext,
+    ServiceException,
+    ServiceResponse,
+)
 from .connect import get_service_endpoint
 from .gateway import Gateway
 from .spec import ProtocolName
@@ -321,7 +326,9 @@ def parse_response(
         response_dict["body"] = response.data
 
     factory = ResponseParserFactory()
-    if response.content_type and response.content_type.startswith("application/x-amz-cbor"):
+    if response.content_type and response.content_type.startswith(
+        "application/x-amz-cbor"
+    ):
         # botocore cannot handle CBOR encoded responses (because it never sends them), we need to modify the parser
         factory.set_parser_defaults(
             timestamp_parser=_cbor_timestamp_parser, blob_parser=_cbor_blob_parser
@@ -340,7 +347,9 @@ def parse_response(
     return parsed_response
 
 
-def parse_service_exception(response: Response, parsed_response: dict) -> ServiceException | None:
+def parse_service_exception(
+    response: Response, parsed_response: dict
+) -> ServiceException | None:
     """
     Creates a ServiceException (one ASF can handle) from a parsed response (one that botocore would return).
     It does not automatically raise the exception (see #raise_service_exception).
@@ -430,4 +439,6 @@ class GatewayShortCircuit:
 
     @staticmethod
     def modify_client(client, gateway):
-        client.meta.events.register_first("before-send.*.*", GatewayShortCircuit(gateway))
+        client.meta.events.register_first(
+            "before-send.*.*", GatewayShortCircuit(gateway)
+        )

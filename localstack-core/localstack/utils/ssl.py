@@ -21,7 +21,9 @@ _SERVER_CERT_PEM_FILE = "server.test.pem"
 def install_predefined_cert_if_available():
     try:
         if config.SKIP_SSL_CERT_DOWNLOAD:
-            LOG.debug("Skipping download of local SSL cert, as SKIP_SSL_CERT_DOWNLOAD=1")
+            LOG.debug(
+                "Skipping download of local SSL cert, as SKIP_SSL_CERT_DOWNLOAD=1"
+            )
             return
         setup_ssl_cert()
     except Exception:
@@ -36,7 +38,9 @@ def setup_ssl_cert() -> None:
         cache_duration_secs = 24 * 60 * 60
         mod_time = os.path.getmtime(target_file)
         if mod_time > (now() - cache_duration_secs):
-            LOG.debug("Using cached SSL certificate (less than 6hrs since last update).")
+            LOG.debug(
+                "Using cached SSL certificate (less than 6hrs since last update)."
+            )
             return
 
     # download certificate from GitHub artifacts
@@ -63,7 +67,9 @@ def setup_ssl_cert() -> None:
 
 
 def get_cert_pem_file_path():
-    return config.CUSTOM_SSL_CERT_PATH or os.path.join(config.dirs.cache, _SERVER_CERT_PEM_FILE)
+    return config.CUSTOM_SSL_CERT_PATH or os.path.join(
+        config.dirs.cache, _SERVER_CERT_PEM_FILE
+    )
 
 
 def create_ssl_cert(serial_number=None):

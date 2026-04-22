@@ -35,7 +35,9 @@ class HmacV1QueryAuth(HmacV1Auth):
     def get_string_to_sign(self, method, split, headers, expires=None, auth_path=None):
         if self.credentials.token:
             headers["x-amz-security-token"] = self.credentials.token
-        string_to_sign = self.canonical_string(method, split, headers, auth_path=auth_path)
+        string_to_sign = self.canonical_string(
+            method, split, headers, auth_path=auth_path
+        )
         return string_to_sign
 
 

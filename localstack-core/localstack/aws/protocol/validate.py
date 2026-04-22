@@ -162,7 +162,9 @@ class ParamValidator(BotocoreParamValidator):
         super()._validate_structure(params, shape, errors, name)
 
 
-def validate_request(operation: OperationModel, request: ServiceRequest) -> ValidationErrors:
+def validate_request(
+    operation: OperationModel, request: ServiceRequest
+) -> ValidationErrors:
     """
     Validates the service request with the input shape of the given operation.
 

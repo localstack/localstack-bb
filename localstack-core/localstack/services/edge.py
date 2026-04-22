@@ -74,7 +74,9 @@ def start_component(
     raise Exception(f"Unexpected component name '{component}' received during start up")
 
 
-def start_proxy(listen_str: str, target_address: HostAndPort, asynchronous: bool = False):
+def start_proxy(
+    listen_str: str, target_address: HostAndPort, asynchronous: bool = False
+):
     """
     Starts a TCP proxy to perform a low-level forwarding of incoming requests.
 
@@ -92,7 +94,9 @@ def start_proxy(listen_str: str, target_address: HostAndPort, asynchronous: bool
     return do_start_tcp_proxy(listen, target_address, asynchronous)
 
 
-def do_start_tcp_proxy(listen: HostAndPort, target_address: HostAndPort, asynchronous: bool = False):
+def do_start_tcp_proxy(
+    listen: HostAndPort, target_address: HostAndPort, asynchronous: bool = False
+):
     from localstack.utils.server.tcp_proxy import TCPProxy
 
     src = str(listen)
@@ -114,7 +118,9 @@ def do_start_tcp_proxy(listen: HostAndPort, target_address: HostAndPort, asynchr
 def start_edge(listen_str: str, use_ssl: bool = True, asynchronous: bool = False):
     if listen_str:
         listen = parse_gateway_listen(
-            listen_str, default_host=config.default_ip, default_port=constants.DEFAULT_PORT_EDGE
+            listen_str,
+            default_host=config.default_ip,
+            default_port=constants.DEFAULT_PORT_EDGE,
         )
     else:
         listen = config.GATEWAY_LISTEN
@@ -123,7 +129,9 @@ def start_edge(listen_str: str, use_ssl: bool = True, asynchronous: bool = False
         raise ValueError("no listen addresses provided")
 
     # separate privileged and unprivileged addresses
-    unprivileged, privileged = split_list_by(listen, lambda addr: addr.is_unprivileged() or False)
+    unprivileged, privileged = split_list_by(
+        listen, lambda addr: addr.is_unprivileged() or False
+    )
 
     # if we are root, we can directly bind to privileged ports as well
     if is_root():
@@ -187,12 +195,16 @@ def run_module_as_sudo(
 
     LOG.debug("Running command as sudo: %s", shell_cmd)
     result = (
-        start_thread(run_command, quiet=True, name="sudo-edge") if asynchronous else run_command()
+        start_thread(run_command, quiet=True, name="sudo-edge")
+        if asynchronous
+        else run_command()
     )
     return result
 
 
-def parse_gateway_listen(listen: str, default_host: str, default_port: int) -> list[HostAndPort]:
+def parse_gateway_listen(
+    listen: str, default_host: str, default_port: int
+) -> list[HostAndPort]:
     addresses = []
     for address in listen.split(","):
         addresses.append(HostAndPort.parse(address, default_host, default_port))

@@ -69,7 +69,9 @@ class VirtualEnvironment:
             raise FileNotFoundError(f"could not find site-packages directory in {venv}")
 
         if len(matches) > 1:
-            raise FileNotFoundError(f"multiple python versions found in {venv}: {matches}")
+            raise FileNotFoundError(
+                f"multiple python versions found in {venv}: {matches}"
+            )
 
         return matches[0]
 
@@ -78,7 +80,9 @@ class VirtualEnvironment:
         if path and path not in sys.path:
             sys.path.append(path)
 
-    def add_pth(self, name, path: Union[str, os.PathLike, "VirtualEnvironment"]) -> None:
+    def add_pth(
+        self, name, path: Union[str, os.PathLike, "VirtualEnvironment"]
+    ) -> None:
         """
         Add a <name>.pth file into the virtual environment and append the given path to it. Does nothing if the path
         is already in the file.

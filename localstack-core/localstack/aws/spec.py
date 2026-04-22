@@ -21,7 +21,9 @@ from localstack.utils.objects import singleton_factory
 LOG = logging.getLogger(__name__)
 
 ServiceName = str
-ProtocolName = Literal["query", "json", "rest-json", "rest-xml", "ec2", "smithy-rpc-v2-cbor"]
+ProtocolName = Literal[
+    "query", "json", "rest-json", "rest-xml", "ec2", "smithy-rpc-v2-cbor"
+]
 
 
 class ServiceModelIdentifier(NamedTuple):
@@ -47,13 +49,17 @@ def load_spec_patches() -> dict[str, list]:
 
 
 # Path for custom specs which are not (anymore) provided by botocore
-LOCALSTACK_BUILTIN_DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+LOCALSTACK_BUILTIN_DATA_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "data"
+)
 
 
 class LocalStackBuiltInDataLoaderMixin(Loader):
     def __init__(self, *args, **kwargs):
         # add the builtin data path to the extra_search_paths to ensure they are discovered by the loader
-        super().__init__(*args, extra_search_paths=[LOCALSTACK_BUILTIN_DATA_PATH], **kwargs)
+        super().__init__(
+            *args, extra_search_paths=[LOCALSTACK_BUILTIN_DATA_PATH], **kwargs
+        )
 
 
 class PatchingLoader(Loader):
@@ -97,11 +103,15 @@ class UnknownServiceProtocolError(UnknownServiceError):
 
 
 def list_services() -> list[ServiceModel]:
-    return [load_service(service) for service in loader.list_available_services("service-2")]
+    return [
+        load_service(service) for service in loader.list_available_services("service-2")
+    ]
 
 
 def load_service(
-    service: ServiceName, version: str | None = None, protocol: ProtocolName | None = None
+    service: ServiceName,
+    version: str | None = None,
+    protocol: ProtocolName | None = None,
 ) -> ServiceModel:
     """
     Loads a service
@@ -204,7 +214,9 @@ class LazyServiceCatalogIndex:
             for service_model in service_models:
                 target_prefix = service_model.metadata.get("targetPrefix")
                 if target_prefix:
-                    result[target_prefix].append(get_service_model_identifier(service_model))
+                    result[target_prefix].append(
+                        get_service_model_identifier(service_model)
+                    )
         return dict(result)
 
     @cached_property
@@ -225,7 +237,9 @@ class LazyServiceCatalogIndex:
                 operations = service_model.operation_names
                 if operations:
                     for operation in operations:
-                        result[operation].append(get_service_model_identifier(service_model))
+                        result[operation].append(
+                            get_service_model_identifier(service_model)
+                        )
         return dict(result)
 
     @cached_property
@@ -253,7 +267,9 @@ class ServiceCatalog:
         self.index = index or LazyServiceCatalogIndex()
 
     @lru_cache(maxsize=512)
-    def get(self, name: ServiceName, protocol: ProtocolName | None = None) -> ServiceModel | None:
+    def get(
+        self, name: ServiceName, protocol: ProtocolName | None = None
+    ) -> ServiceModel | None:
         return load_service(name, protocol=protocol)
 
     @property
@@ -309,7 +325,9 @@ def load_service_index_cache(file: str) -> ServiceCatalogIndex:
         return dill.load(fd)
 
 
-def save_service_index_cache(index: LazyServiceCatalogIndex, file_path: str) -> ServiceCatalogIndex:
+def save_service_index_cache(
+    index: LazyServiceCatalogIndex, file_path: str
+) -> ServiceCatalogIndex:
     """
     Creates from the given LazyServiceCatalogIndex a ``ServiceCatalogIndex`, stores its contents into the given file,
     and then returns the newly created index.
@@ -351,15 +369,21 @@ def get_service_catalog() -> ServiceCatalog:
         index = None
         if os.path.exists(static_catalog_file):
             # load the service catalog from the static libs dir / built at build time
-            LOG.debug("loading service catalog index cache file %s", static_catalog_file)
+            LOG.debug(
+                "loading service catalog index cache file %s", static_catalog_file
+            )
             index = load_service_index_cache(static_catalog_file)
         elif os.path.isdir(config.dirs.cache):
             cache_catalog_file = os.path.join(config.dirs.cache, catalog_file_name)
             if os.path.exists(cache_catalog_file):
-                LOG.debug("loading service catalog index cache file %s", cache_catalog_file)
+                LOG.debug(
+                    "loading service catalog index cache file %s", cache_catalog_file
+                )
                 index = load_service_index_cache(cache_catalog_file)
             else:
-                LOG.debug("building service catalog index cache file %s", cache_catalog_file)
+                LOG.debug(
+                    "building service catalog index cache file %s", cache_catalog_file
+                )
                 index = build_service_index_cache(cache_catalog_file)
         return ServiceCatalog(index)
     except Exception:
@@ -376,7 +400,8 @@ def main():
 
     if os.path.exists(static_catalog_file):
         LOG.error(
-            "service catalog index cache file (%s) already there. aborting!", static_catalog_file
+            "service catalog index cache file (%s) already there. aborting!",
+            static_catalog_file,
         )
         return 1
 

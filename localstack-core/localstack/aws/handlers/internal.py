@@ -27,7 +27,9 @@ class LocalstackResourceHandler(Handler):
 
         self.resources = resources or get_internal_apis()
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         try:
             # serve
             response.update_from(self.resources.dispatch(context.request))
@@ -41,7 +43,9 @@ class LocalstackResourceHandler(Handler):
 
 
 class RuntimeShutdownHandler(Handler):
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if events.infra_stopped.is_set():
             chain.respond(503)
         elif events.infra_stopping.is_set():

@@ -69,7 +69,9 @@ def canonicalize_headers(headers: dict | CaseInsensitiveDict) -> dict:
 def add_path_parameters_to_url(uri: str, path_params: list):
     url = urlparse(uri)
     last_character = (
-        "/" if (len(url.path) == 0 or url.path[-1] != "/") and len(path_params) > 0 else ""
+        "/"
+        if (len(url.path) == 0 or url.path[-1] != "/") and len(path_params) > 0
+        else ""
     )
     new_path = url.path + last_character + "/".join(path_params)
     return urlunparse(url._replace(path=new_path))
@@ -102,10 +104,18 @@ def add_query_params_to_url(uri: str, query_params: dict) -> str:
 
 
 def make_http_request(
-    url: str, data: bytes | str = None, headers: dict[str, str] = None, method: str = "GET"
+    url: str,
+    data: bytes | str = None,
+    headers: dict[str, str] = None,
+    method: str = "GET",
 ) -> Response:
     return requests.request(
-        url=url, method=method, headers=headers, data=data, auth=NetrcBypassAuth(), verify=False
+        url=url,
+        method=method,
+        headers=headers,
+        data=data,
+        auth=NetrcBypassAuth(),
+        verify=False,
     )
 
 
@@ -129,7 +139,11 @@ class _RequestsSafe:
             if "auth" not in kwargs:
                 kwargs["auth"] = NetrcBypassAuth()
             url = kwargs.get("url") or (args[1] if name == "request" else args[0])
-            if not self.verify_ssl and url.startswith("https://") and "verify" not in kwargs:
+            if (
+                not self.verify_ssl
+                and url.startswith("https://")
+                and "verify" not in kwargs
+            ):
                 kwargs["verify"] = False
             return method(*args, **kwargs)
 
@@ -151,7 +165,9 @@ def parse_request_data(method: str, path: str, data=None, headers=None) -> dict:
     result.update(parse_qs(parsed_path.query))
 
     # add params from url-encoded payload
-    if method in ["POST", "PUT", "PATCH"] and (not content_type or "form-" in content_type):
+    if method in ["POST", "PUT", "PATCH"] and (
+        not content_type or "form-" in content_type
+    ):
         # content-type could be either "application/x-www-form-urlencoded" or "multipart/form-data"
         try:
             params = parse_qs(to_str(data or ""))
@@ -198,7 +214,9 @@ def download(
 
     r = None
     try:
-        r = s.get(url, stream=True, verify=_verify, timeout=timeout, headers=request_headers)
+        r = s.get(
+            url, stream=True, verify=_verify, timeout=timeout, headers=request_headers
+        )
         # check status code before attempting to read body
         if not r.ok:
             raise Exception(f"Failed to download {url}, response code {r.status_code}")
@@ -214,10 +232,10 @@ def download(
             LOG.debug("Starting download from %s to %s", url, path)
         with open(path, "wb") as f:
             iter_length = 0
-            percentage_limit = next_percentage_record = 10  # print a log line for every 10%
-            iter_limit = (
-                1000000  # if we can't tell the percentage, print a log line for every 1MB chunk
+            percentage_limit = next_percentage_record = (
+                10  # print a log line for every 10%
             )
+            iter_limit = 1000000  # if we can't tell the percentage, print a log line for every 1MB chunk
             for chunk in r.iter_content(DOWNLOAD_CHUNK_SIZE):
                 # explicitly check the raw stream, since the size from the chunk can be bigger than the amount of
                 # bytes transferred over the wire due to transparent decompression (f.e. GZIP)
@@ -242,7 +260,8 @@ def download(
                     # increment the limit for the next log output (ensure that there is max 1 log message per block)
                     # f.e. percentage_limit is 10, current percentage is 71: next log is earliest at 80%
                     next_percentage_record = (
-                        math.floor(current_percent / percentage_limit) * percentage_limit
+                        math.floor(current_percent / percentage_limit)
+                        * percentage_limit
                         + percentage_limit
                     )
                     if not quiet:
@@ -290,10 +309,17 @@ def download_github_artifact(url: str, target_file: str, timeout: int = None):
     Optionally allows to define a timeout in seconds."""
 
     def do_download(
-        download_url: str, request_headers: dict | None = None, print_error: bool = False
+        download_url: str,
+        request_headers: dict | None = None,
+        print_error: bool = False,
     ):
         try:
-            download(download_url, target_file, timeout=timeout, request_headers=request_headers)
+            download(
+                download_url,
+                target_file,
+                timeout=timeout,
+                request_headers=request_headers,
+            )
             return True
         except Exception as e:
             if print_error:

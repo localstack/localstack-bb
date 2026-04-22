@@ -73,5 +73,7 @@ def enable_duplex_socket():
             is_ssl_socket = await run_sync(DuplexSocket.is_ssl_socket, conn)
             if is_ssl_socket is False:
                 sslcontext = None
-            result = await fn(self, protocol_factory, conn, extra, sslcontext, *args, **kwargs)
+            result = await fn(
+                self, protocol_factory, conn, extra, sslcontext, *args, **kwargs
+            )
             return result

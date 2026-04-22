@@ -34,7 +34,9 @@ class InternalFailureHandler(ExceptionHandler):
         if isinstance(exception, HTTPException):
             response.status_code = exception.code
             response.headers.update(exception.get_headers())
-            response.set_json({"error": exception.name, "message": exception.description})
+            response.set_json(
+                {"error": exception.name, "message": exception.description}
+            )
             return
 
         LOG.debug("setting internal failure response for %s", exception)

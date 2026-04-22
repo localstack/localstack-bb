@@ -43,7 +43,10 @@ class ExceptionLogger(ExceptionHandler):
 
 class ResponseLogger:
     def __call__(self, _: HandlerChain, context: RequestContext, response: Response):
-        if context.request.path == "/health" or context.request.path == "/_localstack/health":
+        if (
+            context.request.path == "/health"
+            or context.request.path == "/_localstack/health"
+        ):
             # special case so the health check doesn't spam the logs
             return
         self._log(context, response)
@@ -51,25 +54,29 @@ class ResponseLogger:
     @cached_property
     def aws_logger(self):
         return self._prepare_logger(
-            logging.getLogger("localstack.request.aws"), formatter=AwsTraceLoggingFormatter
+            logging.getLogger("localstack.request.aws"),
+            formatter=AwsTraceLoggingFormatter,
         )
 
     @cached_property
     def http_logger(self):
         return self._prepare_logger(
-            logging.getLogger("localstack.request.http"), formatter=TraceLoggingFormatter
+            logging.getLogger("localstack.request.http"),
+            formatter=TraceLoggingFormatter,
         )
 
     @cached_property
     def internal_aws_logger(self):
         return self._prepare_logger(
-            logging.getLogger("localstack.request.internal.aws"), formatter=AwsTraceLoggingFormatter
+            logging.getLogger("localstack.request.internal.aws"),
+            formatter=AwsTraceLoggingFormatter,
         )
 
     @cached_property
     def internal_http_logger(self):
         return self._prepare_logger(
-            logging.getLogger("localstack.request.internal.http"), formatter=TraceLoggingFormatter
+            logging.getLogger("localstack.request.internal.http"),
+            formatter=TraceLoggingFormatter,
         )
 
     # make sure loggers are loaded after logging config is loaded
@@ -150,7 +157,9 @@ class ResponseLogger:
                     "request_headers": dict(context.request.headers),
                     # response
                     "output_type": "Response",
-                    "output": "StreamingBody(unknown)" if response.is_streamed else response.data,
+                    "output": "StreamingBody(unknown)"
+                    if response.is_streamed
+                    else response.data,
                     "response_headers": dict(response.headers),
                 },
             )

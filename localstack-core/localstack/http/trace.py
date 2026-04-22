@@ -122,7 +122,11 @@ class TracingHandlerBase:
         self.delegate = delegate
 
     def do_trace_call(
-        self, fn: Callable, chain: HandlerChain, context: RequestContext, response: Response
+        self,
+        fn: Callable,
+        chain: HandlerChain,
+        context: RequestContext,
+        response: Response,
     ):
         """
         Wraps the function call with the tracing functionality and records a HandlerTrace.
@@ -199,7 +203,9 @@ class TracingHandlerBase:
 
             # response
             if response.status_code != prev_response_status:
-                actions.append(SetAttributeAction("response stats_code", response.status_code))
+                actions.append(
+                    SetAttributeAction("response stats_code", response.status_code)
+                )
             if context.request.headers != prev_request_headers:
                 actions.append(
                     ModifyHeadersAction(
@@ -211,7 +217,9 @@ class TracingHandlerBase:
             if response.headers != prev_response_headers:
                 actions.append(
                     ModifyHeadersAction(
-                        "modify response headers", prev_response_headers, response.headers.copy()
+                        "modify response headers",
+                        prev_response_headers,
+                        response.headers.copy(),
                     )
                 )
 
@@ -226,7 +234,9 @@ class TracingHandler(TracingHandlerBase):
     def __init__(self, delegate: Handler):
         super().__init__(delegate)
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         def _call():
             return self.delegate(chain, context, response)
 
@@ -240,7 +250,11 @@ class TracingExceptionHandler(TracingHandlerBase):
         super().__init__(delegate)
 
     def __call__(
-        self, chain: HandlerChain, exception: Exception, context: RequestContext, response: Response
+        self,
+        chain: HandlerChain,
+        exception: Exception,
+        context: RequestContext,
+        response: Response,
     ):
         def _call():
             return self.delegate(chain, exception, context, response)
@@ -278,19 +292,27 @@ class TracingHandlerChain(HandlerChain):
         report with request and response details."""
         then = time.perf_counter()
         try:
-            self.request_handlers = [TracingHandler(handler) for handler in self.request_handlers]
+            self.request_handlers = [
+                TracingHandler(handler) for handler in self.request_handlers
+            ]
             return super().handle(context, response)
         finally:
             self.duration = (time.perf_counter() - then) * 1000
-            self.request_handler_traces = [handler.trace for handler in self.request_handlers]
+            self.request_handler_traces = [
+                handler.trace for handler in self.request_handlers
+            ]
             self._log_report()
 
     def _call_response_handlers(self, response):
-        self.response_handlers = [TracingHandler(handler) for handler in self.response_handlers]
+        self.response_handlers = [
+            TracingHandler(handler) for handler in self.response_handlers
+        ]
         try:
             return super()._call_response_handlers(response)
         finally:
-            self.response_handler_traces = [handler.trace for handler in self.response_handlers]
+            self.response_handler_traces = [
+                handler.trace for handler in self.response_handlers
+            ]
 
     def _call_finalizers(self, response):
         self.finalizers = [TracingHandler(handler) for handler in self.finalizers]
@@ -306,7 +328,9 @@ class TracingHandlerChain(HandlerChain):
         try:
             return super()._call_exception_handlers(e, response)
         finally:
-            self.exception_handler_traces = [handler.trace for handler in self.exception_handlers]
+            self.exception_handler_traces = [
+                handler.trace for handler in self.exception_handlers
+            ]
 
     def _log_report(self):
         report = []

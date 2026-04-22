@@ -62,7 +62,16 @@ API_DEPENDENCIES_OPTIONAL = {
     "logs": ["lambda", "kinesis", "firehose"],
     "cloudformation": ["secretsmanager", "ssm", "lambda"],
     "events": ["lambda", "kinesis", "firehose", "sns", "sqs", "stepfunctions", "logs"],
-    "stepfunctions": ["logs", "lambda", "dynamodb", "ecs", "sns", "sqs", "apigateway", "events"],
+    "stepfunctions": [
+        "logs",
+        "lambda",
+        "dynamodb",
+        "ecs",
+        "sns",
+        "sqs",
+        "apigateway",
+        "events",
+    ],
     "apigateway": [
         "s3",
         "sqs",
@@ -242,7 +251,6 @@ def start_infra_locally():
     from localstack.runtime.main import main
 
     return main()
-
 
 
 @log_duration()

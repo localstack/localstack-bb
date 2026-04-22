@@ -8,7 +8,9 @@ class ParsePreSignedUrlRequest(Handler):
     def __init__(self):
         self.pre_signed_handlers: dict[str, Handler] = {}
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         # TODO: handle other services pre-signed URL (CloudFront)
         if not context.service:
             return

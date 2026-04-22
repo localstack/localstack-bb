@@ -9,7 +9,14 @@ from typing import cast
 import botocore
 import networkx
 import rstr
-from botocore.model import ListShape, MapShape, OperationModel, Shape, StringShape, StructureShape
+from botocore.model import (
+    ListShape,
+    MapShape,
+    OperationModel,
+    Shape,
+    StringShape,
+    StructureShape,
+)
 
 from localstack.aws.api import RequestContext, ServiceRequest, ServiceResponse
 from localstack.aws.skeleton import DispatchTable, ServiceRequestDispatcher, Skeleton
@@ -33,7 +40,16 @@ types = {
 }
 
 Instance = (
-    dict[str, "Instance"] | list["Instance"] | str | bytes | map | list | float | int | bool | date
+    dict[str, "Instance"]
+    | list["Instance"]
+    | str
+    | bytes
+    | map
+    | list
+    | float
+    | int
+    | bool
+    | date
 )
 
 # https://github.com/boto/botocore/issues/2623
@@ -137,7 +153,9 @@ def sanitize_pattern(pattern: str) -> str:
     pattern = pattern.replace("\\p{Alnum}", "[a-zA-Z0-9]")
 
     if "\\p{" in pattern:
-        LOG.warning("Find potential additional pattern that need to be sanitized: %s", pattern)
+        LOG.warning(
+            "Find potential additional pattern that need to be sanitized: %s", pattern
+        )
     return pattern
 
 
@@ -183,7 +201,8 @@ def sanitize_arn_pattern(pattern: str) -> str:
     # substitutions
     pattern = pattern.replace("[a-z\\-\\d]", "[a-z0-9]")
     pattern = pattern.replace(
-        "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]", "[a-z0-9]"
+        "[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDC00-\\uDBFF\\uDFFF\\r\\n\\t]",
+        "[a-z0-9]",
     )
     pattern = pattern.replace("[\\w\\d-]", "[a-z0-9]")
     pattern = pattern.replace("[\\w+=/,.@-]", "[a-z]")
@@ -249,7 +268,10 @@ def _(shape: StructureShape, graph: ShapeGraph) -> dict[str, Instance]:
 def _(shape: ListShape, graph: ShapeGraph) -> list[Instance]:
     if shape.name in graph.cycle_shapes:
         return []
-    return [generate_instance(shape.member, graph) for _ in range(shape.metadata.get("min", 1))]
+    return [
+        generate_instance(shape.member, graph)
+        for _ in range(shape.metadata.get("min", 1))
+    ]
 
 
 @generate_instance.register
@@ -344,7 +366,10 @@ def _(shape: StringShape, graph: ShapeGraph) -> str:
             return random.choice(words)
         else:
             return "a" * str_len
-    if shape.name == "EndpointId" and pattern == "^[A-Za-z0-9\\-]+[\\.][A-Za-z0-9\\-]+$":
+    if (
+        shape.name == "EndpointId"
+        and pattern == "^[A-Za-z0-9\\-]+[\\.][A-Za-z0-9\\-]+$"
+    ):
         # there are sometimes issues with this pattern, because it could create invalid host labels, e.g. b6NOZqj5rIMdcta4IKyKRHvZakH90r.-wzuX6tQ-pB-pTNePY2
         # for simplification we just remove the dash for now
         pattern = "^[A-Za-z0-9]+[\\.][A-Za-z0-9]+$"
@@ -398,7 +423,9 @@ def generate_request(operation: OperationModel):
     return generate_instance(graph.root, graph)
 
 
-def return_mock_response(context: RequestContext, request: ServiceRequest) -> ServiceResponse:
+def return_mock_response(
+    context: RequestContext, request: ServiceRequest
+) -> ServiceResponse:
     return generate_response(context.operation)
 
 

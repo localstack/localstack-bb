@@ -44,7 +44,8 @@ class CustomWSGIRequestHandler(WSGIRequestHandler):
 
         # restore raw headers for rolo
         environ["asgi.headers"] = [
-            (k.encode("latin-1"), v.encode("latin-1")) for k, v in self.headers.raw_items()
+            (k.encode("latin-1"), v.encode("latin-1"))
+            for k, v in self.headers.raw_items()
         ]
 
         # the default WSGIRequestHandler does not understand our DuplexSocket, so it will always set https, which we

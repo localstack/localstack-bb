@@ -20,7 +20,9 @@ LOG = logging.getLogger(__name__)
 
 
 class MissingAuthHeaderInjector(Handler):
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         # FIXME: this is needed for allowing access to resources via plain URLs where access is typically restricted (
         #  e.g., GET requests on S3 URLs or apigateway routes). this should probably be part of a general IAM middleware
         #  (that allows access to restricted resources by default)
@@ -32,7 +34,9 @@ class MissingAuthHeaderInjector(Handler):
 
         if not headers.get("Authorization"):
             headers["Authorization"] = mock_aws_request_headers(
-                api, aws_access_key_id="injectedaccesskey", region_name=AWS_REGION_US_EAST_1
+                api,
+                aws_access_key_id="injectedaccesskey",
+                region_name=AWS_REGION_US_EAST_1,
             )["Authorization"]
 
 
@@ -41,7 +45,9 @@ class AccountIdEnricher(Handler):
     A handler that sets the AWS account of the request in the RequestContext.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         # Obtain the access key ID
         access_key_id = (
             extract_access_key_id_from_auth_header(context.request.headers)

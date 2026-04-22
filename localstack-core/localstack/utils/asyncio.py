@@ -81,7 +81,9 @@ class AsyncThread(FuncThread):
         loop = self.loop or ensure_event_loop()
         self.shutdown_event = asyncio.Event()
         if self.async_func_gen:
-            self.async_func = async_func = self.async_func_gen(loop, self.shutdown_event)
+            self.async_func = async_func = self.async_func_gen(
+                loop, self.shutdown_event
+            )
             if async_func:
                 loop.run_until_complete(async_func)
         loop.run_forever()

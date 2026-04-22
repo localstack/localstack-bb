@@ -25,7 +25,9 @@ class TwistedRuntimeServer(RuntimeServer):
         # configure ssl
         if ssl_creds:
             cert_file_name, key_file_name = ssl_creds
-            context_factory = ssl.DefaultOpenSSLContextFactory(key_file_name, cert_file_name)
+            context_factory = ssl.DefaultOpenSSLContextFactory(
+                key_file_name, cert_file_name
+            )
             context_factory.getContext().use_certificate_chain_file(cert_file_name)
             protocol_factory = TLSMultiplexerFactory(context_factory, False, site)
         else:

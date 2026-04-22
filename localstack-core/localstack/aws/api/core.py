@@ -60,7 +60,13 @@ class CommonServiceException(ServiceException):
     https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/CommonErrors.html
     """
 
-    def __init__(self, code: str, message: str, status_code: int = 400, sender_fault: bool = False):
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        status_code: int = 400,
+        sender_fault: bool = False,
+    ):
         super().__init__(message)
         self.code = code
         self.status_code = status_code
@@ -118,7 +124,9 @@ class RequestContext(RoloRequestContext):
         self.protocol = None
         self.operation = None
         self.region = None  # type: ignore[assignment]  # type=str, because we know it will always be set downstream
-        self.partition = "aws"  # Sensible default - will be overwritten by region-handler
+        self.partition = (
+            "aws"  # Sensible default - will be overwritten by region-handler
+        )
         self.account_id = None  # type: ignore[assignment]  # type=str, because we know it will always be set downstream
         self.request_id = long_uid()
         self.service_request = None

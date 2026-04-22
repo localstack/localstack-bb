@@ -58,7 +58,9 @@ def _merge_openapi_specs(specs: list[dict[str, Any]]) -> dict[str, Any]:
                     if component_type not in merged_spec["components"]:
                         merged_spec["components"][component_type] = component_value
                     else:
-                        merged_spec["components"][component_type].update(component_value)
+                        merged_spec["components"][component_type].update(
+                            component_value
+                        )
 
     # Update the initial part of the spec, i.e., info and correct LocalStack version
     top_content = yaml.safe_load(spec_top_info)
@@ -78,6 +80,8 @@ def get_localstack_openapi_spec() -> dict[str, Any]:
     try:
         return _merge_openapi_specs([spec.spec for spec in specs])
     except Exception as e:
-        LOG.debug("An error occurred while trying to merge the collected OpenAPI specs %s", e)
+        LOG.debug(
+            "An error occurred while trying to merge the collected OpenAPI specs %s", e
+        )
         # In case of an error while merging the spec, we return the first collected one.
         return specs[0].spec

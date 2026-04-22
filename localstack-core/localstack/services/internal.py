@@ -58,7 +58,8 @@ class HealthResource:
         if reload:
             self.service_manager.check_all()
         services = {
-            service: state.value for service, state in self.service_manager.get_states().items()
+            service: state.value
+            for service, state in self.service_manager.get_states().items()
         }
 
         # build state dict from internal state and merge into it the service states
@@ -128,9 +129,13 @@ class PluginsResource:
         # service providers
         PluginsResource.plugin_managers.append(SERVICE_PLUGINS.plugin_manager)
         # init script runners
-        PluginsResource.plugin_managers.append(init.init_script_manager().runner_manager)
+        PluginsResource.plugin_managers.append(
+            init.init_script_manager().runner_manager
+        )
         # init hooks
-        PluginsResource.plugin_managers.append(hooks.configure_localstack_container.manager)
+        PluginsResource.plugin_managers.append(
+            hooks.configure_localstack_container.manager
+        )
         PluginsResource.plugin_managers.append(hooks.prepare_host.manager)
         PluginsResource.plugin_managers.append(hooks.on_infra_ready.manager)
         PluginsResource.plugin_managers.append(hooks.on_infra_start.manager)
@@ -174,7 +179,8 @@ class InitScriptsResource:
 
         return {
             "completed": {
-                stage.name: completed for stage, completed in manager.stage_completed.items()
+                stage.name: completed
+                for stage, completed in manager.stage_completed.items()
             },
             "scripts": [
                 {
@@ -260,7 +266,6 @@ class LocalstackResources(Router):
                 "please be aware that this can expose sensitive information via your network."
             )
             self.add(Resource("/_localstack/config", ConfigResource()))
-
 
 
 @singleton_factory

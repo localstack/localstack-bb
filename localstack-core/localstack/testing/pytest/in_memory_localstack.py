@@ -61,7 +61,9 @@ def pytest_runtestloop(session: Session):
         if not test_config.TEST_FORCE_LOCALSTACK_START:
             LOG.info("Test running against aws, not starting localstack")
             return
-        LOG.info("TEST_FORCE_LOCALSTACK_START is set, a Localstack instance will be created.")
+        LOG.info(
+            "TEST_FORCE_LOCALSTACK_START is set, a Localstack instance will be created."
+        )
 
     if is_aws_cloud():
         localstack_config.DEFAULT_DELAY = 5
@@ -94,7 +96,9 @@ def pytest_sessionfinish(session: Session):
     try:
         get_current_runtime()
     except ValueError:
-        LOG.warning("Could not access the current runtime in a pytest sessionfinish hook.")
+        LOG.warning(
+            "Could not access the current runtime in a pytest sessionfinish hook."
+        )
         return
 
     get_current_runtime().shutdown()

@@ -7,8 +7,9 @@ start:                ## Start LocalStack in host mode
 test-transfer:        ## Run Transfer service tests
 	pytest tests/aws/services/transfer/ -x -q
 
-clean:                ## Remove pyc files, .filesystem, and .mypy_cache
+clean:                ## Remove pyc files, .filesystem, .mypy_cache, and .egg-info
 	find . -name "*.pyc" -delete && find . -name "__pycache__" -type d -empty -delete
 	rm -rf .filesystem localstack-core/.filesystem .mypy_cache
+	find . -name "*.egg-info" -type d -exec rm -rf {} +
 
 .PHONY: install start test-transfer clean

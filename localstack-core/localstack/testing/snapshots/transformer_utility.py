@@ -22,7 +22,9 @@ PATTERN_UUID = re.compile(
     r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
 )
 
-PATTERN_ARN = re.compile(r"arn:(aws[a-zA-Z-]*)?:([a-zA-Z0-9-_.]+)?:([^:]+)?:(\d{12})?:(.*)")
+PATTERN_ARN = re.compile(
+    r"arn:(aws[a-zA-Z-]*)?:([a-zA-Z0-9-_.]+)?:([^:]+)?:(\d{12})?:(.*)"
+)
 PATTERN_ARN_CHANGESET = re.compile(
     r"arn:(aws[a-zA-Z-]*)?:([a-zA-Z0-9-_.]+)?:([^:]+)?:(\d{12})?:changeSet/([^/]+)"
 )
@@ -44,7 +46,9 @@ PATTERN_MRK_KEY_ARN = re.compile(
 class TransformerUtility:
     @staticmethod
     def key_value(
-        key: str, value_replacement: str | None = None, reference_replacement: bool = True
+        key: str,
+        value_replacement: str | None = None,
+        reference_replacement: bool = True,
     ):
         """Creates a new KeyValueBasedTransformer. If the key matches, the value will be replaced.
 
@@ -74,7 +78,9 @@ class TransformerUtility:
         return KeyValueBasedTransformer(_resource_name_transformer, replacement_name)
 
     @staticmethod
-    def jsonpath(jsonpath: str, value_replacement: str, reference_replacement: bool = True):
+    def jsonpath(
+        jsonpath: str, value_replacement: str, reference_replacement: bool = True
+    ):
         """Creates a new JsonpathTransformer. If the jsonpath matches, the value will be replaced.
 
         :param jsonpath: the jsonpath that should be matched
@@ -115,7 +121,9 @@ class TransformerUtility:
         def _remove_key_recursive(snapshot_content: dict, *_) -> dict:
             def _remove_key_from_data(data):
                 if isinstance(data, dict):
-                    return {k: _remove_key_from_data(v) for k, v in data.items() if k != key}
+                    return {
+                        k: _remove_key_from_data(v) for k, v in data.items() if k != key
+                    }
                 elif isinstance(data, list):
                     return [_remove_key_from_data(item) for item in data]
                 return data
@@ -185,15 +193,20 @@ class TransformerUtility:
             TransformerUtility.key_value("extendedRequestId"),
             TransformerUtility.key_value("resourceId"),
             TransformerUtility.key_value("sourceIp"),
-            TransformerUtility.jsonpath("$..headers.X-Amz-Cf-Id", value_replacement="cf-id"),
+            TransformerUtility.jsonpath(
+                "$..headers.X-Amz-Cf-Id", value_replacement="cf-id"
+            ),
             TransformerUtility.jsonpath(
                 "$..headers.CloudFront-Viewer-ASN", value_replacement="cloudfront-asn"
             ),
             TransformerUtility.jsonpath(
-                "$..headers.CloudFront-Viewer-Country", value_replacement="cloudfront-country"
+                "$..headers.CloudFront-Viewer-Country",
+                value_replacement="cloudfront-country",
             ),
             TransformerUtility.jsonpath("$..headers.Via", value_replacement="via"),
-            TransformerUtility.jsonpath("$..headers.X-Amzn-Trace-Id", value_replacement="trace-id"),
+            TransformerUtility.jsonpath(
+                "$..headers.X-Amzn-Trace-Id", value_replacement="trace-id"
+            ),
             TransformerUtility.jsonpath(
                 "$..requestContext.requestTime",
                 value_replacement="<request-time>",
@@ -263,7 +276,9 @@ class TransformerUtility:
             TransformerUtility.jsonpath("$..requestContext.accountId", "account-id"),
             TransformerUtility.jsonpath("$..requestContext.apiId", "api-id"),
             TransformerUtility.jsonpath("$..requestContext.domainName", "domain-name"),
-            TransformerUtility.jsonpath("$..requestContext.domainPrefix", "domain-prefix"),
+            TransformerUtility.jsonpath(
+                "$..requestContext.domainPrefix", "domain-prefix"
+            ),
             TransformerUtility.jsonpath(
                 "$..requestContext.extendedRequestId", "extended-request-id"
             ),
@@ -297,9 +312,15 @@ class TransformerUtility:
             TransformerUtility.jsonpath(
                 "$..multiValueHeaders.X-Amzn-Trace-Id[*]", "x-amzn-trace-id"
             ),
-            TransformerUtility.jsonpath("$..multiValueHeaders.authorization[*]", "authorization"),
-            TransformerUtility.jsonpath("$..multiValueHeaders.User-Agent[*]", "user-agent"),
-            TransformerUtility.regex(r"python-requests/\d+\.\d+(\.\d+)?", "python-requests/x.x.x"),
+            TransformerUtility.jsonpath(
+                "$..multiValueHeaders.authorization[*]", "authorization"
+            ),
+            TransformerUtility.jsonpath(
+                "$..multiValueHeaders.User-Agent[*]", "user-agent"
+            ),
+            TransformerUtility.regex(
+                r"python-requests/\d+\.\d+(\.\d+)?", "python-requests/x.x.x"
+            ),
         ]
 
     @staticmethod
@@ -325,7 +346,9 @@ class TransformerUtility:
             KeyValueBasedTransformer(_resource_name_transformer, "resource"),
             KeyValueBasedTransformer(_change_set_id_transformer, "change-set-id"),
             TransformerUtility.key_value("LogicalResourceId"),
-            TransformerUtility.key_value("PhysicalResourceId", reference_replacement=False),
+            TransformerUtility.key_value(
+                "PhysicalResourceId", reference_replacement=False
+            ),
         ]
 
     @staticmethod
@@ -335,7 +358,8 @@ class TransformerUtility:
         """
         return [
             RegexTransformer(
-                r"([a-zA-Z0-9-_.]*)?test_table_([a-zA-Z0-9-_.]*)?", replacement="<test-table>"
+                r"([a-zA-Z0-9-_.]*)?test_table_([a-zA-Z0-9-_.]*)?",
+                replacement="<test-table>",
             ),
         ]
 
@@ -343,12 +367,15 @@ class TransformerUtility:
     def dynamodb_streams_api():
         return [
             RegexTransformer(
-                r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}$", replacement="<stream-label>"
+                r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}$",
+                replacement="<stream-label>",
             ),
             TransformerUtility.key_value("TableName"),
             TransformerUtility.key_value("TableStatus"),
             TransformerUtility.key_value("LatestStreamLabel"),
-            TransformerUtility.key_value("StartingSequenceNumber", reference_replacement=False),
+            TransformerUtility.key_value(
+                "StartingSequenceNumber", reference_replacement=False
+            ),
             TransformerUtility.key_value("ShardId"),
             TransformerUtility.key_value("StreamLabel"),
             TransformerUtility.key_value("SequenceNumber"),
@@ -377,7 +404,8 @@ class TransformerUtility:
         """
         return [
             RegexTransformer(
-                r"([a-zA-Z0-9-_.]*)?\/test-bucket-([a-zA-Z0-9-_.]*)?", replacement="<test-bucket>"
+                r"([a-zA-Z0-9-_.]*)?\/test-bucket-([a-zA-Z0-9-_.]*)?",
+                replacement="<test-bucket>",
             ),
             TransformerUtility.key_value("TranscriptionJobName", "transcription-job"),
             TransformerUtility.key_value("jobName", "job-name"),
@@ -386,7 +414,9 @@ class TransformerUtility:
                 value_replacement="<transcript-file-uri>",
                 reference_replacement=False,
             ),
-            TransformerUtility.key_value("NextToken", "token", reference_replacement=False),
+            TransformerUtility.key_value(
+                "NextToken", "token", reference_replacement=False
+            ),
         ]
 
     @staticmethod
@@ -405,7 +435,9 @@ class TransformerUtility:
                 reference_replacement=False,
             ),
             TransformerUtility.jsonpath(
-                jsonpath="$..Owner.ID", value_replacement="<owner-id>", reference_replacement=False
+                jsonpath="$..Owner.ID",
+                value_replacement="<owner-id>",
+                reference_replacement=False,
             ),
         ]
         # for s3 notifications:
@@ -427,9 +459,13 @@ class TransformerUtility:
             TransformerUtility.jsonpath(
                 "$..s3.object.sequencer", "sequencer", reference_replacement=False
             ),
-            TransformerUtility.jsonpath("$..s3.bucket.ownerIdentity.principalId", "principal-id"),
+            TransformerUtility.jsonpath(
+                "$..s3.bucket.ownerIdentity.principalId", "principal-id"
+            ),
             TransformerUtility.jsonpath("$..userIdentity.principalId", "principal-id"),
-            TransformerUtility.jsonpath("$..requestParameters.sourceIPAddress", "ip-address"),
+            TransformerUtility.jsonpath(
+                "$..requestParameters.sourceIPAddress", "ip-address"
+            ),
             TransformerUtility.jsonpath(
                 "$..s3.object.versionId",
                 "version-id",
@@ -441,9 +477,13 @@ class TransformerUtility:
     def s3_dynamodb_notifications():
         return [
             TransformerUtility.jsonpath("$..uuid.S", "uuid"),
-            TransformerUtility.jsonpath("$..M.requestParameters.M.sourceIPAddress.S", "ip-address"),
             TransformerUtility.jsonpath(
-                "$..M.responseElements.M.x-amz-id-2.S", "amz-id", reference_replacement=False
+                "$..M.requestParameters.M.sourceIPAddress.S", "ip-address"
+            ),
+            TransformerUtility.jsonpath(
+                "$..M.responseElements.M.x-amz-id-2.S",
+                "amz-id",
+                reference_replacement=False,
             ),
             TransformerUtility.jsonpath(
                 "$..M.responseElements.M.x-amz-request-id.S",
@@ -458,9 +498,13 @@ class TransformerUtility:
             TransformerUtility.jsonpath("$..M.s3.M.configurationId.S", "config-id"),
             TransformerUtility.jsonpath("$..M.s3.M.object.M.key.S", "object-key"),
             TransformerUtility.jsonpath(
-                "$..M.s3.M.object.M.sequencer.S", "sequencer", reference_replacement=False
+                "$..M.s3.M.object.M.sequencer.S",
+                "sequencer",
+                reference_replacement=False,
             ),
-            TransformerUtility.jsonpath("$..M.userIdentity.M.principalId.S", "principal-id"),
+            TransformerUtility.jsonpath(
+                "$..M.userIdentity.M.principalId.S", "principal-id"
+            ),
         ]
 
     @staticmethod
@@ -475,7 +519,9 @@ class TransformerUtility:
                 replace_reference=True,
             ),
             TransformerUtility.key_value("SequenceNumber", "sequence_number"),
-            TransformerUtility.key_value("StartingSequenceNumber", "starting_sequence_number"),
+            TransformerUtility.key_value(
+                "StartingSequenceNumber", "starting_sequence_number"
+            ),
             TransformerUtility.key_value("ShardId", "shard_id"),
             TransformerUtility.key_value("NextShardIterator", "next_shard_iterator"),
             TransformerUtility.key_value(
@@ -505,7 +551,9 @@ class TransformerUtility:
         """
         return [
             TransformerUtility.key_value(
-                "SecurityGroupIds", value_replacement="sg-ids", reference_replacement=False
+                "SecurityGroupIds",
+                value_replacement="sg-ids",
+                reference_replacement=False,
             ),
             TransformerUtility.key_value("Id"),
             TransformerUtility.key_value("HostVPCId", "host-vpc-id"),
@@ -517,7 +565,9 @@ class TransformerUtility:
     @staticmethod
     def route53_api():
         return [
-            TransformerUtility.jsonpath("$..HostedZone.CallerReference", "caller-reference"),
+            TransformerUtility.jsonpath(
+                "$..HostedZone.CallerReference", "caller-reference"
+            ),
             TransformerUtility.jsonpath(
                 jsonpath="$..DelegationSet.NameServers",
                 value_replacement="<name-server>",
@@ -545,7 +595,9 @@ class TransformerUtility:
                 "SenderId"
             ),  # TODO: flaky against AWS (e.g. /Attributes/SenderId '<sender-id:1>' → '<sender-id:2>' ... (expected → actual))
             TransformerUtility.key_value("SequenceNumber"),
-            TransformerUtility.jsonpath("$..MessageAttributes.RequestID.StringValue", "request-id"),
+            TransformerUtility.jsonpath(
+                "$..MessageAttributes.RequestID.StringValue", "request-id"
+            ),
             KeyValueBasedTransformer(_resource_name_transformer, "resource"),
         ]
 
@@ -564,7 +616,9 @@ class TransformerUtility:
                 reference_replacement=False,
             ),
             TransformerUtility.jsonpath(
-                jsonpath="$..Mac", value_replacement="<mac>", reference_replacement=False
+                jsonpath="$..Mac",
+                value_replacement="<mac>",
+                reference_replacement=False,
             ),
             TransformerUtility.key_value("CiphertextBlob", reference_replacement=False),
             TransformerUtility.key_value("Plaintext", reference_replacement=False),
@@ -579,12 +633,18 @@ class TransformerUtility:
         """
         return [
             TransformerUtility.key_value("ReceiptHandle"),
-            TransformerUtility.key_value("SequenceNumber"),  # this might need to be in SQS
             TransformerUtility.key_value(
-                "Signature", value_replacement="<signature>", reference_replacement=False
+                "SequenceNumber"
+            ),  # this might need to be in SQS
+            TransformerUtility.key_value(
+                "Signature",
+                value_replacement="<signature>",
+                reference_replacement=False,
             ),
             # the body of SNS messages contains a timestamp, need to ignore the hash
-            TransformerUtility.key_value("MD5OfBody", "<md5-hash>", reference_replacement=False),
+            TransformerUtility.key_value(
+                "MD5OfBody", "<md5-hash>", reference_replacement=False
+            ),
             # this can interfere in ARN with the accountID
             TransformerUtility.key_value(
                 "SenderId", value_replacement="<sender-id>", reference_replacement=False
@@ -608,7 +668,8 @@ class TransformerUtility:
             KeyValueBasedTransformer(_resource_name_transformer, "resource"),
             # add a special transformer with 'resource' replacement for SubscriptionARN in UnsubscribeURL
             KeyValueBasedTransformer(
-                _sns_unsubscribe_url_subscription_arn_transformer, replacement="resource"
+                _sns_unsubscribe_url_subscription_arn_transformer,
+                replacement="resource",
             ),
         ]
 
@@ -632,7 +693,9 @@ class TransformerUtility:
         return [
             TransformerUtility.key_value("logGroupName"),
             TransformerUtility.key_value("logStreamName"),
-            TransformerUtility.key_value("creationTime", "<time>", reference_replacement=False),
+            TransformerUtility.key_value(
+                "creationTime", "<time>", reference_replacement=False
+            ),
             TransformerUtility.key_value(
                 "firstEventTimestamp", "<time>", reference_replacement=False
             ),
@@ -642,7 +705,9 @@ class TransformerUtility:
             TransformerUtility.key_value(
                 "lastIngestionTime", "<time>", reference_replacement=False
             ),
-            TransformerUtility.key_value("nextToken", "<next_token>", reference_replacement=False),
+            TransformerUtility.key_value(
+                "nextToken", "<next_token>", reference_replacement=False
+            ),
         ]
 
     # TODO add example
@@ -668,9 +733,9 @@ def _sns_unsubscribe_url_subscription_arn_transformer(key: str, val: str) -> str
 
 
 def _replace_camel_string_with_hyphen(input_string: str):
-    return "".join(["-" + char.lower() if char.isupper() else char for char in input_string]).strip(
-        "-"
-    )
+    return "".join(
+        ["-" + char.lower() if char.isupper() else char for char in input_string]
+    ).strip("-")
 
 
 def _log_stream_name_transformer(key: str, val: str) -> str:
@@ -735,7 +800,11 @@ SNAPSHOT_BASIC_TRANSFORMER_NEW = [
     KeyValueBasedTransformer(
         lambda k, v: (
             v
-            if (isinstance(v, str) and k.lower().endswith("id") and re.match(PATTERN_UUID, v))
+            if (
+                isinstance(v, str)
+                and k.lower().endswith("id")
+                and re.match(PATTERN_UUID, v)
+            )
             else None
         ),
         "uuid",
@@ -748,14 +817,20 @@ SNAPSHOT_BASIC_TRANSFORMER = [
     KeyValueBasedTransformer(
         lambda k, v: (
             v
-            if (isinstance(v, str) and k.lower().endswith("id") and re.match(PATTERN_UUID, v))
+            if (
+                isinstance(v, str)
+                and k.lower().endswith("id")
+                and re.match(PATTERN_UUID, v)
+            )
             else None
         ),
         "uuid",
     ),
     RegexTransformer(PATTERN_ISO8601, "date"),
     KeyValueBasedTransformer(
-        lambda k, v: v if isinstance(v, datetime) else None, "datetime", replace_reference=False
+        lambda k, v: v if isinstance(v, datetime) else None,
+        "datetime",
+        replace_reference=False,
     ),
     KeyValueBasedTransformer(
         lambda k, v: (

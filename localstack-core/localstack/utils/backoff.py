@@ -48,12 +48,20 @@ class ExponentialBackoff:
     Note: The sequence stops at request #10 when `max_retries` or `max_time_elapsed` is exceeded
     """
 
-    initial_interval: float = Field(0.5, title="Initial backoff interval in seconds", gt=0)
-    randomization_factor: float = Field(0.5, title="Factor to randomize backoff", ge=0, le=1)
-    multiplier: float = Field(1.5, title="Multiply interval by this factor each retry", gt=1)
+    initial_interval: float = Field(
+        0.5, title="Initial backoff interval in seconds", gt=0
+    )
+    randomization_factor: float = Field(
+        0.5, title="Factor to randomize backoff", ge=0, le=1
+    )
+    multiplier: float = Field(
+        1.5, title="Multiply interval by this factor each retry", gt=1
+    )
     max_interval: float = Field(60.0, title="Maximum backoff interval in seconds", gt=0)
     max_retries: int = Field(-1, title="Max retry attempts (-1 for unlimited)", ge=-1)
-    max_time_elapsed: float = Field(-1, title="Max total time in seconds (-1 for unlimited)", ge=-1)
+    max_time_elapsed: float = Field(
+        -1, title="Max total time in seconds (-1 for unlimited)", ge=-1
+    )
 
     def __post_init__(self):
         self.retry_interval: float = 0
@@ -92,6 +100,8 @@ class ExponentialBackoff:
             next_interval = random.uniform(min_interval, max_interval)
 
         # do not allow the next retry interval to exceed max_interval
-        self.retry_interval = min(self.max_interval, self.retry_interval * self.multiplier)
+        self.retry_interval = min(
+            self.max_interval, self.retry_interval * self.multiplier
+        )
 
         return next_interval

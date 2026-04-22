@@ -31,13 +31,17 @@ REGEX_UNPRINTABLE_CHARS = re.compile(
 )
 
 
-def to_str(obj: str | bytes, encoding: str = DEFAULT_ENCODING, errors: str = "strict") -> str:
+def to_str(
+    obj: str | bytes, encoding: str = DEFAULT_ENCODING, errors: str = "strict"
+) -> str:
     """If ``obj`` is an instance of ``binary_type``, return
     ``obj.decode(encoding, errors)``, otherwise return ``obj``"""
     return obj.decode(encoding, errors) if isinstance(obj, bytes) else obj
 
 
-def to_bytes(obj: str | bytes, encoding: str = DEFAULT_ENCODING, errors: str = "strict") -> bytes:
+def to_bytes(
+    obj: str | bytes, encoding: str = DEFAULT_ENCODING, errors: str = "strict"
+) -> bytes:
     """If ``obj`` is an instance of ``text_type``, return
     ``obj.encode(encoding, errors)``, otherwise return ``obj``"""
     return obj.encode(encoding, errors) if isinstance(obj, str) else obj
@@ -48,7 +52,9 @@ def truncate(data: str, max_length: int = 100) -> str:
     return (f"{data[:max_length]}...") if len(data) > max_length else data
 
 
-def is_string(s: Any, include_unicode: bool = True, exclude_binary: bool = False) -> bool:
+def is_string(
+    s: Any, include_unicode: bool = True, exclude_binary: bool = False
+) -> bool:
     if isinstance(s, bytes) and exclude_binary:
         return False
     if isinstance(s, str):

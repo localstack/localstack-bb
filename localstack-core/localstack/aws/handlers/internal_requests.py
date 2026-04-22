@@ -15,7 +15,9 @@ class InternalRequestParamsEnricher(Handler):
     This handler sets the internal call DTO in the request context.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if header := context.request.headers.get(INTERNAL_REQUEST_PARAMS_HEADER):
             try:
                 dto = MappingProxyType(load_dto(header))

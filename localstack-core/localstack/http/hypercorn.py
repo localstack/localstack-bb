@@ -22,7 +22,9 @@ class HypercornServer(Server):
     A sync wrapper around Hypercorn that implements the ``Server`` interface.
     """
 
-    def __init__(self, app: ASGIFramework, config: Config, loop: AbstractEventLoop = None):
+    def __init__(
+        self, app: ASGIFramework, config: Config, loop: AbstractEventLoop = None
+    ):
         """
         Create a new Hypercorn server instance. Note that, if you pass an event loop to the constructor,
         you are yielding control of that event loop to the server, as it will invoke `run_until_complete` and
@@ -107,7 +109,9 @@ class GatewayServer(HypercornServer):
         if use_ssl:
             install_predefined_cert_if_available()
             serial_number = listens[0].port
-            _, cert_file_name, key_file_name = create_ssl_cert(serial_number=serial_number)
+            _, cert_file_name, key_file_name = create_ssl_cert(
+                serial_number=serial_number
+            )
             config.certfile = cert_file_name
             config.keyfile = key_file_name
 
@@ -131,7 +135,10 @@ class ProxyServer(GatewayServer):
     """
 
     def __init__(
-        self, forward_base_url: str, listen: HostAndPort | list[HostAndPort], use_ssl: bool = False
+        self,
+        forward_base_url: str,
+        listen: HostAndPort | list[HostAndPort],
+        use_ssl: bool = False,
     ):
         """
         Creates a new ProxyServer instance.

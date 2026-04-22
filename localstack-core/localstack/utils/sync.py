@@ -50,7 +50,9 @@ def wait_until(
 T = TypeVar("T")
 
 
-def retry(function: Callable[..., T], retries=3, sleep=1.0, sleep_before=0, **kwargs) -> T:
+def retry(
+    function: Callable[..., T], retries=3, sleep=1.0, sleep_before=0, **kwargs
+) -> T:
     raise_error = None
     if sleep_before > 0:
         time.sleep(sleep_before)

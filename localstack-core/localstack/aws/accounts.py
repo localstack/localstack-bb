@@ -31,10 +31,13 @@ def extract_account_id_from_access_key_id(access_key_id: str) -> str:
     account_id_part = access_key_id[4:12]
     # decode account id part
     try:
-        account_id_part_int = int.from_bytes(base64.b32decode(account_id_part), byteorder="big")
+        account_id_part_int = int.from_bytes(
+            base64.b32decode(account_id_part), byteorder="big"
+        )
     except binascii.Error:
         LOG.warning(
-            "Invalid Access Key Id format. Falling back to default id: %s", DEFAULT_AWS_ACCOUNT_ID
+            "Invalid Access Key Id format. Falling back to default id: %s",
+            DEFAULT_AWS_ACCOUNT_ID,
         )
         return DEFAULT_AWS_ACCOUNT_ID
 

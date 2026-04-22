@@ -109,7 +109,10 @@ class LocalstackRuntime:
         self.config.dirs.mkdirs()
 
     def _init_gateway_server(self):
-        from localstack.utils.ssl import create_ssl_cert, install_predefined_cert_if_available
+        from localstack.utils.ssl import (
+            create_ssl_cert,
+            install_predefined_cert_if_available,
+        )
 
         install_predefined_cert_if_available()
         serial_number = self.config.GATEWAY_LISTEN[0].port
@@ -148,7 +151,9 @@ class LocalstackRuntime:
             if LOG.isEnabledFor(logging.DEBUG):
                 # make another call with quiet=False to print detailed error logs
                 net.is_port_open(host_and_port.port, quiet=False)
-            raise TimeoutError(f"gave up waiting for gateway server to start on {host_and_port}")
+            raise TimeoutError(
+                f"gave up waiting for gateway server to start on {host_and_port}"
+            )
 
     def _clear_tmp_directory(self):
         if self.config.CLEAR_TMP_FOLDER:

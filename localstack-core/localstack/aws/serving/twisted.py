@@ -58,7 +58,9 @@ class TLSMultiplexer(ProtocolWrapper):
         # once the first data have been received, we can check whether it's a TLS handshake, then we need to run the
         # actual makeConnection procedure.
         self._isInitialized = True
-        self._isTLS = data[0] == 22  # 0x16 is the marker byte identifying a TLS handshake
+        self._isTLS = (
+            data[0] == 22
+        )  # 0x16 is the marker byte identifying a TLS handshake
 
         if self._isTLS:
             # wrap protocol again in tls protocol
@@ -129,7 +131,10 @@ def stop_thread_pool(self: ThreadPool, stop, timeout: float = None):
 
 
 def serve_gateway(
-    gateway: Gateway, listen: list[HostAndPort], use_ssl: bool, asynchronous: bool = False
+    gateway: Gateway,
+    listen: list[HostAndPort],
+    use_ssl: bool,
+    asynchronous: bool = False,
 ):
     """
     Serve a Gateway instance using twisted.
@@ -154,7 +159,9 @@ def serve_gateway(
         install_predefined_cert_if_available()
         serial_number = listen[0].port
         _, cert_file_name, key_file_name = create_ssl_cert(serial_number=serial_number)
-        context_factory = ssl.DefaultOpenSSLContextFactory(key_file_name, cert_file_name)
+        context_factory = ssl.DefaultOpenSSLContextFactory(
+            key_file_name, cert_file_name
+        )
         context_factory.getContext().use_certificate_chain_file(cert_file_name)
         protocol_factory = TLSMultiplexerFactory(context_factory, False, site)
     else:

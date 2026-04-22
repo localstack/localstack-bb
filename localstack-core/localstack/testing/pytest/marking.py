@@ -110,7 +110,9 @@ def enforce_single_aws_marker(items: list[pytest.Item]):
                 aws_markers.append(mark.name)
 
         if len(aws_markers) > 1:
-            marker_errors.append(f"{item.nodeid}: Too many aws markers specified: {aws_markers}")
+            marker_errors.append(
+                f"{item.nodeid}: Too many aws markers specified: {aws_markers}"
+            )
         elif len(aws_markers) == 0:
             marker_errors.append(
                 f"{item.nodeid}: Missing aws marker. Specify at least one marker, e.g. @markers.aws.validated"

@@ -30,7 +30,10 @@ from localstack.constants import (
     MAX_POOL_CONNECTIONS,
 )
 from localstack.utils.aws.aws_stack import get_s3_hostname
-from localstack.utils.aws.client_types import ServicePrincipal, TypedServiceClientFactory
+from localstack.utils.aws.client_types import (
+    ServicePrincipal,
+    TypedServiceClientFactory,
+)
 from localstack.utils.patch import patch
 from localstack.utils.strings import short_uid
 
@@ -81,7 +84,10 @@ def make_hash(o):
 
 
 def config_equality_patch(self, other: object) -> bool:
-    return type(self) is type(other) and self._user_provided_options == other._user_provided_options
+    return (
+        type(self) is type(other)
+        and self._user_provided_options == other._user_provided_options
+    )
 
 
 def config_hash_patch(self):
@@ -220,13 +226,17 @@ class ServiceLevelClientFactory(TypedServiceClientFactory):
 
     def get_client(self, service: str):
         return self._request_wrapper_clazz(
-            client=self._factory.get_client(service_name=service, **self._client_creation_params)
+            client=self._factory.get_client(
+                service_name=service, **self._client_creation_params
+            )
         )
 
     def __getattr__(self, service: str):
         service = attribute_name_to_service_name(service)
         return self._request_wrapper_clazz(
-            client=self._factory.get_client(service_name=service, **self._client_creation_params)
+            client=self._factory.get_client(
+                service_name=service, **self._client_creation_params
+            )
         )
 
 
@@ -258,7 +268,9 @@ class ClientFactory(ABC):
         """
         self._use_ssl = use_ssl
         self._verify = verify
-        self._config: Config = config or Config(max_pool_connections=MAX_POOL_CONNECTIONS)
+        self._config: Config = config or Config(
+            max_pool_connections=MAX_POOL_CONNECTIONS
+        )
         self._session: Session = session or Session()
         self._endpoint = endpoint
 
@@ -332,16 +344,18 @@ class ClientFactory(ABC):
         :return: Service Level Client Factory
         """
         session_name = session_name or f"session-{short_uid()}"
-        sts_client = self(endpoint_url=endpoint_url, config=config, region_name=region_name).sts
+        sts_client = self(
+            endpoint_url=endpoint_url, config=config, region_name=region_name
+        ).sts
 
         metadata = {}
         if service_principal:
             metadata["service_principal"] = service_principal
 
         sts_client = sts_client.request_metadata(**metadata)
-        credentials = sts_client.assume_role(RoleArn=role_arn, RoleSessionName=session_name)[
-            "Credentials"
-        ]
+        credentials = sts_client.assume_role(
+            RoleArn=role_arn, RoleSessionName=session_name
+        )["Credentials"]
 
         return self(
             region_name=region_name,
@@ -460,14 +474,18 @@ class InternalClientFactory(ClientFactory):
             "provide-client-params.*.*", handler=_handler_create_request_parameters
         )
 
-        client.meta.events.register("before-call.*.*", handler=_handler_inject_dto_header)
+        client.meta.events.register(
+            "before-call.*.*", handler=_handler_inject_dto_header
+        )
 
         if localstack_config.IN_MEMORY_CLIENT:
             # this make the client call the gateway directly
             from localstack.aws.client import GatewayShortCircuit
             from localstack.runtime import get_current_runtime
 
-            GatewayShortCircuit.modify_client(client, get_current_runtime().components.gateway)
+            GatewayShortCircuit.modify_client(
+                client, get_current_runtime().components.gateway
+            )
 
         return client
 
@@ -513,7 +531,9 @@ class InternalClientFactory(ClientFactory):
             and service_name == "s3"
             and re.match(r"https?://localhost(:[0-9]+)?", endpoint_url)
         ):
-            endpoint_url = endpoint_url.replace("://localhost", f"://{get_s3_hostname()}")
+            endpoint_url = endpoint_url.replace(
+                "://localhost", f"://{get_s3_hostname()}"
+            )
 
         return self._get_client(
             service_name=service_name,
@@ -522,7 +542,8 @@ class InternalClientFactory(ClientFactory):
             verify=self._verify,
             endpoint_url=endpoint_url,
             aws_access_key_id=aws_access_key_id or INTERNAL_AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=aws_secret_access_key or INTERNAL_AWS_SECRET_ACCESS_KEY,
+            aws_secret_access_key=aws_secret_access_key
+            or INTERNAL_AWS_SECRET_ACCESS_KEY,
             aws_session_token=aws_session_token,
             config=config,
         )
@@ -583,12 +604,16 @@ class ExternalClientFactory(ClientFactory):
             and service_name == "s3"
             and re.match(r"https?://localhost(:[0-9]+)?", endpoint_url)
         ):
-            endpoint_url = endpoint_url.replace("://localhost", f"://{get_s3_hostname()}")
+            endpoint_url = endpoint_url.replace(
+                "://localhost", f"://{get_s3_hostname()}"
+            )
 
         # Prevent `PartialCredentialsError` when only access key ID is provided
         # The value of secret access key is insignificant and can be set to anything
         if aws_access_key_id:
-            aws_secret_access_key = aws_secret_access_key or INTERNAL_AWS_SECRET_ACCESS_KEY
+            aws_secret_access_key = (
+                aws_secret_access_key or INTERNAL_AWS_SECRET_ACCESS_KEY
+            )
 
         return self._get_client(
             service_name=service_name,
@@ -663,7 +688,9 @@ connect_externally_to = ExternalClientFactory()
 #
 
 
-def _handler_create_request_parameters(params: dict[str, Any], context: dict[str, Any], **kwargs):
+def _handler_create_request_parameters(
+    params: dict[str, Any], context: dict[str, Any], **kwargs
+):
     """
     Construct the data transfer object at the time of parsing the client
     parameters and proxy it via the Boto context dict.
@@ -689,7 +716,9 @@ def _handler_create_request_parameters(params: dict[str, Any], context: dict[str
     context["_localstack"] = dto
 
 
-def _handler_inject_dto_header(params: dict[str, Any], context: dict[str, Any], **kwargs):
+def _handler_inject_dto_header(
+    params: dict[str, Any], context: dict[str, Any], **kwargs
+):
     """
     Retrieve the data transfer object from the Boto context dict and serialise
     it as part of the request headers.

@@ -44,4 +44,6 @@ def serve(
         setattr(config, k, v)
 
     loop = asyncio.new_event_loop()
-    loop.run_until_complete(serve_hypercorn(AsgiGateway(gateway, event_loop=loop), config))
+    loop.run_until_complete(
+        serve_hypercorn(AsgiGateway(gateway, event_loop=loop), config)
+    )

@@ -20,7 +20,9 @@ LOG = logging.getLogger(__name__)
 
 class ServiceLoader(Handler):
     def __init__(
-        self, service_manager: ServiceManager, service_request_router: ServiceRequestRouter
+        self,
+        service_manager: ServiceManager,
+        service_request_router: ServiceRequestRouter,
     ):
         """
         This handler encapsulates service lazy-loading. It loads services from the given ServiceManager and uses them
@@ -34,10 +36,14 @@ class ServiceLoader(Handler):
         self.service_locks = SynchronizedDefaultDict(threading.RLock)
         self.loaded_services = set()
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         return self.require_service(chain, context, response)
 
-    def require_service(self, _: HandlerChain, context: RequestContext, response: Response):
+    def require_service(
+        self, _: HandlerChain, context: RequestContext, response: Response
+    ):
         if not context.service:
             return
 
@@ -86,7 +92,9 @@ class ServiceLoaderForDataPlane(Handler):
     def __init__(self, service_loader: ServiceLoader):
         self.service_loader = service_loader
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if context.service:
             return
 

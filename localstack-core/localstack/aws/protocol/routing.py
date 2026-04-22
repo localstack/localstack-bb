@@ -50,7 +50,9 @@ def transform_path_params_to_rule_vars(match: re.Match[str]) -> str:
         request_uri_variable = request_uri_variable.strip("+")
 
     # replace forbidden chars (not allowed in Werkzeug rule variable names) with their placeholder
-    escaped_request_uri_variable = request_uri_variable.translate(_rule_replacement_table)
+    escaped_request_uri_variable = request_uri_variable.translate(
+        _rule_replacement_table
+    )
 
     return f"<{greedy_prefix}{escaped_request_uri_variable}>"
 

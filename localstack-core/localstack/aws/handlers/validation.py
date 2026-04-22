@@ -5,7 +5,10 @@ Handlers for validating request and response schema against OpenAPI specs.
 import logging
 
 from openapi_core import OpenAPI
-from openapi_core.contrib.werkzeug import WerkzeugOpenAPIRequest, WerkzeugOpenAPIResponse
+from openapi_core.contrib.werkzeug import (
+    WerkzeugOpenAPIRequest,
+    WerkzeugOpenAPIResponse,
+)
 from openapi_core.exceptions import OpenAPIError
 from openapi_core.validation.request.exceptions import (
     RequestValidationError,
@@ -44,7 +47,9 @@ class OpenAPIRequestValidator(OpenAPIValidator):
     a OpenAPI specification.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         if not config.OPENAPI_VALIDATE_REQUEST:
             return
 
@@ -73,7 +78,9 @@ class OpenAPIRequestValidator(OpenAPIValidator):
 
 
 class OpenAPIResponseValidator(OpenAPIValidator):
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         # The use of this flag is intended for test only. Eventual errors are due to LocalStack implementation and not
         #   to improper user usage of the endpoints.
         if not config.OPENAPI_VALIDATE_RESPONSE:
@@ -93,7 +100,9 @@ class OpenAPIResponseValidator(OpenAPIValidator):
                 except ResponseValidationError as exc:
                     LOG.error("Response validation failed for %s: %s", path, exc)
                     response.status_code = 500
-                    response.set_json({"error": exc.__class__.__name__, "message": str(exc)})
+                    response.set_json(
+                        {"error": exc.__class__.__name__, "message": str(exc)}
+                    )
                     chain.terminate()
                 except OpenAPIError:
                     # Same logic from the request validator applies here.

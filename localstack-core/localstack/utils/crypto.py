@@ -63,9 +63,12 @@ def generate_ssl_cert(
         key_start = key_start.group(0)
         key_end = re.search(PEM_KEY_END_REGEX, content)
         key_end = key_end.group(0)
-        key_content = content[content.index(key_start) : content.index(key_end) + len(key_end)]
+        key_content = content[
+            content.index(key_start) : content.index(key_end) + len(key_end)
+        ]
         cert_content = content[
-            content.index(PEM_CERT_START) : content.rindex(PEM_CERT_END) + len(PEM_CERT_END)
+            content.index(PEM_CERT_START) : content.rindex(PEM_CERT_END)
+            + len(PEM_CERT_END)
         ]
         save_file(key_file_name, key_content)
         save_file(cert_file_name, cert_content)
@@ -77,7 +80,8 @@ def generate_ssl_cert(
         except Exception as e:
             # fall back to temporary files if we cannot store/overwrite the files above
             LOG.info(
-                "Error storing key/cert SSL files (falling back to random tmp file names): %s", e
+                "Error storing key/cert SSL files (falling back to random tmp file names): %s",
+                e,
             )
             target_file_tmp = new_tmp_file()
             cert_file_name, key_file_name = store_cert_key_files(target_file_tmp)
@@ -168,14 +172,18 @@ def generate_ssl_cert(
 
 
 def pad(s: bytes) -> bytes:
-    return s + to_bytes((BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE))
+    return s + to_bytes(
+        (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+    )
 
 
 def unpad(s: bytes) -> bytes:
     return s[0 : -s[-1]]
 
 
-def encrypt(key: bytes, message: bytes, iv: bytes = None, aad: bytes = None) -> tuple[bytes, bytes]:
+def encrypt(
+    key: bytes, message: bytes, iv: bytes = None, aad: bytes = None
+) -> tuple[bytes, bytes]:
     iv = iv or b"0" * BLOCK_SIZE
     cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
     encryptor = cipher.encryptor()
@@ -209,10 +217,14 @@ def pkcs7_envelope_encrypt(plaintext: bytes, recipient_pubkey: RSAPublicKey) -> 
     encrypted_session_key = recipient_pubkey.encrypt(
         session_key,
         padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
         ),
     )
-    cipher = Cipher(algorithms.AES(session_key), modes.CBC(iv), backend=default_backend())
+    cipher = Cipher(
+        algorithms.AES(session_key), modes.CBC(iv), backend=default_backend()
+    )
     encryptor = cipher.encryptor()
     padder = sym_padding.PKCS7(algorithms.AES.block_size).padder()
     padded_plaintext = padder.update(plaintext) + padder.finalize()

@@ -11,7 +11,11 @@ from localstack.aws.api import (
     RequestContext,
     ServiceException,
 )
-from localstack.aws.api.core import ServiceRequest, ServiceRequestHandler, ServiceResponse
+from localstack.aws.api.core import (
+    ServiceRequest,
+    ServiceRequestHandler,
+    ServiceResponse,
+)
 from localstack.aws.catalog_exceptions import get_service_availability_exception
 from localstack.aws.protocol.parser import create_parser
 from localstack.aws.protocol.serializer import ResponseSerializer, create_serializer
@@ -98,7 +102,9 @@ class ServiceRequestDispatcher:
         self.pass_context = pass_context
         self.expand_parameters = expand_parameters
 
-    def __call__(self, context: RequestContext, request: ServiceRequest) -> ServiceResponse | None:
+    def __call__(
+        self, context: RequestContext, request: ServiceRequest
+    ) -> ServiceResponse | None:
         args = []
         kwargs = {}
 
@@ -136,9 +142,9 @@ class Skeleton:
             operation, instance = context.operation, context.service_request
         else:
             # otherwise, parse the incoming HTTPRequest
-            operation, instance = create_parser(context.service, context.protocol).parse(
-                context.request
-            )
+            operation, instance = create_parser(
+                context.service, context.protocol
+            ).parse(context.request)
             context.operation = operation
 
         try:
@@ -158,7 +164,10 @@ class Skeleton:
             return self.on_not_implemented_error(serializer, context, e)
 
     def dispatch_request(
-        self, serializer: ResponseSerializer, context: RequestContext, instance: ServiceRequest
+        self,
+        serializer: ResponseSerializer,
+        context: RequestContext,
+        instance: ServiceRequest,
     ) -> Response:
         operation = context.operation
 
@@ -179,7 +188,10 @@ class Skeleton:
         )
 
     def on_service_exception(
-        self, serializer: ResponseSerializer, context: RequestContext, exception: ServiceException
+        self,
+        serializer: ResponseSerializer,
+        context: RequestContext,
+        exception: ServiceException,
     ) -> Response:
         """
         Called by invoke if the handler of the operation raised a ServiceException.

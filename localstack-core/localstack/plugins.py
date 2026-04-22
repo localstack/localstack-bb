@@ -54,7 +54,9 @@ class OASPlugin(Plugin):
         # importlib.resources would be a better approach but has issues with namespace packages in editable mode
         _module = sys.modules[self.__module__]
         self.spec_path = Path(
-            os.path.join(os.path.dirname(os.path.abspath(_module.__file__)), "openapi.yaml")
+            os.path.join(
+                os.path.dirname(os.path.abspath(_module.__file__)), "openapi.yaml"
+            )
         )
         assert self.spec_path.exists()
         self.spec = {}

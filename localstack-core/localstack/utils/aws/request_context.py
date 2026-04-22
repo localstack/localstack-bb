@@ -23,7 +23,8 @@ AWS_REGION_REGEX = r"(us(-gov)?|ap|ca|cn|eu|sa)-(central|(north|south)?(east|wes
 
 def get_account_id_from_request(request: RoloRequest) -> str:
     access_key_id = (
-        extract_access_key_id_from_auth_header(request.headers) or DEFAULT_AWS_ACCOUNT_ID
+        extract_access_key_id_from_auth_header(request.headers)
+        or DEFAULT_AWS_ACCOUNT_ID
     )
 
     return get_account_id_from_access_key_id(access_key_id)

@@ -115,7 +115,9 @@ def start_thread(
 def start_worker_thread(
     method: "Callable[P, T]", params: Any = None, name: str | None = None
 ) -> FuncThread:
-    return start_thread(method, params, _shutdown_hook=False, name=name or "start_worker_thread")
+    return start_thread(
+        method, params, _shutdown_hook=False, name=name or "start_worker_thread"
+    )
 
 
 def cleanup_threads_and_processes(quiet: bool = True) -> None:
@@ -135,7 +137,8 @@ def cleanup_threads_and_processes(quiet: bool = True) -> None:
                 LOG.debug("[shutdown] Error stopping thread %s: %s", thread, e)
                 if not thread.daemon:
                     LOG.warning(
-                        "[shutdown] Non-daemon thread %s may block localstack shutdown", thread
+                        "[shutdown] Non-daemon thread %s may block localstack shutdown",
+                        thread,
                     )
     for proc in TMP_PROCESSES:
         try:

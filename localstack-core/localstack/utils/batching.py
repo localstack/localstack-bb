@@ -95,9 +95,13 @@ class Batcher(Generic[T]):
     def add(self, item: T, *, deep_copy: bool = False) -> BatchPolicyTriggered: ...
 
     @overload
-    def add(self, items: list[T], *, deep_copy: bool = False) -> BatchPolicyTriggered: ...
+    def add(
+        self, items: list[T], *, deep_copy: bool = False
+    ) -> BatchPolicyTriggered: ...
 
-    def add(self, item_or_items: T | list[T], *, deep_copy: bool = False) -> BatchPolicyTriggered:
+    def add(
+        self, item_or_items: T | list[T], *, deep_copy: bool = False
+    ) -> BatchPolicyTriggered:
         """
         Add an item or list of items to the collected batch.
 

@@ -120,7 +120,9 @@ class InitScriptManager:
     def __init__(self, script_root: str):
         self.script_root = script_root
         self.stage_completed = dict.fromkeys(Stage, False)
-        self.runner_manager: PluginManager[ScriptRunner] = PluginManager(ScriptRunner.namespace)
+        self.runner_manager: PluginManager[ScriptRunner] = PluginManager(
+            ScriptRunner.namespace
+        )
 
     @cached_property
     def scripts(self) -> dict[Stage, list[Script]]:

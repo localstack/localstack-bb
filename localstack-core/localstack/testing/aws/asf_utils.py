@@ -21,7 +21,9 @@ def _import_submodules(
     """
     package = importlib.import_module(package_name)
     results = {}
-    for loader, name, is_pkg in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
+    for loader, name, is_pkg in pkgutil.walk_packages(
+        package.__path__, package.__name__ + "."
+    ):
         if not module_regex or module_regex.match(name):
             results[name] = importlib.import_module(name)
         if recursive and is_pkg:
@@ -88,7 +90,9 @@ def collect_implemented_provider_operations(
     return results
 
 
-def check_provider_signature(sub_class: type, base_class: type, method_name: str) -> None:
+def check_provider_signature(
+    sub_class: type, base_class: type, method_name: str
+) -> None:
     """
     Checks if the signature of a given provider method is equal to the signature of the function with the same name on the base class.
 

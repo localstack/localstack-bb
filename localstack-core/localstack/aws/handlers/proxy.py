@@ -15,6 +15,8 @@ class ProxyHandler(Handler):
     def __init__(self, forward_base_url: str) -> None:
         self.proxy = Proxy(forward_base_url)
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         proxy_response = self.proxy.forward(context.request)
         response.update_from(proxy_response)

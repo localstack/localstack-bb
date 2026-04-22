@@ -65,9 +65,16 @@ def run(
         if not asynchronous:
             if stdin:
                 return subprocess.check_output(
-                    cmd, shell=shell, stderr=stderr, env=env_dict, stdin=subprocess.PIPE, cwd=cwd
+                    cmd,
+                    shell=shell,
+                    stderr=stderr,
+                    env=env_dict,
+                    stdin=subprocess.PIPE,
+                    cwd=cwd,
                 )
-            output = subprocess.check_output(cmd, shell=shell, stderr=stderr, env=env_dict, cwd=cwd)
+            output = subprocess.check_output(
+                cmd, shell=shell, stderr=stderr, env=env_dict, cwd=cwd
+            )
             return output.decode(config.DEFAULT_ENCODING)
 
         stdin_arg = subprocess.PIPE if stdin else None
@@ -204,7 +211,9 @@ def get_os_user() -> str:
 
 
 def to_str(obj: str | bytes, errors="strict"):
-    return obj.decode(config.DEFAULT_ENCODING, errors) if isinstance(obj, bytes) else obj
+    return (
+        obj.decode(config.DEFAULT_ENCODING, errors) if isinstance(obj, bytes) else obj
+    )
 
 
 class ShellCommandThread(FuncThread):
@@ -260,7 +269,9 @@ class ShellCommandThread(FuncThread):
             ):
                 return self.process.returncode if self.process else None
             LOG.info(
-                "Restarting process (received exit code %s): %s", self.process.returncode, self.cmd
+                "Restarting process (received exit code %s): %s",
+                self.process.returncode,
+                self.cmd,
             )
 
     def do_run_cmd(self):
@@ -324,7 +335,9 @@ class ShellCommandThread(FuncThread):
             if self.process and not self.quiet:
                 LOG.warning('Shell command error "%s": %s', e, self.cmd)
         if self.process and not self.quiet and self.process.returncode != 0:
-            LOG.warning('Shell command exit code "%s": %s', self.process.returncode, self.cmd)
+            LOG.warning(
+                'Shell command exit code "%s": %s', self.process.returncode, self.cmd
+            )
 
     def is_killed(self):
         from localstack.runtime import events
@@ -358,7 +371,11 @@ class ShellCommandThread(FuncThread):
             self.stop_listener and self.stop_listener(self)
         except Exception as e:
             if not quiet:
-                LOG.warning("Unable to run stop handler for shell command thread %s: %s", self, e)
+                LOG.warning(
+                    "Unable to run stop handler for shell command thread %s: %s",
+                    self,
+                    e,
+                )
         self.stopped = True
 
 

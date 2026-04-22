@@ -117,20 +117,31 @@ class TypedServiceClientFactory(abc.ABC):
     acm_pca: Union["ACMPCAClient", "MetadataRequestInjector[ACMPCAClient]"]
     amplify: Union["AmplifyClient", "MetadataRequestInjector[AmplifyClient]"]
     apigateway: Union["APIGatewayClient", "MetadataRequestInjector[APIGatewayClient]"]
-    apigatewayv2: Union["ApiGatewayV2Client", "MetadataRequestInjector[ApiGatewayV2Client]"]
+    apigatewayv2: Union[
+        "ApiGatewayV2Client", "MetadataRequestInjector[ApiGatewayV2Client]"
+    ]
     appconfig: Union["AppConfigClient", "MetadataRequestInjector[AppConfigClient]"]
-    appconfigdata: Union["AppConfigDataClient", "MetadataRequestInjector[AppConfigDataClient]"]
+    appconfigdata: Union[
+        "AppConfigDataClient", "MetadataRequestInjector[AppConfigDataClient]"
+    ]
     appsync: Union["AppSyncClient", "MetadataRequestInjector[AppSyncClient]"]
     application_autoscaling: Union[
-        "ApplicationAutoScalingClient", "MetadataRequestInjector[ApplicationAutoScalingClient]"
+        "ApplicationAutoScalingClient",
+        "MetadataRequestInjector[ApplicationAutoScalingClient]",
     ]
     athena: Union["AthenaClient", "MetadataRequestInjector[AthenaClient]"]
-    autoscaling: Union["AutoScalingClient", "MetadataRequestInjector[AutoScalingClient]"]
+    autoscaling: Union[
+        "AutoScalingClient", "MetadataRequestInjector[AutoScalingClient]"
+    ]
     backup: Union["BackupClient", "MetadataRequestInjector[BackupClient]"]
     batch: Union["BatchClient", "MetadataRequestInjector[BatchClient]"]
     ce: Union["CostExplorerClient", "MetadataRequestInjector[CostExplorerClient]"]
-    cloudcontrol: Union["CloudControlApiClient", "MetadataRequestInjector[CloudControlApiClient]"]
-    cloudformation: Union["CloudFormationClient", "MetadataRequestInjector[CloudFormationClient]"]
+    cloudcontrol: Union[
+        "CloudControlApiClient", "MetadataRequestInjector[CloudControlApiClient]"
+    ]
+    cloudformation: Union[
+        "CloudFormationClient", "MetadataRequestInjector[CloudFormationClient]"
+    ]
     cloudfront: Union["CloudFrontClient", "MetadataRequestInjector[CloudFrontClient]"]
     cloudtrail: Union["CloudTrailClient", "MetadataRequestInjector[CloudTrailClient]"]
     cloudwatch: Union["CloudWatchClient", "MetadataRequestInjector[CloudWatchClient]"]
@@ -140,18 +151,23 @@ class TypedServiceClientFactory(abc.ABC):
         "CodeConnectionsClient", "MetadataRequestInjector[CodeConnectionsClient]"
     ]
     codedeploy: Union["CodeDeployClient", "MetadataRequestInjector[CodeDeployClient]"]
-    codepipeline: Union["CodePipelineClient", "MetadataRequestInjector[CodePipelineClient]"]
+    codepipeline: Union[
+        "CodePipelineClient", "MetadataRequestInjector[CodePipelineClient]"
+    ]
     codestar_connections: Union[
-        "CodeStarconnectionsClient", "MetadataRequestInjector[CodeStarconnectionsClient]"
+        "CodeStarconnectionsClient",
+        "MetadataRequestInjector[CodeStarconnectionsClient]",
     ]
     cognito_identity: Union[
         "CognitoIdentityClient", "MetadataRequestInjector[CognitoIdentityClient]"
     ]
     cognito_idp: Union[
-        "CognitoIdentityProviderClient", "MetadataRequestInjector[CognitoIdentityProviderClient]"
+        "CognitoIdentityProviderClient",
+        "MetadataRequestInjector[CognitoIdentityProviderClient]",
     ]
     dms: Union[
-        "DatabaseMigrationServiceClient", "MetadataRequestInjector[DatabaseMigrationServiceClient]"
+        "DatabaseMigrationServiceClient",
+        "MetadataRequestInjector[DatabaseMigrationServiceClient]",
     ]
     docdb: Union["DocDBClient", "MetadataRequestInjector[DocDBClient]"]
     dynamodb: Union["DynamoDBClient", "MetadataRequestInjector[DynamoDBClient]"]
@@ -163,56 +179,84 @@ class TypedServiceClientFactory(abc.ABC):
     ecs: Union["ECSClient", "MetadataRequestInjector[ECSClient]"]
     efs: Union["EFSClient", "MetadataRequestInjector[EFSClient]"]
     eks: Union["EKSClient", "MetadataRequestInjector[EKSClient]"]
-    elasticache: Union["ElastiCacheClient", "MetadataRequestInjector[ElastiCacheClient]"]
+    elasticache: Union[
+        "ElastiCacheClient", "MetadataRequestInjector[ElastiCacheClient]"
+    ]
     elasticbeanstalk: Union[
         "ElasticBeanstalkClient", "MetadataRequestInjector[ElasticBeanstalkClient]"
     ]
     elbv2: Union[
-        "ElasticLoadBalancingv2Client", "MetadataRequestInjector[ElasticLoadBalancingv2Client]"
+        "ElasticLoadBalancingv2Client",
+        "MetadataRequestInjector[ElasticLoadBalancingv2Client]",
     ]
     emr: Union["EMRClient", "MetadataRequestInjector[EMRClient]"]
-    emr_serverless: Union["EMRServerlessClient", "MetadataRequestInjector[EMRServerlessClient]"]
-    es: Union["ElasticsearchServiceClient", "MetadataRequestInjector[ElasticsearchServiceClient]"]
+    emr_serverless: Union[
+        "EMRServerlessClient", "MetadataRequestInjector[EMRServerlessClient]"
+    ]
+    es: Union[
+        "ElasticsearchServiceClient",
+        "MetadataRequestInjector[ElasticsearchServiceClient]",
+    ]
     events: Union["EventBridgeClient", "MetadataRequestInjector[EventBridgeClient]"]
     firehose: Union["FirehoseClient", "MetadataRequestInjector[FirehoseClient]"]
     fis: Union["FISClient", "MetadataRequestInjector[FISClient]"]
     glacier: Union["GlacierClient", "MetadataRequestInjector[GlacierClient]"]
     glue: Union["GlueClient", "MetadataRequestInjector[GlueClient]"]
     iam: Union["IAMClient", "MetadataRequestInjector[IAMClient]"]
-    identitystore: Union["IdentityStoreClient", "MetadataRequestInjector[IdentityStoreClient]"]
+    identitystore: Union[
+        "IdentityStoreClient", "MetadataRequestInjector[IdentityStoreClient]"
+    ]
     iot: Union["IoTClient", "MetadataRequestInjector[IoTClient]"]
     iot_data: Union["IoTDataPlaneClient", "MetadataRequestInjector[IoTDataPlaneClient]"]
-    iotwireless: Union["IoTWirelessClient", "MetadataRequestInjector[IoTWirelessClient]"]
+    iotwireless: Union[
+        "IoTWirelessClient", "MetadataRequestInjector[IoTWirelessClient]"
+    ]
     kafka: Union["KafkaClient", "MetadataRequestInjector[KafkaClient]"]
     kinesis: Union["KinesisClient", "MetadataRequestInjector[KinesisClient]"]
     kinesisanalyticsv2: Union[
         "KinesisAnalyticsV2Client", "MetadataRequestInjector[KinesisAnalyticsV2Client]"
     ]
     kms: Union["KMSClient", "MetadataRequestInjector[KMSClient]"]
-    lakeformation: Union["LakeFormationClient", "MetadataRequestInjector[LakeFormationClient]"]
+    lakeformation: Union[
+        "LakeFormationClient", "MetadataRequestInjector[LakeFormationClient]"
+    ]
     lambda_: Union["LambdaClient", "MetadataRequestInjector[LambdaClient]"]
     logs: Union["CloudWatchLogsClient", "MetadataRequestInjector[CloudWatchLogsClient]"]
     managedblockchain: Union[
         "ManagedBlockchainClient", "MetadataRequestInjector[ManagedBlockchainClient]"
     ]
-    mediaconvert: Union["MediaConvertClient", "MetadataRequestInjector[MediaConvertClient]"]
+    mediaconvert: Union[
+        "MediaConvertClient", "MetadataRequestInjector[MediaConvertClient]"
+    ]
     mq: Union["MQClient", "MetadataRequestInjector[MQClient]"]
     mwaa: Union["MWAAClient", "MetadataRequestInjector[MWAAClient]"]
     neptune: Union["NeptuneClient", "MetadataRequestInjector[NeptuneClient]"]
-    opensearch: Union["OpenSearchServiceClient", "MetadataRequestInjector[OpenSearchServiceClient]"]
-    organizations: Union["OrganizationsClient", "MetadataRequestInjector[OrganizationsClient]"]
+    opensearch: Union[
+        "OpenSearchServiceClient", "MetadataRequestInjector[OpenSearchServiceClient]"
+    ]
+    organizations: Union[
+        "OrganizationsClient", "MetadataRequestInjector[OrganizationsClient]"
+    ]
     pi: Union["PIClient", "MetadataRequestInjector[PIClient]"]
     pinpoint: Union["PinpointClient", "MetadataRequestInjector[PinpointClient]"]
-    pipes: Union["EventBridgePipesClient", "MetadataRequestInjector[EventBridgePipesClient]"]
+    pipes: Union[
+        "EventBridgePipesClient", "MetadataRequestInjector[EventBridgePipesClient]"
+    ]
     rds: Union["RDSClient", "MetadataRequestInjector[RDSClient]"]
-    rds_data: Union["RDSDataServiceClient", "MetadataRequestInjector[RDSDataServiceClient]"]
+    rds_data: Union[
+        "RDSDataServiceClient", "MetadataRequestInjector[RDSDataServiceClient]"
+    ]
     redshift: Union["RedshiftClient", "MetadataRequestInjector[RedshiftClient]"]
     redshift_data: Union[
-        "RedshiftDataAPIServiceClient", "MetadataRequestInjector[RedshiftDataAPIServiceClient]"
+        "RedshiftDataAPIServiceClient",
+        "MetadataRequestInjector[RedshiftDataAPIServiceClient]",
     ]
-    resource_groups: Union["ResourceGroupsClient", "MetadataRequestInjector[ResourceGroupsClient]"]
+    resource_groups: Union[
+        "ResourceGroupsClient", "MetadataRequestInjector[ResourceGroupsClient]"
+    ]
     resourcegroupstaggingapi: Union[
-        "ResourceGroupsTaggingAPIClient", "MetadataRequestInjector[ResourceGroupsTaggingAPIClient]"
+        "ResourceGroupsTaggingAPIClient",
+        "MetadataRequestInjector[ResourceGroupsTaggingAPIClient]",
     ]
     route53: Union["Route53Client", "MetadataRequestInjector[Route53Client]"]
     route53resolver: Union[
@@ -224,7 +268,9 @@ class TypedServiceClientFactory(abc.ABC):
     sagemaker_runtime: Union[
         "SageMakerRuntimeClient", "MetadataRequestInjector[SageMakerRuntimeClient]"
     ]
-    secretsmanager: Union["SecretsManagerClient", "MetadataRequestInjector[SecretsManagerClient]"]
+    secretsmanager: Union[
+        "SecretsManagerClient", "MetadataRequestInjector[SecretsManagerClient]"
+    ]
     serverlessrepo: Union[
         "ServerlessApplicationRepositoryClient",
         "MetadataRequestInjector[ServerlessApplicationRepositoryClient]",
@@ -247,9 +293,12 @@ class TypedServiceClientFactory(abc.ABC):
     timestream_write: Union[
         "TimestreamWriteClient", "MetadataRequestInjector[TimestreamWriteClient]"
     ]
-    transcribe: Union["TranscribeServiceClient", "MetadataRequestInjector[TranscribeServiceClient]"]
+    transcribe: Union[
+        "TranscribeServiceClient", "MetadataRequestInjector[TranscribeServiceClient]"
+    ]
     verifiedpermissions: Union[
-        "VerifiedPermissionsClient", "MetadataRequestInjector[VerifiedPermissionsClient]"
+        "VerifiedPermissionsClient",
+        "MetadataRequestInjector[VerifiedPermissionsClient]",
     ]
     wafv2: Union["WAFV2Client", "MetadataRequestInjector[WAFV2Client]"]
     xray: Union["XRayClient", "MetadataRequestInjector[XRayClient]"]

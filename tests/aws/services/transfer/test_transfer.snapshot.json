@@ -1,154 +1,6 @@
 {
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_create_user": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "create-user": {
-        "ServerId": "<server-id:1>",
-        "UserName": "<user-name:1>",
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 200
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_create_user_invalid_server": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "create-user-invalid-server": {
-        "Error": {
-          "Code": "ValidationException",
-          "Message": "1 validation error detected: Value at 'serverId' failed to satisfy constraint: Member must satisfy regular expression pattern: s-([0-9a-f]{17})"
-        },
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 400
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_create_user_duplicate": {
-    "recorded-date": "15-12-2025, 21:12:33",
-    "recorded-content": {
-      "create-user-duplicate": {
-        "Error": {
-          "Code": "ResourceExistsException",
-          "Message": "User already exists"
-        },
-        "Message": "User already exists",
-        "Resource": "<resource:1>",
-        "ResourceType": "User",
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 400
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_list_users": {
-    "recorded-date": "15-12-2025, 21:25:03",
-    "recorded-content": {
-      "list-users": {
-        "ServerId": "<server-id:1>",
-        "Users": [
-          {
-            "Arn": "arn:<partition>:transfer:<region>:111111111111:user/<server-id:1>/<user-name:1>",
-            "HomeDirectoryType": "PATH",
-            "Role": "<role:1>",
-            "SshPublicKeyCount": 0,
-            "UserName": "<user-name:1>"
-          },
-          {
-            "Arn": "arn:<partition>:transfer:<region>:111111111111:user/<server-id:1>/<user-name:2>",
-            "HomeDirectoryType": "PATH",
-            "Role": "<role:1>",
-            "SshPublicKeyCount": 0,
-            "UserName": "<user-name:2>"
-          }
-        ],
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 200
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_list_users_empty": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "list-users-empty": {
-        "ServerId": "<server-id:1>",
-        "Users": [],
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 200
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_list_users_invalid_server": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "list-users-invalid-server": {
-        "Error": {
-          "Code": "ValidationException",
-          "Message": "1 validation error detected: Value at 'serverId' failed to satisfy constraint: Member must satisfy regular expression pattern: s-([0-9a-f]{17})"
-        },
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 400
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_delete_user": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "list-users-after-delete": {
-        "ServerId": "<server-id:1>",
-        "Users": [],
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 200
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_delete_user_invalid_user": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "delete-user-invalid-user": {
-        "Error": {
-          "Code": "ResourceNotFoundException",
-          "Message": "Unknown user"
-        },
-        "Message": "Unknown user",
-        "Resource": "<user-name>",
-        "ResourceType": "User",
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 400
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferUser::test_delete_user_invalid_server": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "delete-user-invalid-server": {
-        "Error": {
-          "Code": "ValidationException",
-          "Message": "1 validation error detected: Value at 'serverId' failed to satisfy constraint: Member must satisfy regular expression pattern: s-([0-9a-f]{17})"
-        },
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 400
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferServer::test_create_server": {
-    "recorded-date": "15-12-2025, 19:48:52",
+  "tests/aws/services/transfer/test_transfer.py::TestTransferFamily::test_create_server": {
+    "recorded-date": "22-04-2026, 08:36:05",
     "recorded-content": {
       "create-server": {
         "ServerId": "<server-id:1>",
@@ -159,95 +11,10 @@
       }
     }
   },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferServer::test_describe_server": {
-    "recorded-date": "15-12-2025, 20:16:23",
+  "tests/aws/services/transfer/test_transfer.py::TestTransferFamily::test_describe_server": {
+    "recorded-date": "22-04-2026, 08:36:05",
     "recorded-content": {
       "describe-server": {
-        "Server": {
-          "Arn": "arn:<partition>:transfer:<region>:111111111111:server/<server-id:1>",
-          "Domain": "S3",
-          "EndpointType": "PUBLIC",
-          "HostKeyFingerprint": "<host-key-fingerprint:1>",
-          "IdentityProviderType": "SERVICE_MANAGED",
-          "IpAddressType": "IPV4",
-          "ProtocolDetails": {
-            "PassiveIp": "AUTO",
-            "SetStatOption": "DEFAULT",
-            "TlsSessionResumptionMode": "ENFORCED"
-          },
-          "Protocols": [
-            "SFTP"
-          ],
-          "S3StorageOptions": {
-            "DirectoryListingOptimization": "DISABLED"
-          },
-          "SecurityPolicyName": "TransferSecurityPolicy-2024-01",
-          "ServerId": "<server-id:1>",
-          "State": "STARTING",
-          "Tags": [],
-          "UserCount": 0
-        },
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 200
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferServer::test_describe_server_invalid_id": {
-    "recorded-date": "15-12-2025, 19:48:52",
-    "recorded-content": {
-      "describe-server-invalid-id": {
-        "Error": {
-          "Code": "ValidationException",
-          "Message": "1 validation error detected: Value at 'serverId' failed to satisfy constraint: Member must satisfy regular expression pattern: s-([0-9a-f]{17})"
-        },
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 400
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferServer::test_create_and_describe_server_state": {
-    "recorded-date": "15-12-2025, 20:13:30",
-    "recorded-content": {
-      "describe-server-with-state": {
-        "Server": {
-          "Arn": "arn:<partition>:transfer:<region>:111111111111:server/<server-id:1>",
-          "Domain": "S3",
-          "EndpointType": "PUBLIC",
-          "HostKeyFingerprint": "<host-key-fingerprint:1>",
-          "IdentityProviderType": "SERVICE_MANAGED",
-          "IpAddressType": "IPV4",
-          "ProtocolDetails": {
-            "PassiveIp": "AUTO",
-            "SetStatOption": "DEFAULT",
-            "TlsSessionResumptionMode": "ENFORCED"
-          },
-          "Protocols": [
-            "SFTP"
-          ],
-          "S3StorageOptions": {
-            "DirectoryListingOptimization": "DISABLED"
-          },
-          "SecurityPolicyName": "TransferSecurityPolicy-2024-01",
-          "ServerId": "<server-id:1>",
-          "State": "STARTING",
-          "Tags": [],
-          "UserCount": 0
-        },
-        "ResponseMetadata": {
-          "HTTPHeaders": {},
-          "HTTPStatusCode": 200
-        }
-      }
-    }
-  },
-  "tests/aws/services/transfer/test_transfer.py::TestTransferServer::test_server_state_transition": {
-    "recorded-date": "15-12-2025, 01:03:41",
-    "recorded-content": {
-      "describe-server-after-transition": {
         "Server": {
           "Arn": "arn:<partition>:transfer:<region>:111111111111:server/<server-id:1>",
           "ServerId": "<server-id:1>",
@@ -256,6 +23,19 @@
         "ResponseMetadata": {
           "HTTPHeaders": {},
           "HTTPStatusCode": 200
+        }
+      },
+      "describe-server-invalid-id": {
+        "Error": {
+          "Code": "ResourceNotFoundException",
+          "Message": "Unknown server"
+        },
+        "Message": "Unknown server",
+        "Resource": "s-00123456789abcdef",
+        "ResourceType": "Server",
+        "ResponseMetadata": {
+          "HTTPHeaders": {},
+          "HTTPStatusCode": 400
         }
       }
     }

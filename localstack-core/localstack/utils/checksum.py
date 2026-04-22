@@ -96,7 +96,9 @@ class BSDFormat(ChecksumFormat):
                 continue
 
             # Match: ALGORITHM (filename) = checksum
-            match = re.match(r"^(MD5|SHA1|SHA256|SHA512)\s*\((.+)\)\s*=\s*([a-fA-F0-9]+)$", line)
+            match = re.match(
+                r"^(MD5|SHA1|SHA256|SHA512)\s*\((.+)\)\s*=\s*([a-fA-F0-9]+)$", line
+            )
             if match:
                 algo, filename, checksum = match.groups()
                 checksums[filename.strip()] = checksum.lower()
@@ -229,7 +231,9 @@ def calculate_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
     return hash_func.hexdigest()
 
 
-def verify_local_file_with_checksum_url(file_path: str, checksum_url: str, filename=None) -> bool:
+def verify_local_file_with_checksum_url(
+    file_path: str, checksum_url: str, filename=None
+) -> bool:
     """
     Verify a local file against checksums from an online checksum file.
 
@@ -274,7 +278,9 @@ def verify_local_file_with_checksum_url(file_path: str, checksum_url: str, filen
                 break
 
         if not found:
-            raise ChecksumException(f"Checksum for {filename} not found in {checksum_url}")
+            raise ChecksumException(
+                f"Checksum for {filename} not found in {checksum_url}"
+            )
 
     expected_checksum = checksums[filename]
 

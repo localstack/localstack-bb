@@ -18,7 +18,11 @@ from localstack.aws.api.core import (
     ServiceRequestHandler,
     ServiceResponse,
 )
-from localstack.aws.client import create_http_request, parse_response, raise_service_exception
+from localstack.aws.client import (
+    create_http_request,
+    parse_response,
+    raise_service_exception,
+)
 from localstack.aws.connect import connect_to
 from localstack.aws.skeleton import DispatchTable, create_dispatch_table
 from localstack.aws.spec import ProtocolName, load_service
@@ -77,16 +81,23 @@ class AwsRequestProxy:
             # if a service request is passed then we need to create a new request context
             context = self.new_request_context(context, service_request)
 
-        http_response = self.proxy.forward(context.request, forward_path=context.request.path)
+        http_response = self.proxy.forward(
+            context.request, forward_path=context.request.path
+        )
         if not self.parse_response:
             return http_response
         parsed_response = parse_response(
-            context.operation, context.protocol, http_response, self.include_response_metadata
+            context.operation,
+            context.protocol,
+            http_response,
+            self.include_response_metadata,
         )
         raise_service_exception(http_response, parsed_response)
         return parsed_response
 
-    def new_request_context(self, original: RequestContext, service_request: ServiceRequest):
+    def new_request_context(
+        self, original: RequestContext, service_request: ServiceRequest
+    ):
         context = create_aws_request_context(
             service_name=original.service.service_name,
             action=original.operation.name,
@@ -146,8 +157,12 @@ def _wrap_with_fallthrough(
     return _call
 
 
-def HttpFallbackDispatcher(provider: object, forward_url_getter: Callable[[str, str], str]):
-    return ForwardingFallbackDispatcher(provider, get_request_forwarder_http(forward_url_getter))
+def HttpFallbackDispatcher(
+    provider: object, forward_url_getter: Callable[[str, str], str]
+):
+    return ForwardingFallbackDispatcher(
+        provider, get_request_forwarder_http(forward_url_getter)
+    )
 
 
 def get_request_forwarder_http(
@@ -165,9 +180,9 @@ def get_request_forwarder_http(
     def _forward_request(
         context: RequestContext, service_request: ServiceRequest = None
     ) -> ServiceResponse:
-        return AwsRequestProxy(forward_url_getter(context.account_id, context.region)).forward(
-            context, service_request
-        )
+        return AwsRequestProxy(
+            forward_url_getter(context.account_id, context.region)
+        ).forward(context, service_request)
 
     return _forward_request
 
@@ -277,7 +292,9 @@ def create_aws_request_context(
             context=request_context,
         )
 
-    aws_request: AWSPreparedRequest = client._endpoint.create_request(request_dict, operation)
+    aws_request: AWSPreparedRequest = client._endpoint.create_request(
+        request_dict, operation
+    )
     context = RequestContext(request=create_http_request(aws_request))
     context.service = service
     context.operation = operation

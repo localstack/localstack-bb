@@ -20,7 +20,9 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: list[
         selected = []
         deselected = []
         for item in items:
-            if hasattr(item, "fixturenames") and filter_fixtures.isdisjoint(set(item.fixturenames)):
+            if hasattr(item, "fixturenames") and filter_fixtures.isdisjoint(
+                set(item.fixturenames)
+            ):
                 deselected.append(item)
             else:
                 selected.append(item)

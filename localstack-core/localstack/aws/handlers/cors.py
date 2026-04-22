@@ -146,7 +146,10 @@ def is_execute_api_call(context: RequestContext) -> bool:
     path = context.request.path
     return (
         ".execute-api." in context.request.host
-        or (path.startswith("/restapis/") and f"/{PATH_USER_REQUEST}" in context.request.path)
+        or (
+            path.startswith("/restapis/")
+            and f"/{PATH_USER_REQUEST}" in context.request.path
+        )
         or (path.startswith("/_aws/execute-api"))
     )
 
@@ -178,7 +181,9 @@ class CorsEnforcer(Handler):
     commands are executed.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response) -> None:
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ) -> None:
         if not should_enforce_self_managed_service(context):
             return
         if not config.DISABLE_CORS_CHECKS and not self.is_cors_origin_allowed(
@@ -186,11 +191,15 @@ class CorsEnforcer(Handler):
         ):
             LOG.info(
                 "Blocked CORS request from forbidden origin %s",
-                context.request.headers.get("origin") or context.request.headers.get("referer"),
+                context.request.headers.get("origin")
+                or context.request.headers.get("referer"),
             )
             response.status_code = 403
             chain.terminate()
-        elif context.request.method == "OPTIONS" and not config.DISABLE_PREFLIGHT_PROCESSING:
+        elif (
+            context.request.method == "OPTIONS"
+            and not config.DISABLE_PREFLIGHT_PROCESSING
+        ):
             # we want to return immediately here, but we do not want to omit our response chain for cors headers
             response.status_code = 204
             chain.stop()
@@ -204,7 +213,9 @@ class CorsEnforcer(Handler):
             return CorsEnforcer._is_in_allowed_origins(ALLOWED_CORS_ORIGINS, origin)
         elif referer:
             referer_uri = "{uri.scheme}://{uri.netloc}".format(uri=urlparse(referer))
-            return CorsEnforcer._is_in_allowed_origins(ALLOWED_CORS_ORIGINS, referer_uri)
+            return CorsEnforcer._is_in_allowed_origins(
+                ALLOWED_CORS_ORIGINS, referer_uri
+            )
         # If both headers are not set, let it through (awscli etc. do not send these headers)
         return True
 
@@ -222,7 +233,10 @@ class CorsEnforcer(Handler):
             if (
                 match
                 and (match.group(2) in _ALLOWED_INTERNAL_DOMAINS)
-                and (not (port := match.group(3)) or int(port[1:]) in _ALLOWED_INTERNAL_PORTS)
+                and (
+                    not (port := match.group(3))
+                    or int(port[1:]) in _ALLOWED_INTERNAL_PORTS
+                )
             ):
                 return True
 
@@ -234,7 +248,9 @@ class CorsResponseEnricher(Handler):
     ResponseHandler which adds Cross-Origin-Request-Sharing (CORS) headers (Access-Control-*) to the response.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         headers = response.headers
         # Remove empty CORS headers
         for header in ALLOWED_CORS_RESPONSE_HEADERS:
@@ -268,8 +284,12 @@ class CorsResponseEnricher(Handler):
             response_headers[ACL_METHODS] = ",".join(CORS_ALLOWED_METHODS)
         if ACL_ALLOW_HEADERS not in response_headers:
             requested_headers = response_headers.get(ACL_REQUEST_HEADERS, "")
-            requested_headers = re.split(r"[,\s]+", requested_headers) + CORS_ALLOWED_HEADERS
-            response_headers[ACL_ALLOW_HEADERS] = ",".join([h for h in requested_headers if h])
+            requested_headers = (
+                re.split(r"[,\s]+", requested_headers) + CORS_ALLOWED_HEADERS
+            )
+            response_headers[ACL_ALLOW_HEADERS] = ",".join(
+                [h for h in requested_headers if h]
+            )
         if ACL_EXPOSE_HEADERS not in response_headers:
             response_headers[ACL_EXPOSE_HEADERS] = ",".join(CORS_EXPOSE_HEADERS)
         if (

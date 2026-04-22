@@ -52,7 +52,8 @@ def unzip(path: str, target_dir: str, overwrite: bool = True) -> str | Popen | N
         except Exception as e:
             error_str = truncate(str(e), max_length=200)
             LOG.info(
-                'Unable to use native "unzip" command (using fallback mechanism): %s', error_str
+                'Unable to use native "unzip" command (using fallback mechanism): %s',
+                error_str,
             )
 
     try:
@@ -64,7 +65,11 @@ def unzip(path: str, target_dir: str, overwrite: bool = True) -> str | Popen | N
     def _unzip_file_entry(zip_ref, file_entry, target_dir):
         """Extracts a Zipfile entry and preserves permissions"""
         out_path = os.path.join(target_dir, file_entry.filename)
-        if use_native_cmd and os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+        if (
+            use_native_cmd
+            and os.path.exists(out_path)
+            and os.path.getsize(out_path) > 0
+        ):
             # this can happen under certain circumstances if the native "unzip" command
             # fails with a non-zero exit code, yet manages to extract parts of the zip file
             return
@@ -218,7 +223,9 @@ def download_and_extract(
 
     # if the temporary file we created above hasn't been replaced, we assume failure
     if os.path.getsize(tmp_archive) <= 0:
-        raise Exception("Failed to download archive from %s: . Retries exhausted", archive_url)
+        raise Exception(
+            "Failed to download archive from %s: . Retries exhausted", archive_url
+        )
 
     # Verify checksum if provided
     if checksum_url:
@@ -261,7 +268,9 @@ def download_and_extract_with_retry(
         )
     except Exception as e:
         # try deleting and re-downloading the zip file
-        LOG.info("Unable to extract file, re-downloading ZIP archive %s: %s", tmp_archive, e)
+        LOG.info(
+            "Unable to extract file, re-downloading ZIP archive %s: %s", tmp_archive, e
+        )
         rm_rf(tmp_archive)
         download_and_extract(
             archive_url,

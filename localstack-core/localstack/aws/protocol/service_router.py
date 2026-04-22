@@ -70,7 +70,9 @@ def _extract_service_indicators(request: Request) -> _ServiceIndicators:
                 values = parse_dict_header(auth_info)
                 _, _, _, signing_name, _ = values["Credential"].split("/")
         except (ValueError, KeyError):
-            LOG.debug("auth header could not be parsed for service routing: %s", authorization)
+            LOG.debug(
+                "auth header could not be parsed for service routing: %s", authorization
+            )
             pass
     if is_rpc_v2:
         # https://smithy.io/2.0/additional-specs/protocols/smithy-rpc-v2.html#requests
@@ -89,7 +91,9 @@ def _extract_service_indicators(request: Request) -> _ServiceIndicators:
     else:
         target_prefix, operation = None, None
 
-    return _ServiceIndicators(signing_name, target_prefix, operation, request.host, request.path)
+    return _ServiceIndicators(
+        signing_name, target_prefix, operation, request.host, request.path
+    )
 
 
 def _matches_protocol(request: Request, protocol: ProtocolName) -> bool:
@@ -106,7 +110,8 @@ def _matches_protocol(request: Request, protocol: ProtocolName) -> bool:
         case "query" | "ec2":
             # https://smithy.io/2.0/aws/protocols/aws-query-protocol.html#request-serialization
             return (
-                mimetype.startswith("application/x-www-form-urlencoded") or "Action" in request.args
+                mimetype.startswith("application/x-www-form-urlencoded")
+                or "Action" in request.args
             )
         case "rest-xml" | "rest-json":
             # `rest-json` and `rest-xml` can accept any kind of Content-Type, and it can be configured on the operation
@@ -178,7 +183,9 @@ signing_name_path_prefix_rules = {
 }
 
 
-def custom_signing_name_rules(signing_name: str, path: str) -> ServiceModelIdentifier | None:
+def custom_signing_name_rules(
+    signing_name: str, path: str
+) -> ServiceModelIdentifier | None:
     """
     Rules which are based on the signing name (in the auth header) and the request path.
     """
@@ -252,7 +259,9 @@ def resolve_conflicts(
         # The `application/x-amz-json-1.0` header is mandatory for requests targeting SQS with the `json` protocol. We
         # can safely route them to the `sqs` JSON parser/serializer. If not present, route the request to the
         # sqs-query protocol.
-        protocol = match_available_protocols(request, available_protocols=["json", "query"])
+        protocol = match_available_protocols(
+            request, available_protocols=["json", "query"]
+        )
         return (
             ServiceModelIdentifier("sqs")
             if protocol == "json"
@@ -273,7 +282,9 @@ def determine_aws_service_model_for_data_plane(
         return services.get(custom_host_match.name, custom_host_match.protocol)
 
 
-def determine_aws_protocol(request: Request, service_model: ServiceModel) -> ProtocolName:
+def determine_aws_protocol(
+    request: Request, service_model: ServiceModel
+) -> ProtocolName:
     if not (protocols := service_model.metadata.get("protocols")):
         # if the service does not define multiple protocols, return the `protocol` defined for the service
         return service_model.protocol
@@ -301,7 +312,9 @@ def determine_aws_service_model(
     :return: service name string (or None if the targeting service could not be determined exactly)
     """
     services = services or get_service_catalog()
-    signing_name, target_prefix, operation, host, path = _extract_service_indicators(request)
+    signing_name, target_prefix, operation, host, path = _extract_service_indicators(
+        request
+    )
     candidates = set()
 
     # 1. check the signing names

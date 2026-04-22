@@ -53,7 +53,8 @@ class HookManager(PluginManager):
         plugins = self.load_all(propagate_exceptions)
         # the hook_priority attribute is part of the function wrapped in the FunctionPlugin
         plugins.sort(
-            key=lambda _fn_plugin: getattr(_fn_plugin.fn, "hook_priority", 0), reverse=True
+            key=lambda _fn_plugin: getattr(_fn_plugin.fn, "hook_priority", 0),
+            reverse=True,
         )
         return plugins
 

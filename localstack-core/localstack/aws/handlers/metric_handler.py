@@ -150,12 +150,17 @@ class MetricHandler:
 
     @staticmethod
     def should_store_metric_locally() -> bool:
-        return config.is_collect_metrics_mode() and config.store_test_metrics_in_local_filesystem()
+        return (
+            config.is_collect_metrics_mode()
+            and config.store_test_metrics_in_local_filesystem()
+        )
 
     @staticmethod
     def create_local_file():
         folder = Path(
-            os.environ.get(ENV_INTERNAL_TEST_STORE_METRICS_PATH, "/tmp/localstack-metrics")
+            os.environ.get(
+                ENV_INTERNAL_TEST_STORE_METRICS_PATH, "/tmp/localstack-metrics"
+            )
         )
         if not folder.exists():
             folder.mkdir(parents=True, exist_ok=True)
@@ -178,7 +183,9 @@ class MetricHandler:
         item = MetricHandlerItem(context)
         self.metrics_handler_items[context] = item
 
-    def _get_metric_handler_item_for_context(self, context: RequestContext) -> MetricHandlerItem:
+    def _get_metric_handler_item_for_context(
+        self, context: RequestContext
+    ) -> MetricHandlerItem:
         return self.metrics_handler_items[context]
 
     def record_parsed_request(
@@ -192,7 +199,11 @@ class MetricHandler:
         )
 
     def record_exception(
-        self, chain: HandlerChain, exception: Exception, context: RequestContext, response: Response
+        self,
+        chain: HandlerChain,
+        exception: Exception,
+        context: RequestContext,
+        response: Response,
     ):
         if not config.is_collect_metrics_mode():
             return
@@ -211,7 +222,9 @@ class MetricHandler:
         # parameters_after_parse
         parameters = ",".join(item.parameters_after_parse or [])
 
-        response_data = response.data.decode("utf-8") if response.status_code >= 300 else ""
+        response_data = (
+            response.data.decode("utf-8") if response.status_code >= 300 else ""
+        )
         metric = Metric(
             service=context.service_operation.service,
             operation=context.service_operation.operation,

@@ -144,7 +144,9 @@ def secretsmanager_secret_arn(
     if ":" in (secret_id or ""):
         return secret_id
     pattern = "arn:%s:secretsmanager:%s:%s:secret:%s"
-    arn = _resource_arn(secret_id, pattern, account_id=account_id, region_name=region_name)
+    arn = _resource_arn(
+        secret_id, pattern, account_id=account_id, region_name=region_name
+    )
     if random_suffix:
         arn += f"-{random_suffix}"
     return arn
@@ -159,14 +161,18 @@ def cloudformation_stack_arn(
     stack_name: str, stack_id: str, account_id: str, region_name: str
 ) -> str:
     pattern = f"arn:%s:cloudformation:%s:%s:stack/%s/{stack_id}"
-    return _resource_arn(stack_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        stack_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def cloudformation_change_set_arn(
     change_set_name: str, change_set_id: str, account_id: str, region_name: str
 ) -> str:
     pattern = f"arn:%s:cloudformation:%s:%s:changeSet/%s/{change_set_id}"
-    return _resource_arn(change_set_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        change_set_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -177,7 +183,9 @@ def cloudformation_change_set_arn(
 def dynamodb_table_arn(table_name: str, account_id: str, region_name: str) -> str:
     table_name = table_name.split(":table/")[-1]
     pattern = "arn:%s:dynamodb:%s:%s:table/%s"
-    return _resource_arn(table_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        table_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def dynamodb_stream_arn(
@@ -193,14 +201,16 @@ def dynamodb_stream_arn(
 
 def cloudwatch_alarm_arn(alarm_name: str, account_id: str, region_name: str) -> str:
     # format pattern directly as alarm_name can include ":" and this is not supported by the helper _resource_arn
-    return (
-        f"arn:{get_partition(region_name)}:cloudwatch:{region_name}:{account_id}:alarm:{alarm_name}"
-    )
+    return f"arn:{get_partition(region_name)}:cloudwatch:{region_name}:{account_id}:alarm:{alarm_name}"
 
 
-def cloudwatch_dashboard_arn(dashboard_name: str, account_id: str, region_name: str) -> str:
+def cloudwatch_dashboard_arn(
+    dashboard_name: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:cloudwatch::%s:dashboard/%s"
-    return _resource_arn(dashboard_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        dashboard_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -210,7 +220,9 @@ def cloudwatch_dashboard_arn(dashboard_name: str, account_id: str, region_name: 
 
 def log_group_arn(group_name: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:logs:%s:%s:log-group:%s"
-    return _resource_arn(group_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        group_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -220,17 +232,23 @@ def log_group_arn(group_name: str, account_id: str, region_name: str) -> str:
 
 def events_archive_arn(archive_name: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:events:%s:%s:archive/%s"
-    return _resource_arn(archive_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        archive_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def event_bus_arn(bus_name: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:events:%s:%s:event-bus/%s"
-    return _resource_arn(bus_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        bus_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def events_replay_arn(replay_name: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:events:%s:%s:replay/%s"
-    return _resource_arn(replay_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        replay_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def events_rule_arn(
@@ -239,7 +257,9 @@ def events_rule_arn(
     pattern = "arn:%s:events:%s:%s:rule/%s"
     if event_bus_name != "default":
         rule_name = f"{event_bus_name}/{rule_name}"
-    return _resource_arn(rule_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        rule_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def events_connection_arn(
@@ -251,7 +271,10 @@ def events_connection_arn(
 
 
 def events_api_destination_arn(
-    api_destination_name: str, api_destination_id: str, account_id: str, region_name: str
+    api_destination_name: str,
+    api_destination_id: str,
+    account_id: str,
+    region_name: str,
 ) -> str:
     name = f"{api_destination_name}/{api_destination_id}"
     pattern = "arn:%s:events:%s:%s:api-destination/%s"
@@ -265,27 +288,43 @@ def events_api_destination_arn(
 
 def lambda_function_arn(function_name: str, account_id: str, region_name: str) -> str:
     return lambda_function_or_layer_arn(
-        "function", function_name, version=None, account_id=account_id, region_name=region_name
+        "function",
+        function_name,
+        version=None,
+        account_id=account_id,
+        region_name=region_name,
     )
 
 
 def lambda_layer_arn(layer_name: str, account_id: str, region_name: str) -> str:
     return lambda_function_or_layer_arn(
-        "layer", layer_name, version=None, account_id=account_id, region_name=region_name
+        "layer",
+        layer_name,
+        version=None,
+        account_id=account_id,
+        region_name=region_name,
     )
 
 
-def lambda_code_signing_arn(code_signing_id: str, account_id: str, region_name: str) -> str:
+def lambda_code_signing_arn(
+    code_signing_id: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:lambda:%s:%s:code-signing-config:%s"
-    return _resource_arn(code_signing_id, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        code_signing_id, pattern, account_id=account_id, region_name=region_name
+    )
 
 
-def lambda_event_source_mapping_arn(uuid: str, account_id: str, region_name: str) -> str:
+def lambda_event_source_mapping_arn(
+    uuid: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:lambda:%s:%s:event-source-mapping:%s"
     return _resource_arn(uuid, pattern, account_id=account_id, region_name=region_name)
 
 
-def capacity_provider_arn(capacity_provider_name: str, account_id: str, region_name: str) -> str:
+def capacity_provider_arn(
+    capacity_provider_name: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:lambda:%s:%s:capacity-provider:%s"
     return _resource_arn(
         capacity_provider_name, pattern, account_id=account_id, region_name=region_name
@@ -303,7 +342,9 @@ def lambda_function_or_layer_arn(
     if re.match(pattern, entity_name):
         return entity_name
     if ":" in entity_name:
-        client = connect_to(aws_access_key_id=account_id, region_name=region_name).lambda_
+        client = connect_to(
+            aws_access_key_id=account_id, region_name=region_name
+        ).lambda_
         entity_name, _, alias = entity_name.rpartition(":")
         try:
             alias_response = client.get_alias(FunctionName=entity_name, Name=alias)
@@ -314,9 +355,7 @@ def lambda_function_or_layer_arn(
             LOG.info("%s: %s", msg, e)
             raise Exception(msg)
 
-    result = (
-        f"arn:{get_partition(region_name)}:lambda:{region_name}:{account_id}:{type}:{entity_name}"
-    )
+    result = f"arn:{get_partition(region_name)}:lambda:{region_name}:{account_id}:{type}:{entity_name}"
     if version:
         result = f"{result}:{version}"
     return result
@@ -327,12 +366,16 @@ def lambda_function_or_layer_arn(
 #
 
 
-def stepfunctions_state_machine_arn(name: str, account_id: str, region_name: str) -> str:
+def stepfunctions_state_machine_arn(
+    name: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:states:%s:%s:stateMachine:%s"
     return _resource_arn(name, pattern, account_id=account_id, region_name=region_name)
 
 
-def stepfunctions_standard_execution_arn(state_machine_arn: str, execution_name: str) -> str:
+def stepfunctions_standard_execution_arn(
+    state_machine_arn: str, execution_name: str
+) -> str:
     arn_data: ArnData = parse_arn(state_machine_arn)
     standard_execution_arn = ":".join(
         [
@@ -349,7 +392,9 @@ def stepfunctions_standard_execution_arn(state_machine_arn: str, execution_name:
     return standard_execution_arn
 
 
-def stepfunctions_express_execution_arn(state_machine_arn: str, execution_name: str) -> str:
+def stepfunctions_express_execution_arn(
+    state_machine_arn: str, execution_name: str
+) -> str:
     arn_data: ArnData = parse_arn(state_machine_arn)
     express_execution_arn = ":".join(
         [
@@ -379,7 +424,9 @@ def stepfunctions_activity_arn(name: str, account_id: str, region_name: str) -> 
 
 def cognito_user_pool_arn(user_pool_id: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:cognito-idp:%s:%s:userpool/%s"
-    return _resource_arn(user_pool_id, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        user_pool_id, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -397,9 +444,13 @@ def kinesis_stream_arn(stream_name: str, account_id: str, region_name: str) -> s
 #
 
 
-def elasticsearch_domain_arn(domain_name: str, account_id: str, region_name: str) -> str:
+def elasticsearch_domain_arn(
+    domain_name: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:es:%s:%s:domain/%s"
-    return _resource_arn(domain_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        domain_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -409,7 +460,9 @@ def elasticsearch_domain_arn(domain_name: str, account_id: str, region_name: str
 
 def firehose_stream_arn(stream_name: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:firehose:%s:%s:deliverystream/%s"
-    return _resource_arn(stream_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        stream_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -419,14 +472,18 @@ def firehose_stream_arn(stream_name: str, account_id: str, region_name: str) -> 
 
 def kms_key_arn(key_id: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:kms:%s:%s:key/%s"
-    return _resource_arn(key_id, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        key_id, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 def kms_alias_arn(alias_name: str, account_id: str, region_name: str):
     if not alias_name.startswith("alias/"):
         alias_name = "alias/" + alias_name
     pattern = "arn:%s:kms:%s:%s:%s"
-    return _resource_arn(alias_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        alias_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -437,7 +494,9 @@ def kms_alias_arn(alias_name: str, account_id: str, region_name: str):
 def ssm_parameter_arn(param_name: str, account_id: str, region_name: str) -> str:
     pattern = "arn:%s:ssm:%s:%s:parameter/%s"
     param_name = param_name.lstrip("/")
-    return _resource_arn(param_name, pattern, account_id=account_id, region_name=region_name)
+    return _resource_arn(
+        param_name, pattern, account_id=account_id, region_name=region_name
+    )
 
 
 #
@@ -457,7 +516,9 @@ def s3_bucket_arn(bucket_name_or_arn: str, region="us-east-1") -> str:
 
 def sqs_queue_arn(queue_name: str, account_id: str, region_name: str) -> str:
     queue_name = queue_name.split("/")[-1]
-    return f"arn:{get_partition(region_name)}:sqs:{region_name}:{account_id}:{queue_name}"
+    return (
+        f"arn:{get_partition(region_name)}:sqs:{region_name}:{account_id}:{queue_name}"
+    )
 
 
 #
@@ -466,9 +527,7 @@ def sqs_queue_arn(queue_name: str, account_id: str, region_name: str) -> str:
 
 
 def apigateway_restapi_arn(api_id: str, account_id: str, region_name: str) -> str:
-    return (
-        f"arn:{get_partition(region_name)}:apigateway:{region_name}:{account_id}:/restapis/{api_id}"
-    )
+    return f"arn:{get_partition(region_name)}:apigateway:{region_name}:{account_id}:/restapis/{api_id}"
 
 
 def apigateway_invocations_arn(lambda_uri: str, region_name: str) -> str:
@@ -481,7 +540,9 @@ def apigateway_invocations_arn(lambda_uri: str, region_name: str) -> str:
 
 
 def sns_topic_arn(topic_name: str, account_id: str, region_name: str) -> str:
-    return f"arn:{get_partition(region_name)}:sns:{region_name}:{account_id}:{topic_name}"
+    return (
+        f"arn:{get_partition(region_name)}:sns:{region_name}:{account_id}:{topic_name}"
+    )
 
 
 def sns_platform_application_arn(
@@ -505,12 +566,16 @@ def ecr_repository_arn(name: str, account_id: str, region_name: str) -> str:
 #
 
 
-def route53_resolver_firewall_rule_group_arn(id: str, account_id: str, region_name: str) -> str:
+def route53_resolver_firewall_rule_group_arn(
+    id: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:route53resolver:%s:%s:firewall-rule-group/%s"
     return _resource_arn(id, pattern, account_id=account_id, region_name=region_name)
 
 
-def route53_resolver_firewall_domain_list_arn(id: str, account_id: str, region_name: str) -> str:
+def route53_resolver_firewall_domain_list_arn(
+    id: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:route53resolver:%s:%s:firewall-domain-list/%s"
     return _resource_arn(id, pattern, account_id=account_id, region_name=region_name)
 
@@ -522,7 +587,9 @@ def route53_resolver_firewall_rule_group_associations_arn(
     return _resource_arn(id, pattern, account_id=account_id, region_name=region_name)
 
 
-def route53_resolver_query_log_config_arn(id: str, account_id: str, region_name: str) -> str:
+def route53_resolver_query_log_config_arn(
+    id: str, account_id: str, region_name: str
+) -> str:
     pattern = "arn:%s:route53resolver:%s:%s:resolver-query-log-config/%s"
     return _resource_arn(id, pattern, account_id=account_id, region_name=region_name)
 
@@ -584,9 +651,9 @@ def sqs_queue_url_for_arn(queue_arn: str) -> str:
         queue_name = queue_arn
 
     sqs_client = connect_to(region_name=region_name).sqs
-    result = sqs_client.get_queue_url(QueueName=queue_name, QueueOwnerAWSAccountId=account_id)[
-        "QueueUrl"
-    ]
+    result = sqs_client.get_queue_url(
+        QueueName=queue_name, QueueOwnerAWSAccountId=account_id
+    )["QueueUrl"]
     return result
 
 

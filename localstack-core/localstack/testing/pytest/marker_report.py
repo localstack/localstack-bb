@@ -144,7 +144,9 @@ def pytest_collection_modifyitems(
         response = requests.post(url, data=data, timeout=20)
 
         if response.status_code != 202:
-            print(f"Error while uploading marker report to tinybird: {response.status_code}.")
+            print(
+                f"Error while uploading marker report to tinybird: {response.status_code}."
+            )
         else:
             print("Successfully uploaded marker report to tinybird.")
 

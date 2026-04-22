@@ -12,7 +12,9 @@ from .routes import RouterHandler
 LOG = logging.getLogger(__name__)
 
 
-def set_close_connection_header(_chain: HandlerChain, context: RequestContext, response: Response):
+def set_close_connection_header(
+    _chain: HandlerChain, context: RequestContext, response: Response
+):
     """This is a hack to work around performance issues with h11 and boto. See
     https://github.com/localstack/localstack/issues/6557"""
     if config.GATEWAY_SERVER != "hypercorn":

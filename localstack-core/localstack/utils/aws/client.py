@@ -26,7 +26,10 @@ class SigningHttpClient:
     """
 
     def __init__(
-        self, signer: BaseSigner, session: requests.Session = None, endpoint_url: str = None
+        self,
+        signer: BaseSigner,
+        session: requests.Session = None,
+        endpoint_url: str = None,
     ):
         self.signer = signer
         self.session = session or requests.Session()

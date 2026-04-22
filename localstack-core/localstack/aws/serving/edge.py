@@ -36,7 +36,10 @@ def serve_gateway(
 
 
 def _serve_werkzeug(
-    gateway: LocalstackAwsGateway, listen: list[HostAndPort], use_ssl: bool, asynchronous: bool
+    gateway: LocalstackAwsGateway,
+    listen: list[HostAndPort],
+    use_ssl: bool,
+    asynchronous: bool,
 ):
     from werkzeug.serving import ThreadedWSGIServer
 
@@ -48,7 +51,10 @@ def _serve_werkzeug(
     }
 
     if use_ssl:
-        from localstack.utils.ssl import create_ssl_cert, install_predefined_cert_if_available
+        from localstack.utils.ssl import (
+            create_ssl_cert,
+            install_predefined_cert_if_available,
+        )
 
         install_predefined_cert_if_available()
         serial_number = listen[0].port
@@ -66,7 +72,9 @@ def _serve_werkzeug(
         servers.append(server)
         threads.append(
             threading.Thread(
-                target=server.serve_forever, name=f"werkzeug-server-{host_port.port}", daemon=True
+                target=server.serve_forever,
+                name=f"werkzeug-server-{host_port.port}",
+                daemon=True,
             )
         )
 
@@ -89,7 +97,10 @@ def _serve_werkzeug(
 
 
 def _serve_hypercorn(
-    gateway: LocalstackAwsGateway, listen: list[HostAndPort], use_ssl: bool, asynchronous: bool
+    gateway: LocalstackAwsGateway,
+    listen: list[HostAndPort],
+    use_ssl: bool,
+    asynchronous: bool,
 ):
     from localstack.http.hypercorn import GatewayServer
 
@@ -111,7 +122,10 @@ def _serve_hypercorn(
 
 
 def _serve_twisted(
-    gateway: LocalstackAwsGateway, listen: list[HostAndPort], use_ssl: bool, asynchronous: bool
+    gateway: LocalstackAwsGateway,
+    listen: list[HostAndPort],
+    use_ssl: bool,
+    asynchronous: bool,
 ):
     from .twisted import serve_gateway
 

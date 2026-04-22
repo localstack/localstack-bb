@@ -36,7 +36,9 @@ class AccessTrackingDict(dict):
           simply duplicates the entries of "wrapped" in the constructor, for simplicity.
     """
 
-    def __init__(self, wrapped, callback: Callable[[dict, str, list, dict], Any] = None):
+    def __init__(
+        self, wrapped, callback: Callable[[dict, str, list, dict], Any] = None
+    ):
         super().__init__(wrapped)
         self.callback = callback
 
@@ -87,7 +89,9 @@ class ImmutableDict(Mapping):
         return self._dict.__getitem__(key)
 
     def __eq__(self, other):
-        return self._dict.__eq__(other._dict if isinstance(other, ImmutableDict) else other)
+        return self._dict.__eq__(
+            other._dict if isinstance(other, ImmutableDict) else other
+        )
 
     def __str__(self):
         return self._dict.__str__()
@@ -132,7 +136,9 @@ class PaginatedList(list[_E]):
         start_idx = 0
 
         try:
-            start_item = next(item for item in result_list if token_generator(item) == next_token)
+            start_item = next(
+                item for item in result_list if token_generator(item) == next_token
+            )
             start_idx = result_list.index(start_item)
         except StopIteration:
             pass
@@ -279,7 +285,9 @@ def select_attributes(obj: dict, attributes: list[str]) -> dict:
     return {k: v for k, v in obj.items() if k in attributes}
 
 
-def remove_attributes(obj: dict, attributes: list[str], recursive: bool = False) -> dict:
+def remove_attributes(
+    obj: dict, attributes: list[str], recursive: bool = False
+) -> dict:
     """Remove a set of attributes from the given dict (in-place)"""
     from localstack.utils.objects import recurse_object
 
@@ -430,7 +438,9 @@ def is_none_or_empty(obj: str | None | list | None) -> bool:
     )
 
 
-def select_from_typed_dict(typed_dict: type[TypedDict], obj: dict, filter: bool = False) -> dict:
+def select_from_typed_dict(
+    typed_dict: type[TypedDict], obj: dict, filter: bool = False
+) -> dict:
     """
     Select a subset of attributes from a dictionary based on the keys of a given `TypedDict`.
     :param typed_dict: the `TypedDict` blueprint
@@ -469,7 +479,9 @@ def convert_to_typed_dict(typed_dict: type[T], obj: dict, strict: bool = False) 
             if get_origin(key_type) in [Union, Optional]:
                 key_type = get_args(key_type)[0]
             # Use duck-typing to check if the dict is a typed dict
-            if hasattr(key_type, "__required_keys__") and hasattr(key_type, "__optional_keys__"):
+            if hasattr(key_type, "__required_keys__") and hasattr(
+                key_type, "__optional_keys__"
+            ):
                 result[key] = convert_to_typed_dict(key_type, result[key])
             else:
                 # Otherwise, we call the type's constructor (on a best-effort basis)

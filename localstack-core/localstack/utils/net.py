@@ -15,9 +15,7 @@ from .sync import retry
 LOG = logging.getLogger(__name__)
 
 # regular expression for IPv4 addresses
-IP_REGEX = (
-    r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-)
+IP_REGEX = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
 
 # many linux kernels use 32768-60999, RFC 6335 is 49152-65535, so we use a mix here
 DYNAMIC_PORT_RANGE_START = 32768
@@ -73,7 +71,9 @@ def is_port_open(
     nw_protocols += [socket.SOCK_DGRAM] if "udp" in protocols else []
     for nw_protocol in nw_protocols:
         with closing(
-            socket.socket(socket.AF_INET if ":" not in host else socket.AF_INET6, nw_protocol)
+            socket.socket(
+                socket.AF_INET if ":" not in host else socket.AF_INET6, nw_protocol
+            )
         ) as sock:
             sock.settimeout(1)
             if nw_protocol == socket.SOCK_DGRAM:
@@ -94,7 +94,10 @@ def is_port_open(
                 if result != 0:
                     if not quiet:
                         LOG.warning(
-                            "Error connecting to TCP port %s:%s (result=%s)", host, port, result
+                            "Error connecting to TCP port %s:%s (result=%s)",
+                            host,
+                            port,
+                            result,
                         )
                     return False
     if "tcp" not in protocols or not http_path:
@@ -235,7 +238,9 @@ def get_free_tcp_port_range(num_ports: int, max_attempts: int = 50) -> "PortRang
 
     def _is_port_range_free(_range: PortRange):
         for _port in _range:
-            if dynamic_port_range.is_port_reserved(_port) or not port_can_be_bound(_port):
+            if dynamic_port_range.is_port_reserved(_port) or not port_can_be_bound(
+                _port
+            ):
                 return False
         return True
 
@@ -257,7 +262,9 @@ def get_free_tcp_port_range(num_ports: int, max_attempts: int = 50) -> "PortRang
             dynamic_port_range.mark_reserved(port)
         return port_range
 
-    raise PortNotAvailableException("reached max_attempts when trying to find port range")
+    raise PortNotAvailableException(
+        "reached max_attempts when trying to find port range"
+    )
 
 
 def resolve_hostname(hostname: str) -> str | None:
@@ -347,7 +354,9 @@ class PortRange:
         """
         return range(self.start, self.end + 1)
 
-    def reserve_port(self, port: IntOrPort | None = None, duration: int | None = None) -> int:
+    def reserve_port(
+        self, port: IntOrPort | None = None, duration: int | None = None
+    ) -> int:
         """
         Reserves the given port (if it is still free). If the given port is None, it reserves a free port from the
         configured port range for external services. If a port is given, it has to be within the configured
@@ -415,9 +424,13 @@ class PortRange:
         port = Port.wrap(port)
 
         if self.is_port_reserved(port):
-            raise PortNotAvailableException(f"The given port ({port}) is already reserved.")
+            raise PortNotAvailableException(
+                f"The given port ({port}) is already reserved."
+            )
         if not self._port_can_be_bound(port):
-            raise PortNotAvailableException(f"The given port ({port}) is already in use.")
+            raise PortNotAvailableException(
+                f"The given port ({port}) is already in use."
+            )
 
         self.mark_reserved(port, duration)
         return port.port

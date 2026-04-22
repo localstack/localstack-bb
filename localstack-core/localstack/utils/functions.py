@@ -20,7 +20,10 @@ def run_safe(_python_lambda, *args, _default=None, **kwargs):
 
 
 def call_safe(
-    func: Callable, args: tuple = None, kwargs: dict = None, exception_message: str = None
+    func: Callable,
+    args: tuple = None,
+    kwargs: dict = None,
+    exception_message: str = None,
 ) -> Any | None:
     """
     Call the given function with the given arguments, and if it fails, log the given exception_message.
@@ -65,7 +68,9 @@ def prevent_stack_overflow(match_parameters=False):
 
                 # construct dict of arguments this stack frame has been called with
                 prev_call_args = {
-                    frame.f_code.co_varnames[i]: frame.f_locals[frame.f_code.co_varnames[i]]
+                    frame.f_code.co_varnames[i]: frame.f_locals[
+                        frame.f_code.co_varnames[i]
+                    ]
                     for i in range(frame.f_code.co_argcount)
                 }
 
@@ -76,7 +81,9 @@ def prevent_stack_overflow(match_parameters=False):
 
                 return prev_call_args == this_call_args
 
-            matching_frames = [frame[2] for frame in inspect.stack(context=1) if _matches(frame)]
+            matching_frames = [
+                frame[2] for frame in inspect.stack(context=1) if _matches(frame)
+            ]
             if matching_frames:
                 raise RecursionError("(Potential) infinite recursion detected")
             return wrapped(*args, **kwargs)

@@ -3,9 +3,16 @@ from localstack.aws import handlers
 from localstack.aws.api import RequestContext
 from localstack.aws.chain import HandlerChain
 from localstack.aws.handlers.metric_handler import MetricHandler
-from localstack.aws.handlers.service_plugin import ServiceLoader, ServiceLoaderForDataPlane
+from localstack.aws.handlers.service_plugin import (
+    ServiceLoader,
+    ServiceLoaderForDataPlane,
+)
 from localstack.http.trace import TracingHandlerChain
-from localstack.services.plugins import SERVICE_PLUGINS, ServiceManager, ServicePluginManager
+from localstack.services.plugins import (
+    SERVICE_PLUGINS,
+    ServiceManager,
+    ServicePluginManager,
+)
 from localstack.utils.ssl import create_ssl_cert, install_predefined_cert_if_available
 
 from .gateway import Gateway

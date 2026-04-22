@@ -115,7 +115,9 @@ class Service:
     def check(self, expect_shutdown=False, print_error=False):
         if not self.check_function:
             return
-        return self.check_function(expect_shutdown=expect_shutdown, print_error=print_error)
+        return self.check_function(
+            expect_shutdown=expect_shutdown, print_error=print_error
+        )
 
     def name(self):
         return self.plugin_name
@@ -144,7 +146,9 @@ class Service:
                 service_lifecycle_hook = provider
 
         # determine the delegate for injecting into the skeleton
-        delegate = dispatch_table_factory(provider) if dispatch_table_factory else provider
+        delegate = (
+            dispatch_table_factory(provider) if dispatch_table_factory else provider
+        )
         service = Service(
             name=provider.service,
             skeleton=Skeleton(load_service(provider.service), delegate),
@@ -231,7 +235,9 @@ class ServiceManager:
         return container.service if container else None
 
     def add_service(self, service: Service) -> bool:
-        state = ServiceState.AVAILABLE if service.is_enabled() else ServiceState.DISABLED
+        state = (
+            ServiceState.AVAILABLE if service.is_enabled() else ServiceState.DISABLED
+        )
         self._services[service.name()] = ServiceContainer(service, state)
 
         return True
@@ -272,11 +278,15 @@ class ServiceManager:
             raise ValueError(f"no such service {name}")
 
         if container.state == ServiceState.STARTING:
-            if not poll_condition(lambda: container.state != ServiceState.STARTING, timeout=30):
+            if not poll_condition(
+                lambda: container.state != ServiceState.STARTING, timeout=30
+            ):
                 raise TimeoutError(f"gave up waiting for service {name} to start")
 
         if container.state == ServiceState.STOPPING:
-            if not poll_condition(lambda: container.state == ServiceState.STOPPED, timeout=30):
+            if not poll_condition(
+                lambda: container.state == ServiceState.STOPPED, timeout=30
+            ):
                 raise TimeoutError(f"gave up waiting for service {name} to stop")
 
         with container.lock:
@@ -290,7 +300,10 @@ class ServiceManager:
                 # raise any capture error
                 raise container.errors[-1]
 
-            if container.state == ServiceState.AVAILABLE or container.state == ServiceState.STOPPED:
+            if (
+                container.state == ServiceState.AVAILABLE
+                or container.state == ServiceState.STOPPED
+            ):
                 if container.start():
                     return container.service
                 else:
@@ -304,7 +317,8 @@ class ServiceManager:
 
     def items(self):
         return {
-            container.service.name(): container.service for container in self._services.values()
+            container.service.name(): container.service
+            for container in self._services.values()
         }.items()
 
     def keys(self):
@@ -354,7 +368,9 @@ class ServicePluginAdapter(ServicePlugin):
         return self._create_service()
 
 
-def aws_provider(api: str = None, name="default", should_load: Callable[[], bool] = None):
+def aws_provider(
+    api: str = None, name="default", should_load: Callable[[], bool] = None
+):
     """
     Decorator for marking methods that create a Service instance as a ServicePlugin. Methods marked with this
     decorator are discoverable as a PluginSpec within the namespace "localstack.aws.provider", with the name
@@ -369,7 +385,9 @@ def aws_provider(api: str = None, name="default", should_load: Callable[[], bool
         # nested factory function
         @functools.wraps(fn)
         def factory() -> ServicePluginAdapter:
-            return ServicePluginAdapter(api=_api, should_load=should_load, create_service=fn)
+            return ServicePluginAdapter(
+                api=_api, should_load=should_load, create_service=fn
+            )
 
         return PluginSpec(PLUGIN_NAMESPACE, f"{_api}:{name}", factory=factory)
 
@@ -398,7 +416,9 @@ class ServicePluginErrorCollector(PluginLifecycleListener):
     def on_init_exception(self, plugin_spec: PluginSpec, exception: Exception):
         self.errors[self.get_key(plugin_spec.name)] = exception
 
-    def on_load_exception(self, plugin_spec: PluginSpec, plugin: Plugin, exception: Exception):
+    def on_load_exception(
+        self, plugin_spec: PluginSpec, plugin: Plugin, exception: Exception
+    ):
         self.errors[self.get_key(plugin_spec.name)] = exception
 
     def has_errors(self, api: str, provider: str = None) -> bool:
@@ -476,7 +496,9 @@ class ServicePluginManager(ServiceManager):
         """
         services = services or self.list_available()
         return [
-            c for s in services if (c := super(ServicePluginManager, self).get_service_container(s))
+            c
+            for s in services
+            if (c := super(ServicePluginManager, self).get_service_container(s))
         ]
 
     def list_loaded_services(self) -> list[str]:
@@ -633,7 +655,9 @@ class ServicePluginManager(ServiceManager):
 
         :param services: Service names to stop. If not provided, all services for this manager will be stopped.
         """
-        target_service_containers = self._get_loaded_service_containers(services=services)
+        target_service_containers = self._get_loaded_service_containers(
+            services=services
+        )
         self._stop_services(target_service_containers)
 
     def stop_all_services(self) -> None:

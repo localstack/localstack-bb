@@ -175,7 +175,9 @@ class Directories:
             tmp=tmp_dir,
             mounted_tmp=tmp_dir,
             functions=None,
-            data=os.path.join(tmp_dir, "state"),  # used by localstack-pro config TODO: remove
+            data=os.path.join(
+                tmp_dir, "state"
+            ),  # used by localstack-pro config TODO: remove
             logs=os.path.join(tmp_dir, "logs"),  # used for container logs
             config=None,  # in the context of the CLI, config.CONFIG_DIR should be used
             init=None,
@@ -282,7 +284,10 @@ def is_windows() -> bool:
 
 
 def is_wsl() -> bool:
-    return platform.system().lower() == "linux" and os.environ.get("WSL_DISTRO_NAME") is not None
+    return (
+        platform.system().lower() == "linux"
+        and os.environ.get("WSL_DISTRO_NAME") is not None
+    )
 
 
 def in_docker():
@@ -440,6 +445,7 @@ FAIL_FAST = is_env_true("FAIL_FAST")
 # default encoding used to convert strings to byte arrays (mainly for Python 3 compatibility)
 DEFAULT_ENCODING = "utf-8"
 
+
 def is_trace_logging_enabled():
     if LS_LOG:
         log_level = str(LS_LOG).upper()
@@ -456,7 +462,8 @@ LOG = logging.getLogger(__name__)
 if is_trace_logging_enabled():
     load_end_time = time.time()
     LOG.debug(
-        "Initializing the configuration took %s ms", int((load_end_time - load_start_time) * 1000)
+        "Initializing the configuration took %s ms",
+        int((load_end_time - load_start_time) * 1000),
     )
 
 
@@ -554,7 +561,9 @@ class HostAndPort:
 
     def _get_unprivileged_port_range_start(self) -> int:
         try:
-            with open("/proc/sys/net/ipv4/ip_unprivileged_port_start") as unprivileged_port_start:
+            with open(
+                "/proc/sys/net/ipv4/ip_unprivileged_port_start"
+            ) as unprivileged_port_start:
                 port = unprivileged_port_start.read()
                 return int(port.strip())
         except Exception:
@@ -565,7 +574,9 @@ class HostAndPort:
 
     def host_and_port(self) -> str:
         formatted_host = f"[{self.host}]" if is_ipv6_address(self.host) else self.host
-        return f"{formatted_host}:{self.port}" if self.port is not None else formatted_host
+        return (
+            f"{formatted_host}:{self.port}" if self.port is not None else formatted_host
+        )
 
     def __hash__(self) -> int:
         return hash((self.host, self.port))
@@ -663,7 +674,9 @@ def populate_edge_configuration(
             )
     else:
         # use default if gateway listen is not defined
-        gateway_listen = [HostAndPort(host=default_ip, port=constants.DEFAULT_PORT_EDGE)]
+        gateway_listen = [
+            HostAndPort(host=default_ip, port=constants.DEFAULT_PORT_EDGE)
+        ]
 
     # the actual value of the LOCALSTACK_HOST port now depends on what gateway listen actually listens to.
     if localstack_host_raw is None:
@@ -738,7 +751,9 @@ if ALLOW_NONSTANDARD_REGIONS:
     os.environ["MOTO_ALLOW_NONEXISTENT_REGION"] = "true"
 
 # the latest commit id of the repository when the docker image was created
-LOCALSTACK_BUILD_GIT_HASH = os.environ.get("LOCALSTACK_BUILD_GIT_HASH", "").strip() or None
+LOCALSTACK_BUILD_GIT_HASH = (
+    os.environ.get("LOCALSTACK_BUILD_GIT_HASH", "").strip() or None
+)
 
 # the date on which the docker image was created
 LOCALSTACK_BUILD_DATE = os.environ.get("LOCALSTACK_BUILD_DATE", "").strip() or None
@@ -755,7 +770,9 @@ OPENAPI_VALIDATE_RESPONSE = is_env_true("OPENAPI_VALIDATE_RESPONSE")
 OPENAPI_VALIDATE_REQUEST = is_env_true("OPENAPI_VALIDATE_REQUEST")
 
 # environment variable to determine whether to include stack traces in http responses
-INCLUDE_STACK_TRACES_IN_HTTP_RESPONSE = is_env_true("INCLUDE_STACK_TRACES_IN_HTTP_RESPONSE")
+INCLUDE_STACK_TRACES_IN_HTTP_RESPONSE = is_env_true(
+    "INCLUDE_STACK_TRACES_IN_HTTP_RESPONSE"
+)
 
 # whether to skip waiting for the infrastructure to shut down, or exit immediately
 FORCE_SHUTDOWN = is_env_not_false("FORCE_SHUTDOWN")
@@ -775,7 +792,9 @@ CLI_COMMANDS = {}
 # AWS account used to store internal resources such as Lambda archives or internal SQS queues.
 # It should not be modified by the user, or visible to him, except as through a presigned url with the
 # get-function call.
-INTERNAL_RESOURCE_ACCOUNT = os.environ.get("INTERNAL_RESOURCE_ACCOUNT") or "949334387222"
+INTERNAL_RESOURCE_ACCOUNT = (
+    os.environ.get("INTERNAL_RESOURCE_ACCOUNT") or "949334387222"
+)
 
 # -----
 # SERVICE-SPECIFIC CONFIGS BELOW
@@ -792,7 +811,9 @@ DNS_PORT = int(os.environ.get("DNS_PORT", "53"))
 DNS_NAME_PATTERNS_TO_RESOLVE_UPSTREAM = (
     os.environ.get("DNS_NAME_PATTERNS_TO_RESOLVE_UPSTREAM") or ""
 ).strip()
-DNS_LOCAL_NAME_PATTERNS = (os.environ.get("DNS_LOCAL_NAME_PATTERNS") or "").strip()  # deprecated
+DNS_LOCAL_NAME_PATTERNS = (
+    os.environ.get("DNS_LOCAL_NAME_PATTERNS") or ""
+).strip()  # deprecated
 
 # IP address that AWS endpoints should resolve to in our local DNS server. By default,
 # hostnames resolve to 127.0.0.1, which allows to use the LocalStack APIs transparently
@@ -802,7 +823,9 @@ DNS_RESOLVE_IP = os.environ.get("DNS_RESOLVE_IP") or LOCALHOST_IP
 
 # fallback DNS server to send upstream requests to
 DNS_SERVER = os.environ.get("DNS_SERVER")
-DNS_VERIFICATION_DOMAIN = os.environ.get("DNS_VERIFICATION_DOMAIN") or "localstack.cloud"
+DNS_VERIFICATION_DOMAIN = (
+    os.environ.get("DNS_VERIFICATION_DOMAIN") or "localstack.cloud"
+)
 
 
 def use_custom_dns():
@@ -827,10 +850,14 @@ DISTRIBUTED_MODE = is_env_true("DISTRIBUTED_MODE")
 IN_MEMORY_CLIENT = is_env_true("IN_MEMORY_CLIENT")
 
 # This flag enables all responses from LocalStack to contain a `x-localstack` HTTP header.
-LOCALSTACK_RESPONSE_HEADER_ENABLED = is_env_not_false("LOCALSTACK_RESPONSE_HEADER_ENABLED")
+LOCALSTACK_RESPONSE_HEADER_ENABLED = is_env_not_false(
+    "LOCALSTACK_RESPONSE_HEADER_ENABLED"
+)
 
 # Serialization backend for the LocalStack internal state (`dill` is used by default`).
-STATE_SERIALIZATION_BACKEND = os.environ.get("STATE_SERIALIZATION_BACKEND", "").strip() or "dill"
+STATE_SERIALIZATION_BACKEND = (
+    os.environ.get("STATE_SERIALIZATION_BACKEND", "").strip() or "dill"
+)
 
 # List of environment variable names used for configuration that are passed from the host into the LocalStack container.
 # => Synchronize this list with the above and the configuration docs:
@@ -1088,7 +1115,9 @@ class ServiceProviderConfig(Mapping[str, str]):
             env = os.environ
         for key, value in env.items():
             if key.startswith(self.override_prefix) and value:
-                self.set_provider(key[len(self.override_prefix) :].lower().replace("_", "-"), value)
+                self.set_provider(
+                    key[len(self.override_prefix) :].lower().replace("_", "-"), value
+                )
 
     def get_provider(self, service: str) -> str:
         return self._provider_config.get(service, self.default_value)

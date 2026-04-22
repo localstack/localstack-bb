@@ -174,7 +174,9 @@ class BaseStore:
 
     def __repr__(self):
         try:
-            repr_templ = "<{name} object for {service_name} at {account_id}/{region_name}>"
+            repr_templ = (
+                "<{name} object for {service_name} at {account_id}/{region_name}>"
+            )
             return repr_templ.format(
                 name=self.__class__.__name__,
                 service_name=self._service_name,
@@ -286,7 +288,9 @@ class AccountRegionBundle[BaseStoreType](dict):
     Encapsulation for all stores for all AWS account IDs.
     """
 
-    def __init__(self, service_name: str, store: type[BaseStoreType], validate: bool = True):
+    def __init__(
+        self, service_name: str, store: type[BaseStoreType], validate: bool = True
+    ):
         """
         :param service_name: Name of the service. Must be a valid service defined in botocore.
         :param store: Class definition of the Store

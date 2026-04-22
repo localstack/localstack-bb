@@ -19,7 +19,9 @@ class RegionContextEnricher(Handler):
     A handler that sets the AWS region of the request in the RequestContext.
     """
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         context.region = self.get_region(context.request)
         context.partition = get_partition(context.region)
 
@@ -99,5 +101,7 @@ class RegionRewriter(Handler):
     def __init__(self):
         self.region_rewriter_strategy = DefaultRegionRewriterStrategy()
 
-    def __call__(self, chain: HandlerChain, context: RequestContext, response: Response):
+    def __call__(
+        self, chain: HandlerChain, context: RequestContext, response: Response
+    ):
         self.region_rewriter_strategy.apply(context)

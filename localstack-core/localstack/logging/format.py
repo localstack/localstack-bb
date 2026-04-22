@@ -78,7 +78,10 @@ class MaskSensitiveInputFilter(logging.Filter):
         super().__init__()
 
         self.patterns = [
-            (re.compile(to_bytes(rf'"{key}":\s*"[^"]+"')), to_bytes(f'"{key}": "******"'))
+            (
+                re.compile(to_bytes(rf'"{key}":\s*"[^"]+"')),
+                to_bytes(f'"{key}": "******"'),
+            )
             for key in sensitive_keys
         ]
 
@@ -155,7 +158,10 @@ class TraceLoggingFormatter(logging.Formatter):
             bytes_length_display_threshold
         :return: Input, unless it is bytes and longer than bytes_length_display_threshold, then `Bytes(length_of_input)`
         """
-        if isinstance(input, bytes) and len(input) > self.bytes_length_display_threshold:
+        if (
+            isinstance(input, bytes)
+            and len(input) > self.bytes_length_display_threshold
+        ):
             return f"Bytes({format_bytes(len(input))})"
         return input
 
@@ -180,7 +186,10 @@ class AwsTraceLoggingFormatter(TraceLoggingFormatter):
         for key, value in service_dict.items():
             if isinstance(value, dict):
                 result[key] = self._copy_service_dict(value)
-            elif isinstance(value, bytes) and len(value) > self.bytes_length_display_threshold:
+            elif (
+                isinstance(value, bytes)
+                and len(value) > self.bytes_length_display_threshold
+            ):
                 result[key] = f"Bytes({format_bytes(len(value))})"
             elif isinstance(value, list):
                 result[key] = [self._copy_service_dict(item) for item in value]

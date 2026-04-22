@@ -29,7 +29,9 @@ def main():
         setup_logging_from_config()
         runtime = current.initialize_runtime()
     except Exception as e:
-        sys.stdout.write(f"ERROR: The LocalStack Runtime could not be initialized: {e}\n")
+        sys.stdout.write(
+            f"ERROR: The LocalStack Runtime could not be initialized: {e}\n"
+        )
         sys.stdout.flush()
         raise
 

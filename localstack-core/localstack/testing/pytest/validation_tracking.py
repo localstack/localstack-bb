@@ -91,7 +91,9 @@ def _makereport_teardown(item: pytest.Item, call: pytest.CallInfo):
         test_execution_data = content.setdefault(item.nodeid, {})
 
         timestamp = datetime.datetime.now(tz=datetime.timezone.utc)
-        test_execution_data["last_validated_date"] = timestamp.isoformat(timespec="seconds")
+        test_execution_data["last_validated_date"] = timestamp.isoformat(
+            timespec="seconds"
+        )
 
         durations_by_phase = item.stash[durations_key]
         test_execution_data["durations_in_seconds"] = durations_by_phase
@@ -131,9 +133,9 @@ def pytest_collection_modifyitems(
     """
     # handle two potential config options (relative vs. absolute limits)
     if config.option.validation_date_limit_days is not None:
-        reference_date = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(
-            days=int(config.option.validation_date_limit_days)
-        )
+        reference_date = datetime.datetime.now(
+            tz=datetime.timezone.utc
+        ) - datetime.timedelta(days=int(config.option.validation_date_limit_days))
     elif config.option.validation_date_limit_timestamp is not None:
         reference_date = datetime.datetime.fromisoformat(
             config.option.validation_date_limit_timestamp

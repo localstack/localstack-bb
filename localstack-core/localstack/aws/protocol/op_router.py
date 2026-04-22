@@ -54,7 +54,9 @@ class _HttpOperation(NamedTuple):
 
         if len(path_query) > 1:
             # parse the query args of the request URI (they are mandatory)
-            query_args: dict[str, list[str]] = parse_qs(path_query[1], keep_blank_values=True)
+            query_args: dict[str, list[str]] = parse_qs(
+                path_query[1], keep_blank_values=True
+            )
             # for mandatory keys without values, keep an empty list (instead of [''] - the result of parse_qs)
             query_args = {k: filter(None, v) for k, v in query_args.items()}
 
@@ -96,7 +98,9 @@ class _RequiredArgsRule:
         self.required_query_args = operation.query_args or {}
         self.required_header_args = operation.header_args or []
         self.match_score = (
-            10 + 10 * len(self.required_query_args) + 10 * len(self.required_header_args)
+            10
+            + 10 * len(self.required_query_args)
+            + 10 * len(self.required_header_args)
         )
         # If this operation is deprecated, the score is a bit less high (bot not as much as a matching required arg)
         if operation.deprecated:
@@ -189,11 +193,17 @@ def _create_service_map(service: ServiceModel) -> Map:
             # if there is only a single operation for a (path, method) combination,
             # the default Werkzeug rule can be used directly (this is the case for most rules)
             op = ops[0]
-            rules.append(StrictMethodRule(string=rule_string, method=method, endpoint=op.operation))  # type: ignore
+            rules.append(
+                StrictMethodRule(
+                    string=rule_string, method=method, endpoint=op.operation
+                )
+            )  # type: ignore
         else:
             # if there is an ambiguity with only the (path, method) combination,
             # a custom rule - which can use additional request metadata - needs to be used
-            rules.append(_RequestMatchingRule(string=rule_string, method=method, operations=ops))
+            rules.append(
+                _RequestMatchingRule(string=rule_string, method=method, operations=ops)
+            )
 
     return Map(
         rules=rules,

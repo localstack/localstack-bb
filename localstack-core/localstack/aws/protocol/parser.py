@@ -230,7 +230,11 @@ class RequestParser(abc.ABC):
         raise NotImplementedError
 
     def _parse_shape(
-        self, request: Request, shape: Shape, node: Any, uri_params: Mapping[str, Any] = None
+        self,
+        request: Request,
+        shape: Shape,
+        node: Any,
+        uri_params: Mapping[str, Any] = None,
     ) -> Any:
         """
         Main parsing method which dynamically calls the parsing function for the specific shape.
@@ -286,7 +290,11 @@ class RequestParser(abc.ABC):
         fn_name = f"_parse_{shape.type_name}"
         handler = getattr(self, fn_name, self._noop_parser)
         try:
-            return handler(request, shape, payload, uri_params) if payload is not None else None
+            return (
+                handler(request, shape, payload, uri_params)
+                if payload is not None
+                else None
+            )
         except (TypeError, ValueError, AttributeError) as e:
             raise ProtocolParserError(
                 f"Invalid type when parsing {shape.name}: '{payload}' cannot be parsed to {shape.type_name}."
@@ -324,7 +332,10 @@ class RequestParser(abc.ABC):
         timestamp_format = shape.serialization.get("timestampFormat")
         if not timestamp_format and shape.serialization.get("location") == "header":
             timestamp_format = self.HEADER_TIMESTAMP_FORMAT
-        elif not timestamp_format and shape.serialization.get("location") == "querystring":
+        elif (
+            not timestamp_format
+            and shape.serialization.get("location") == "querystring"
+        ):
             timestamp_format = self.QUERY_TIMESTAMP_FORMAT
         return self._convert_str_to_timestamp(node, timestamp_format)
 
@@ -345,7 +356,9 @@ class RequestParser(abc.ABC):
     _parse_double = _parse_float
     _parse_long = _parse_integer
 
-    def _convert_str_to_timestamp(self, value: str, timestamp_format=None) -> datetime.datetime:
+    def _convert_str_to_timestamp(
+        self, value: str, timestamp_format=None
+    ) -> datetime.datetime:
         if timestamp_format is None:
             timestamp_format = self.TIMESTAMP_FORMAT
         timestamp_format = timestamp_format.lower()
@@ -363,7 +376,9 @@ class RequestParser(abc.ABC):
 
     @staticmethod
     def _timestamp_unixtimestampmillis(timestamp_string: str) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(float(timestamp_string) / 1000, tz=datetime.UTC)
+        return datetime.datetime.fromtimestamp(
+            float(timestamp_string) / 1000, tz=datetime.UTC
+        )
 
     @staticmethod
     def _timestamp_rfc822(datetime_string: str) -> datetime.datetime:
@@ -449,8 +464,12 @@ class QueryRequestParser(RequestParser):
             # BUT, if it's flattened and a list, the name is defined by the list's member's name
             if member_shape.serialization.get("flattened"):
                 if isinstance(member_shape, ListShape):
-                    member_name = self._get_serialized_name(member_shape.member, member, node)
-            value = self._process_member(request, member_name, member_shape, node, uri_params)
+                    member_name = self._get_serialized_name(
+                        member_shape.member, member, node
+                    )
+            value = self._process_member(
+                request, member_name, member_shape, node, uri_params
+            )
             if value is not None or member in shape.required_members:
                 # If the member is required, but not existing, we explicitly set None
                 result[member] = value
@@ -458,7 +477,11 @@ class QueryRequestParser(RequestParser):
         return result if len(result) > 0 else None
 
     def _parse_map(
-        self, request: Request, shape: MapShape, node: dict, uri_params: Mapping[str, Any]
+        self,
+        request: Request,
+        shape: MapShape,
+        node: dict,
+        uri_params: Mapping[str, Any],
     ) -> dict:
         """
         This is what the node looks like for a flattened map::
@@ -491,7 +514,9 @@ class QueryRequestParser(RequestParser):
             i += 1
             # The key and value can be renamed (with their serialization config's "name").
             # By default they are called "key" and "value".
-            key_name = f"{key_prefix}{i}.{self._get_serialized_name(shape.key, 'key', node)}"
+            key_name = (
+                f"{key_prefix}{i}.{self._get_serialized_name(shape.key, 'key', node)}"
+            )
             value_name = f"{key_prefix}{i}.{self._get_serialized_name(shape.value, 'value', node)}"
 
             # We process the key and value individually
@@ -548,7 +573,9 @@ class QueryRequestParser(RequestParser):
     @staticmethod
     def _filter_node(name: str, node: dict) -> dict:
         """Filters the node dict for entries where the key starts with the given name."""
-        filtered = {k[len(name) + 1 :]: v for k, v in node.items() if k.startswith(name)}
+        filtered = {
+            k[len(name) + 1 :]: v for k, v in node.items() if k.startswith(name)
+        }
         return filtered if len(filtered) > 0 else None
 
     def _get_serialized_name(self, shape: Shape, default_name: str, node: dict) -> str:
@@ -627,7 +654,9 @@ class BaseRestRequestParser(RequestParser):
                 # only set the parameter if content_length=0, which indicates an empty request. If the content length is
                 # not set, it could be a streaming response.
                 if request.content_length != 0:
-                    payload_parsed[payload_member_name] = self.create_input_stream(request)
+                    payload_parsed[payload_member_name] = self.create_input_stream(
+                        request
+                    )
             else:
                 original_parsed = self._initial_body_parse(request)
                 payload_parsed[payload_member_name] = self._parse_shape(
@@ -639,12 +668,16 @@ class BaseRestRequestParser(RequestParser):
                 non_payload_parsed = self._initial_body_parse(request)
             except ProtocolParserError:
                 # GET requests should ignore the body, so we just let them pass
-                if not (request.method in ["GET", "HEAD"] and self.ignore_get_body_errors):
+                if not (
+                    request.method in ["GET", "HEAD"] and self.ignore_get_body_errors
+                ):
                     raise
 
         # even if the payload has been parsed, the rest of the shape needs to be processed as well
         # (for members which are located outside of the body, like uri or header)
-        non_payload_parsed = self._parse_shape(request, shape, non_payload_parsed, uri_params)
+        non_payload_parsed = self._parse_shape(
+            request, shape, non_payload_parsed, uri_params
+        )
         # update the final result with the parsed body and the parsed payload (where the payload has precedence)
         final_parsed.update(non_payload_parsed)
         final_parsed.update(payload_parsed)
@@ -720,7 +753,9 @@ class RestXMLRequestParser(BaseRestRequestParser):
                 attributes = {}
                 location_name = member_shape.serialization["name"]
                 for key, value in node.attrib.items():
-                    new_key = self._namespace_re.sub(location_name.split(":")[0] + ":", key)
+                    new_key = self._namespace_re.sub(
+                        location_name.split(":")[0] + ":", key
+                    )
                     attributes[new_key] = value
                 if location_name in attributes:
                     parsed[member_name] = attributes[location_name]
@@ -749,9 +784,13 @@ class RestXMLRequestParser(BaseRestRequestParser):
                 # Within each <entry> there's a <key> and a <value>
                 tag_name = self._node_tag(single_pair)
                 if tag_name == key_location_name:
-                    key_name = self._parse_shape(request, key_shape, single_pair, uri_params)
+                    key_name = self._parse_shape(
+                        request, key_shape, single_pair, uri_params
+                    )
                 elif tag_name == value_location_name:
-                    val_name = self._parse_shape(request, value_shape, single_pair, uri_params)
+                    val_name = self._parse_shape(
+                        request, value_shape, single_pair, uri_params
+                    )
                 else:
                     raise ProtocolParserError(f"Unknown tag: {tag_name}")
             parsed[key_name] = val_name
@@ -893,24 +932,36 @@ class BaseJSONRequestParser(RequestParser, ABC):
             try:
                 return cbor2_loads(body_contents)
             except ValueError as e:
-                raise ProtocolParserError("HTTP body could not be parsed as CBOR.") from e
+                raise ProtocolParserError(
+                    "HTTP body could not be parsed as CBOR."
+                ) from e
         else:
             try:
                 return request.get_json(force=True)
             except BadRequest as e:
-                raise ProtocolParserError("HTTP body could not be parsed as JSON.") from e
+                raise ProtocolParserError(
+                    "HTTP body could not be parsed as JSON."
+                ) from e
 
     def _parse_boolean(
-        self, request: Request, shape: Shape, node: bool, uri_params: Mapping[str, Any] = None
+        self,
+        request: Request,
+        shape: Shape,
+        node: bool,
+        uri_params: Mapping[str, Any] = None,
     ) -> bool:
         return super()._noop_parser(request, shape, node, uri_params)
 
     def _parse_timestamp(
-        self, request: Request, shape: Shape, node: str, uri_params: Mapping[str, Any] = None
+        self,
+        request: Request,
+        shape: Shape,
+        node: str,
+        uri_params: Mapping[str, Any] = None,
     ) -> datetime.datetime:
-        if not shape.serialization.get("timestampFormat") and request.mimetype.startswith(
-            "application/x-amz-cbor"
-        ):
+        if not shape.serialization.get(
+            "timestampFormat"
+        ) and request.mimetype.startswith("application/x-amz-cbor"):
             # cbor2 has native support for timestamp decoding, so this node could already have the right type
             if isinstance(node, datetime.datetime):
                 return node
@@ -920,9 +971,15 @@ class BaseJSONRequestParser(RequestParser, ABC):
         return super()._parse_timestamp(request, shape, node, uri_params)
 
     def _parse_blob(
-        self, request: Request, shape: Shape, node: bool, uri_params: Mapping[str, Any] = None
+        self,
+        request: Request,
+        shape: Shape,
+        node: bool,
+        uri_params: Mapping[str, Any] = None,
     ) -> bytes:
-        if isinstance(node, bytes) and request.mimetype.startswith("application/x-amz-cbor"):
+        if isinstance(node, bytes) and request.mimetype.startswith(
+            "application/x-amz-cbor"
+        ):
             # CBOR does not base64 encode binary data
             return bytes(node)
         else:
@@ -1038,7 +1095,9 @@ class BaseCBORRequestParser(RequestParser, ABC):
             )
 
     # Major type 0 - unsigned integers
-    def _parse_type_unsigned_integer(self, stream: io.BufferedReader, additional_info: int) -> int:
+    def _parse_type_unsigned_integer(
+        self, stream: io.BufferedReader, additional_info: int
+    ) -> int:
         additional_info_to_num_bytes = {
             24: 1,
             25: 2,
@@ -1059,11 +1118,15 @@ class BaseCBORRequestParser(RequestParser, ABC):
             )
 
     # Major type 1 - negative integers
-    def _parse_type_negative_integer(self, stream: io.BufferedReader, additional_info: int) -> int:
+    def _parse_type_negative_integer(
+        self, stream: io.BufferedReader, additional_info: int
+    ) -> int:
         return -1 - self._parse_type_unsigned_integer(stream, additional_info)
 
     # Major type 2 - byte string
-    def _parse_type_byte_string(self, stream: io.BufferedReader, additional_info: int) -> bytes:
+    def _parse_type_byte_string(
+        self, stream: io.BufferedReader, additional_info: int
+    ) -> bytes:
         if additional_info != self.INDEFINITE_ITEM_ADDITIONAL_INFO:
             length = self._parse_type_unsigned_integer(stream, additional_info)
             return self._read_from_stream(stream, length)
@@ -1079,11 +1142,15 @@ class BaseCBORRequestParser(RequestParser, ABC):
             return b"".join(chunks)
 
     # Major type 3 - text string
-    def _parse_type_text_string(self, stream: io.BufferedReader, additional_info: int) -> str:
+    def _parse_type_text_string(
+        self, stream: io.BufferedReader, additional_info: int
+    ) -> str:
         return self._parse_type_byte_string(stream, additional_info).decode("utf-8")
 
     # Major type 4 - lists
-    def _parse_type_array(self, stream: io.BufferedReader, additional_info: int) -> list:
+    def _parse_type_array(
+        self, stream: io.BufferedReader, additional_info: int
+    ) -> list:
         if additional_info != self.INDEFINITE_ITEM_ADDITIONAL_INFO:
             length = self._parse_type_unsigned_integer(stream, additional_info)
             return [self.parse_data_item(stream) for _ in range(length)]
@@ -1107,7 +1174,9 @@ class BaseCBORRequestParser(RequestParser, ABC):
                 self._parse_type_key_value_pair(stream, items)
             return items
 
-    def _parse_type_key_value_pair(self, stream: io.BufferedReader, items: dict) -> None:
+    def _parse_type_key_value_pair(
+        self, stream: io.BufferedReader, items: dict
+    ) -> None:
         key = self.parse_data_item(stream)
         value = self.parse_data_item(stream)
         if value is not None:
@@ -1121,7 +1190,9 @@ class BaseCBORRequestParser(RequestParser, ABC):
         if tag == 1:  # Epoch-based date/time in milliseconds
             return self._parse_type_datetime(value)
         else:
-            raise ProtocolParserError(f"Found CBOR tag not supported by botocore: {tag}")
+            raise ProtocolParserError(
+                f"Found CBOR tag not supported by botocore: {tag}"
+            )
 
     def _parse_type_datetime(self, value: int | float) -> datetime.datetime:
         # CBOR overrides any timestamp format defined in the spec:
@@ -1161,7 +1232,9 @@ class BaseCBORRequestParser(RequestParser, ABC):
 
         if additional_info in float_formats:
             float_format, num_bytes = float_formats[additional_info]
-            return struct.unpack(float_format, self._read_from_stream(stream, num_bytes))[0]
+            return struct.unpack(
+                float_format, self._read_from_stream(stream, num_bytes)
+            )[0]
         raise ProtocolParserError(
             f"Invalid additional info found for major type 7: {additional_info}.  "
             f"This indicates an unsupported simple type or an indefinite float value"
@@ -1263,7 +1336,11 @@ class CBORRequestParser(BaseCBORRequestParser, JSONRequestParser):
         return self.parse_data_item(body_contents_stream)
 
     def _parse_timestamp(
-        self, request: Request, shape: Shape, node: str, uri_params: Mapping[str, Any] = None
+        self,
+        request: Request,
+        shape: Shape,
+        node: str,
+        uri_params: Mapping[str, Any] = None,
     ) -> datetime.datetime:
         # TODO: remove once CBOR support has been removed from `JSONRequestParser`
         return super()._parse_timestamp(request, shape, node, uri_params)
@@ -1343,7 +1420,9 @@ class BaseRpcV2RequestParser(RequestParser):
             if shape.is_tagged_union:
                 cleaned_value = node.copy()
                 cleaned_value.pop("__type", None)
-                cleaned_value = {k: v for k, v in cleaned_value.items() if v is not None}
+                cleaned_value = {
+                    k: v for k, v in cleaned_value.items() if v is not None
+                }
                 if len(cleaned_value) != 1:
                     raise ProtocolParserError(
                         f"Invalid service response: {shape.name} must have one and only one member set."
@@ -1464,7 +1543,9 @@ class S3RequestParser(RestXMLRequestParser):
                 )
 
         @staticmethod
-        def _set_request_props(request: Request, path: str, host: str, raw_uri: str | None = None):
+        def _set_request_props(
+            request: Request, path: str, host: str, raw_uri: str | None = None
+        ):
             """Sets the HTTP request's path and host and clears the cache in the request object."""
             request.path = path
             request.headers["Host"] = host
@@ -1500,7 +1581,11 @@ class S3RequestParser(RestXMLRequestParser):
             return super().parse(request)
 
     def _parse_shape(
-        self, request: Request, shape: Shape, node: Any, uri_params: Mapping[str, Any] = None
+        self,
+        request: Request,
+        shape: Shape,
+        node: Any,
+        uri_params: Mapping[str, Any] = None,
     ) -> Any:
         """
         Special handling of parsing the shape for s3 object-names (=key):
@@ -1569,7 +1654,9 @@ class SQSQueryRequestParser(QueryRequestParser):
 
 
 @functools.cache
-def create_parser(service: ServiceModel, protocol: ProtocolName | None = None) -> RequestParser:
+def create_parser(
+    service: ServiceModel, protocol: ProtocolName | None = None
+) -> RequestParser:
     """
     Creates the right parser for the given service model.
 

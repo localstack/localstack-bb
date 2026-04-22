@@ -242,7 +242,9 @@ class ResponseSerializer(abc.ABC):
 
         # if the operation has a streaming output, handle the serialization differently
         if operation_model.has_event_stream_output:
-            return self._serialize_event_stream(response, operation_model, mime_type, request_id)
+            return self._serialize_event_stream(
+                response, operation_model, mime_type, request_id
+            )
 
         serialized_response = self._create_default_response(operation_model, mime_type)
         shape = operation_model.output_shape
@@ -375,7 +377,9 @@ class ResponseSerializer(abc.ABC):
             yield self._encode_event_payload("initial-response")
 
             # create a default response
-            serialized_event_response = self._create_default_response(operation_model, mime_type)
+            serialized_event_response = self._create_default_response(
+                operation_model, mime_type
+            )
             # get the members of the event stream shape
             event_stream_shape_members = (
                 event_stream_shape.members if event_stream_shape is not None else None
@@ -398,14 +402,18 @@ class ResponseSerializer(abc.ABC):
                         event_member_name = member_name
                         break
                 if event_member_shape is None:
-                    raise UnknownSerializerError("Couldn't find event shape for serialization.")
+                    raise UnknownSerializerError(
+                        "Couldn't find event shape for serialization."
+                    )
 
                 # serialize the part of the response for the event
                 self._serialize_response(
                     event.get(event_member_name),
                     serialized_event_response,
                     event_member_shape,
-                    event_member_shape.members if event_member_shape is not None else None,
+                    event_member_shape.members
+                    if event_member_shape is not None
+                    else None,
                     operation_model,
                     mime_type,
                     request_id,
@@ -495,7 +503,9 @@ class ResponseSerializer(abc.ABC):
 
         return result
 
-    def _create_default_response(self, operation_model: OperationModel, mime_type: str) -> Response:
+    def _create_default_response(
+        self, operation_model: OperationModel, mime_type: str
+    ) -> Response:
         """
         Creates a boilerplate default response to be used by subclasses as starting points.
         Uses the default HTTP response status code defined in the operation model (if defined), otherwise 200.
@@ -626,7 +636,10 @@ class ResponseSerializer(abc.ABC):
 
 class QueryCompatibleProtocolMixin:
     def _get_error_status_code(
-        self, error: ServiceException, headers: dict | Headers | None, service_model: ServiceModel
+        self,
+        error: ServiceException,
+        headers: dict | Headers | None,
+        service_model: ServiceModel,
     ) -> int:
         # by default, some protocols (namely `json` and `smithy-rpc-v2-cbor`) might not define exception status code in
         # their specs, so they are not defined in the `ServiceException` object and will use the default value of `400`
@@ -646,7 +659,9 @@ class QueryCompatibleProtocolMixin:
 
         return error.status_code
 
-    def _add_query_compatible_error_header(self, response: Response, error: ServiceException):
+    def _add_query_compatible_error_header(
+        self, response: Response, error: ServiceException
+    ):
         """
         Add an `x-amzn-query-error` header for client to  translate errors codes from former `query` services
         into other protocols.
@@ -656,7 +671,10 @@ class QueryCompatibleProtocolMixin:
         response.headers["x-amzn-query-error"] = f"{error.code};{sender_fault}"
 
     def _get_error_code(
-        self, is_query_compatible: bool, error: ServiceException, shape: Shape | None = None
+        self,
+        is_query_compatible: bool,
+        error: ServiceException,
+        shape: Shape | None = None,
     ):
         # if the operation is query compatible, we need to add to use shape name
         if is_query_compatible:
@@ -708,7 +726,9 @@ class BaseXMLResponseSerializer(ResponseSerializer):
 
         self._add_additional_error_tags(vars(error), root, shape, mime_type)
 
-        response.set_response(self._encode_payload(self._node_to_string(root, mime_type)))
+        response.set_response(
+            self._encode_payload(self._node_to_string(root, mime_type))
+        )
 
     def _add_error_tags(
         self, error: ServiceException, error_tag: ETree.Element, mime_type: str
@@ -753,12 +773,18 @@ class BaseXMLResponseSerializer(ResponseSerializer):
         mime_type: str,
         request_id: str,
     ) -> str | None:
-        root = self._serialize_body_params_to_xml(params, shape, operation_model, mime_type)
+        root = self._serialize_body_params_to_xml(
+            params, shape, operation_model, mime_type
+        )
         self._prepare_additional_traits_in_xml(root, request_id)
         return self._node_to_string(root, mime_type)
 
     def _serialize_body_params_to_xml(
-        self, params: dict, shape: Shape, operation_model: OperationModel, mime_type: str
+        self,
+        params: dict,
+        shape: Shape,
+        operation_model: OperationModel,
+        mime_type: str,
     ) -> ETree.Element | None:
         if shape is None:
             return
@@ -770,7 +796,12 @@ class BaseXMLResponseSerializer(ResponseSerializer):
         return real_root
 
     def _serialize(
-        self, shape: Shape, params: Any, xmlnode: ETree.Element, name: str, mime_type: str
+        self,
+        shape: Shape,
+        params: Any,
+        xmlnode: ETree.Element,
+        name: str,
+        mime_type: str,
     ) -> None:
         """This method dynamically invokes the correct `_serialize_type_*` method for each shape type."""
         if shape is None:
@@ -781,7 +812,9 @@ class BaseXMLResponseSerializer(ResponseSerializer):
             name = shape.serialization.get("resultWrapper")
 
         try:
-            method = getattr(self, f"_serialize_type_{shape.type_name}", self._default_serialize)
+            method = getattr(
+                self, f"_serialize_type_{shape.type_name}", self._default_serialize
+            )
             method(xmlnode, params, shape, name, mime_type)
         except (TypeError, ValueError, AttributeError) as e:
             raise ProtocolSerializerError(
@@ -789,7 +822,12 @@ class BaseXMLResponseSerializer(ResponseSerializer):
             ) from e
 
     def _serialize_type_structure(
-        self, xmlnode: ETree.Element, params: dict, shape: StructureShape, name: str, mime_type
+        self,
+        xmlnode: ETree.Element,
+        params: dict,
+        shape: StructureShape,
+        name: str,
+        mime_type,
     ) -> None:
         structure_node = ETree.SubElement(xmlnode, name)
 
@@ -824,7 +862,12 @@ class BaseXMLResponseSerializer(ResponseSerializer):
             self._serialize(member_shape, value, structure_node, member_name, mime_type)
 
     def _serialize_type_list(
-        self, xmlnode: ETree.Element, params: list, shape: ListShape, name: str, mime_type: str
+        self,
+        xmlnode: ETree.Element,
+        params: list,
+        shape: ListShape,
+        name: str,
+        mime_type: str,
     ) -> None:
         if params is None:
             # Don't serialize any param whose value is None.
@@ -844,7 +887,12 @@ class BaseXMLResponseSerializer(ResponseSerializer):
                 self._serialize(member_shape, item, list_node, element_name, mime_type)
 
     def _serialize_type_map(
-        self, xmlnode: ETree.Element, params: dict, shape: MapShape, name: str, mime_type: str
+        self,
+        xmlnode: ETree.Element,
+        params: dict,
+        shape: MapShape,
+        name: str,
+        mime_type: str,
     ) -> None:
         """
         Given the ``name`` of MyMap, an input of {"key1": "val1", "key2": "val2"}, and the ``flattened: False``
@@ -890,7 +938,9 @@ class BaseXMLResponseSerializer(ResponseSerializer):
             self._serialize(shape.value, value, entry_node, val_name, mime_type)
 
     @staticmethod
-    def _serialize_type_boolean(xmlnode: ETree.Element, params: bool, _, name: str, __) -> None:
+    def _serialize_type_boolean(
+        xmlnode: ETree.Element, params: bool, _, name: str, __
+    ) -> None:
         """
         For scalar types, the 'params' attr is actually just a scalar value representing the data
         we need to serialize as a boolean. It will either be 'true' or 'false'
@@ -909,7 +959,12 @@ class BaseXMLResponseSerializer(ResponseSerializer):
         node.text = self._get_base64(params)
 
     def _serialize_type_timestamp(
-        self, xmlnode: ETree.Element, params: str, shape: Shape, name: str, mime_type: str
+        self,
+        xmlnode: ETree.Element,
+        params: str,
+        shape: Shape,
+        name: str,
+        mime_type: str,
     ) -> None:
         node = ETree.SubElement(xmlnode, name)
         if mime_type != APPLICATION_JSON:
@@ -922,14 +977,22 @@ class BaseXMLResponseSerializer(ResponseSerializer):
             # protocols, but using the int representation instead of the float representation (f.e. requesting JSON
             # responses in STS).
             node.text = str(
-                int(self._convert_timestamp_to_str(params, JSONResponseSerializer.TIMESTAMP_FORMAT))
+                int(
+                    self._convert_timestamp_to_str(
+                        params, JSONResponseSerializer.TIMESTAMP_FORMAT
+                    )
+                )
             )
 
-    def _default_serialize(self, xmlnode: ETree.Element, params: str, _, name: str, __) -> None:
+    def _default_serialize(
+        self, xmlnode: ETree.Element, params: str, _, name: str, __
+    ) -> None:
         node = ETree.SubElement(xmlnode, name)
         node.text = str(params)
 
-    def _prepare_additional_traits_in_xml(self, root: ETree.Element | None, request_id: str):
+    def _prepare_additional_traits_in_xml(
+        self, root: ETree.Element | None, request_id: str
+    ):
         """
         Prepares the XML root node before being serialized with additional traits (like the Response ID in the Query
         protocol).
@@ -937,7 +1000,9 @@ class BaseXMLResponseSerializer(ResponseSerializer):
         """
         pass
 
-    def _create_default_response(self, operation_model: OperationModel, mime_type: str) -> Response:
+    def _create_default_response(
+        self, operation_model: OperationModel, mime_type: str
+    ) -> Response:
         response = super()._create_default_response(operation_model, mime_type)
         response.headers["Content-Type"] = mime_type
         return response
@@ -989,7 +1054,9 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
                 request_id,
             )
         self._serialize_content_type(response, shape, shape_members, mime_type)
-        self._prepare_additional_traits_in_response(response, operation_model, request_id)
+        self._prepare_additional_traits_in_response(
+            response, operation_model, request_id
+        )
 
     def _serialize_payload(
         self,
@@ -1021,7 +1088,9 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
         if not payload_member and shape.serialization.get("event"):
             for member_name, member_shape in shape_members.items():
                 # Try to find the first shape which is marked as "eventpayload" and is given in the params dict
-                if member_shape.serialization.get("eventpayload") and parameters.get(member_name):
+                if member_shape.serialization.get("eventpayload") and parameters.get(
+                    member_name
+                ):
                     payload_member = member_name
                     break
         if payload_member is not None and shape_members[payload_member].type_name in [
@@ -1068,7 +1137,10 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
 
     def _has_streaming_payload(self, payload: str | None, shape_members):
         """Determine if payload is streaming (a blob or string)."""
-        return payload is not None and shape_members[payload].type_name in ["blob", "string"]
+        return payload is not None and shape_members[payload].type_name in [
+            "blob",
+            "string",
+        ]
 
     def _prepare_additional_traits_in_response(
         self, response: Response, operation_model: OperationModel, request_id: str
@@ -1080,7 +1152,9 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
         response.headers["x-amz-request-id"] = request_id
         return response
 
-    def _process_header_members(self, parameters: dict, response: Response, shape: Shape):
+    def _process_header_members(
+        self, parameters: dict, response: Response, shape: Shape
+    ):
         shape_members = shape.members if isinstance(shape, StructureShape) else []
         for name in shape_members:
             member_shape = shape_members[name]
@@ -1095,14 +1169,18 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
             if value is None:
                 continue
             if location == "header":
-                response.headers[key] = self._serialize_header_value(member_shape, value)
+                response.headers[key] = self._serialize_header_value(
+                    member_shape, value
+                )
             elif location == "headers":
                 header_prefix = key
                 self._serialize_header_map(header_prefix, response, value)
             elif location == "statusCode":
                 response.status_code = int(value)
 
-    def _serialize_header_map(self, prefix: str, response: Response, params: dict) -> None:
+    def _serialize_header_map(
+        self, prefix: str, response: Response, params: dict
+    ) -> None:
         """Serializes the header map for the location trait "headers"."""
         for key, val in params.items():
             actual_key = prefix + key
@@ -1118,7 +1196,9 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
             return self._convert_timestamp_to_str(datetime_obj, timestamp_format)
         elif shape.type_name == "list":
             converted_value = [
-                self._serialize_header_value(shape.member, v) for v in value if v is not None
+                self._serialize_header_value(shape.member, v)
+                for v in value
+                if v is not None
             ]
             return ",".join(converted_value)
         elif shape.type_name == "boolean":
@@ -1131,7 +1211,9 @@ class BaseRestResponseSerializer(ResponseSerializer, ABC):
         else:
             return value
 
-    def _partition_members(self, parameters: dict, shape: Shape | None) -> tuple[dict, dict]:
+    def _partition_members(
+        self, parameters: dict, shape: Shape | None
+    ) -> tuple[dict, dict]:
         """Separates the top-level keys in the given parameters dict into header- and payload-located params."""
         if not isinstance(shape, StructureShape):
             # If the shape isn't a structure, we default to the whole response being parsed in the body.
@@ -1201,12 +1283,18 @@ class QueryResponseSerializer(BaseXMLResponseSerializer):
         )
 
     def _serialize_body_params_to_xml(
-        self, params: dict, shape: Shape, operation_model: OperationModel, mime_type: str
+        self,
+        params: dict,
+        shape: Shape,
+        operation_model: OperationModel,
+        mime_type: str,
     ) -> ETree.Element:
         # The Query protocol responses have a root element which is not contained in the specification file.
         # Therefore, we first call the super function to perform the normal XML serialization, and afterwards wrap the
         # result in a root element based on the operation name.
-        node = super()._serialize_body_params_to_xml(params, shape, operation_model, mime_type)
+        node = super()._serialize_body_params_to_xml(
+            params, shape, operation_model, mime_type
+        )
 
         # Check if we need to add a namespace
         attr = (
@@ -1221,7 +1309,9 @@ class QueryResponseSerializer(BaseXMLResponseSerializer):
             root.append(node)
         return root
 
-    def _prepare_additional_traits_in_xml(self, root: ETree.Element | None, request_id: str):
+    def _prepare_additional_traits_in_xml(
+        self, root: ETree.Element | None, request_id: str
+    ):
         # Add the response metadata here (it's not defined in the specs)
         # For the ec2 and the query protocol, the root cannot be None at this time.
         response_metadata = ETree.SubElement(root, "ResponseMetadata")
@@ -1277,9 +1367,13 @@ class EC2ResponseSerializer(QueryResponseSerializer):
         self._add_error_tags(error, error_tag, mime_type)
         request_id_element = ETree.SubElement(root, "RequestID")
         request_id_element.text = request_id
-        response.set_response(self._encode_payload(self._node_to_string(root, mime_type)))
+        response.set_response(
+            self._encode_payload(self._node_to_string(root, mime_type))
+        )
 
-    def _prepare_additional_traits_in_xml(self, root: ETree.Element | None, request_id: str):
+    def _prepare_additional_traits_in_xml(
+        self, root: ETree.Element | None, request_id: str
+    ):
         # The EC2 protocol does not use the root output shape, therefore we need to remove the hierarchy level
         # below the root level
         if len(root) > 0:
@@ -1341,7 +1435,9 @@ class JSONResponseSerializer(QueryCompatibleProtocolMixin, ResponseSerializer):
                     value = getattr(error, member)
 
                 # Default error message fields can sometimes have different casing in the specs
-                elif member.lower() in ["code", "message"] and hasattr(error, member.lower()):
+                elif member.lower() in ["code", "message"] and hasattr(
+                    error, member.lower()
+                ):
                     value = getattr(error, member.lower())
 
                 else:
@@ -1388,9 +1484,13 @@ class JSONResponseSerializer(QueryCompatibleProtocolMixin, ResponseSerializer):
         else:
             json_version = operation_model.metadata.get("jsonVersion")
             if json_version is not None:
-                response.headers["Content-Type"] = f"application/x-amz-json-{json_version}"
+                response.headers["Content-Type"] = (
+                    f"application/x-amz-json-{json_version}"
+                )
         response.set_response(
-            self._serialize_body_params(parameters, shape, operation_model, mime_type, request_id)
+            self._serialize_body_params(
+                parameters, shape, operation_model, mime_type, request_id
+            )
         )
 
     def _serialize_body_params(
@@ -1410,10 +1510,14 @@ class JSONResponseSerializer(QueryCompatibleProtocolMixin, ResponseSerializer):
         else:
             return json.dumps(body)
 
-    def _serialize(self, body: dict, value: Any, shape, key: str | None, mime_type: str):
+    def _serialize(
+        self, body: dict, value: Any, shape, key: str | None, mime_type: str
+    ):
         """This method dynamically invokes the correct `_serialize_type_*` method for each shape type."""
         try:
-            method = getattr(self, f"_serialize_type_{shape.type_name}", self._default_serialize)
+            method = getattr(
+                self, f"_serialize_type_{shape.type_name}", self._default_serialize
+            )
             method(body, value, shape, key, mime_type)
         except (TypeError, ValueError, AttributeError) as e:
             raise ProtocolSerializerError(
@@ -1421,7 +1525,12 @@ class JSONResponseSerializer(QueryCompatibleProtocolMixin, ResponseSerializer):
             ) from e
 
     def _serialize_type_structure(
-        self, body: dict, value: dict, shape: StructureShape, key: str | None, mime_type: str
+        self,
+        body: dict,
+        value: dict,
+        shape: StructureShape,
+        key: str | None,
+        mime_type: str,
     ):
         if value is None:
             return
@@ -1479,7 +1588,9 @@ class JSONResponseSerializer(QueryCompatibleProtocolMixin, ResponseSerializer):
                 # setting a key on a dict.  We handle this by using
                 # a __current__ key on a wrapper dict to serialize each
                 # list item before appending it to the serialized list.
-                self._serialize(wrapper, list_item, shape.member, "__current__", mime_type)
+                self._serialize(
+                    wrapper, list_item, shape.member, "__current__", mime_type
+                )
                 list_obj.append(wrapper["__current__"])
 
     def _default_serialize(self, body: dict, value: Any, _, key: str, __):
@@ -1495,7 +1606,9 @@ class JSONResponseSerializer(QueryCompatibleProtocolMixin, ResponseSerializer):
             timestamp_format = shape.serialization.get("timestampFormat")
             body[key] = self._convert_timestamp_to_str(value, timestamp_format)
 
-    def _serialize_type_blob(self, body: dict, value: str | bytes, _, key: str, mime_type: str):
+    def _serialize_type_blob(
+        self, body: dict, value: str | bytes, _, key: str, mime_type: str
+    ):
         if mime_type in self.CBOR_TYPES:
             body[key] = value
         else:
@@ -1588,7 +1701,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
                 "message": {"shape": "ErrorMessage"},
                 "__type": {"shape": "ErrorType"},
             },
-            "error": {"code": "DefaultErrorStructure", "httpStatusCode": 400, "senderFault": True},
+            "error": {
+                "code": "DefaultErrorStructure",
+                "httpStatusCode": 400,
+                "senderFault": True,
+            },
             "exception": True,
         },
         shape_resolver=ShapeResolver(
@@ -1600,7 +1717,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
     )
 
     def _serialize_data_item(
-        self, serialized: bytearray, value: Any, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: Any,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         method = getattr(self, f"_serialize_type_{shape.type_name}")
         if method is None:
@@ -1610,7 +1731,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
         method(serialized, value, shape, name)
 
     def _serialize_type_integer(
-        self, serialized: bytearray, value: int, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: int,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         if value >= 0:
             major_type = self.UNSIGNED_INT_MAJOR_TYPE
@@ -1655,7 +1780,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
         serialized.extend(value)
 
     def _serialize_type_string(
-        self, serialized: bytearray, value: str, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: str,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         encoded = value.encode("utf-8")
         length = len(encoded)
@@ -1664,10 +1793,16 @@ class BaseCBORResponseSerializer(ResponseSerializer):
         if num_bytes == 0:
             serialized.extend(initial_byte + encoded)
         else:
-            serialized.extend(initial_byte + length.to_bytes(num_bytes, "big") + encoded)
+            serialized.extend(
+                initial_byte + length.to_bytes(num_bytes, "big") + encoded
+            )
 
     def _serialize_type_list(
-        self, serialized: bytearray, value: list, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: list,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         initial_bytes, closing_bytes = self._get_bytes_for_data_structure(
             value, self.LIST_MAJOR_TYPE
@@ -1681,7 +1816,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
             serialized.extend(closing_bytes)
 
     def _serialize_type_map(
-        self, serialized: bytearray, value: dict, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: dict,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         initial_bytes, closing_bytes = self._get_bytes_for_data_structure(
             value, self.MAP_MAJOR_TYPE
@@ -1753,7 +1892,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
         serialized.extend(initial_byte + struct.pack(">d", timestamp))
 
     def _serialize_type_float(
-        self, serialized: bytearray, value: float, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: float,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         if self._is_special_number(value):
             serialized.extend(
@@ -1764,7 +1907,11 @@ class BaseCBORResponseSerializer(ResponseSerializer):
             serialized.extend(initial_byte + struct.pack(">f", value))
 
     def _serialize_type_double(
-        self, serialized: bytearray, value: float, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: float,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         if self._is_special_number(value):
             serialized.extend(
@@ -1775,10 +1922,16 @@ class BaseCBORResponseSerializer(ResponseSerializer):
             serialized.extend(initial_byte + struct.pack(">d", value))
 
     def _serialize_type_boolean(
-        self, serialized: bytearray, value: bool, shape: Shape | None, name: str | None = None
+        self,
+        serialized: bytearray,
+        value: bool,
+        shape: Shape | None,
+        name: str | None = None,
     ) -> None:
         additional_info = 21 if value else 20
-        serialized.extend(self._get_initial_byte(self.FLOAT_AND_SIMPLE_MAJOR_TYPE, additional_info))
+        serialized.extend(
+            self._get_initial_byte(self.FLOAT_AND_SIMPLE_MAJOR_TYPE, additional_info)
+        )
 
     @staticmethod
     def _get_additional_info_and_num_bytes(value: int) -> tuple[int, int]:
@@ -1821,7 +1974,9 @@ class BaseCBORResponseSerializer(ResponseSerializer):
 
     def _get_bytes_for_special_numbers(self, value: int | float) -> bytes:
         additional_info = 25
-        initial_byte = self._get_initial_byte(self.FLOAT_AND_SIMPLE_MAJOR_TYPE, additional_info)
+        initial_byte = self._get_initial_byte(
+            self.FLOAT_AND_SIMPLE_MAJOR_TYPE, additional_info
+        )
         if value == float("inf"):
             return initial_byte + struct.pack(">H", 0x7C00)
         elif value == float("-inf"):
@@ -1865,7 +2020,9 @@ class BaseCBORResponseSerializer(ResponseSerializer):
                 value = getattr(error, member)
 
             # Default error message fields can sometimes have different casing in the specs
-            elif member.lower() in ["code", "message"] and hasattr(error, member.lower()):
+            elif member.lower() in ["code", "message"] and hasattr(
+                error, member.lower()
+            ):
                 value = getattr(error, member.lower())
 
             else:
@@ -1880,7 +2037,9 @@ class BaseCBORResponseSerializer(ResponseSerializer):
             if value or member in shape.required_members:
                 params[member] = value
 
-        self._serialize_type_structure(body, params, shape, None, shape_members=shape_members)
+        self._serialize_type_structure(
+            body, params, shape, None, shape_members=shape_members
+        )
 
 
 class CBORResponseSerializer(BaseCBORResponseSerializer):
@@ -1921,7 +2080,9 @@ class CBORResponseSerializer(BaseCBORResponseSerializer):
     ) -> None:
         response.content_type = mime_type
         response.set_response(
-            self._serialize_body_params(parameters, shape, operation_model, mime_type, request_id)
+            self._serialize_body_params(
+                parameters, shape, operation_model, mime_type, request_id
+            )
         )
 
     def _serialize_body_params(
@@ -1967,7 +2128,9 @@ class BaseRpcV2ResponseSerializer(ResponseSerializer):
     ) -> None:
         response.content_type = mime_type
         response.set_response(
-            self._serialize_body_params(parameters, shape, operation_model, mime_type, request_id)
+            self._serialize_body_params(
+                parameters, shape, operation_model, mime_type, request_id
+            )
         )
 
     def _serialize_body_params(
@@ -1982,7 +2145,9 @@ class BaseRpcV2ResponseSerializer(ResponseSerializer):
 
 
 class RpcV2CBORResponseSerializer(
-    QueryCompatibleProtocolMixin, BaseRpcV2ResponseSerializer, BaseCBORResponseSerializer
+    QueryCompatibleProtocolMixin,
+    BaseRpcV2ResponseSerializer,
+    BaseCBORResponseSerializer,
 ):
     """
     The RpcV2CBORResponseSerializer implements the CBOR body serialization part for the RPC v2 protocol, and implements the
@@ -2116,7 +2281,11 @@ class S3ResponseSerializer(RestXMLResponseSerializer):
         if (
             http_method != "HEAD"
             and not 300 <= response.status_code < 400
-            and not (http_method == "PUT" and shape and not shape.serialization.get("payload"))
+            and not (
+                http_method == "PUT"
+                and shape
+                and not shape.serialization.get("payload")
+            )
         ):
             self._serialize_payload(
                 payload_params,
@@ -2152,7 +2321,9 @@ class S3ResponseSerializer(RestXMLResponseSerializer):
         self._add_additional_error_tags(payload_params, root, shape, mime_type)
         self._process_header_members(header_params, response, shape)
 
-        response.set_response(self._encode_payload(self._node_to_string(root, mime_type)))
+        response.set_response(
+            self._encode_payload(self._node_to_string(root, mime_type))
+        )
 
     def _serialize_body_params(
         self,
@@ -2162,7 +2333,9 @@ class S3ResponseSerializer(RestXMLResponseSerializer):
         mime_type: str,
         request_id: str,
     ) -> str | None:
-        root = self._serialize_body_params_to_xml(params, shape, operation_model, mime_type)
+        root = self._serialize_body_params_to_xml(
+            params, shape, operation_model, mime_type
+        )
         # S3 does not follow the specs on the root tag name for 41 of 44 operations
         root.tag = self._RESPONSE_ROOT_TAGS.get(root.tag, root.tag)
         self._prepare_additional_traits_in_xml(root, request_id)
@@ -2201,7 +2374,9 @@ class S3ResponseSerializer(RestXMLResponseSerializer):
     def _create_empty_node(xmlnode: ETree.Element, name: str) -> None:
         ETree.SubElement(xmlnode, name)
 
-    def _prepare_additional_traits_in_xml(self, root: ETree.Element | None, request_id: str):
+    def _prepare_additional_traits_in_xml(
+        self, root: ETree.Element | None, request_id: str
+    ):
         # some tools (Serverless) require a newline after the "<?xml ...>\n" preamble line, e.g., for LocationConstraint
         if root is not None and not root.tail:
             root.tail = "\n"
@@ -2259,7 +2434,9 @@ class SqsQueryResponseSerializer(QueryResponseSerializer):
         | {"OverLimit", "ResourceNotFoundException"}
     )
 
-    def _default_serialize(self, xmlnode: ETree.Element, params: str, _, name: str, __) -> None:
+    def _default_serialize(
+        self, xmlnode: ETree.Element, params: str, _, name: str, __
+    ) -> None:
         """
         Ensures that we "mark" characters in the node's text which need to be specifically encoded.
         This is necessary to easily identify these specific characters later, after the standard XML serialization is
@@ -2272,7 +2449,9 @@ class SqsQueryResponseSerializer(QueryResponseSerializer):
             .replace("\r", "__marker__-r__marker__")
         )
 
-    def _node_to_string(self, root: ETree.ElementTree | None, mime_type: str) -> str | None:
+    def _node_to_string(
+        self, root: ETree.ElementTree | None, mime_type: str
+    ) -> str | None:
         """Replaces the previously "marked" characters with their encoded value."""
         generated_string = super()._node_to_string(root, mime_type)
         if generated_string is None:
@@ -2282,13 +2461,13 @@ class SqsQueryResponseSerializer(QueryResponseSerializer):
         # Undo the second escaping of the carriage return (\r)
         if mime_type == APPLICATION_JSON:
             # At this point the json was already dumped and escaped, so we replace directly.
-            generated_string = generated_string.replace(r"__marker__\"__marker__", r"\"").replace(
-                "__marker__-r__marker__", r"\r"
-            )
+            generated_string = generated_string.replace(
+                r"__marker__\"__marker__", r"\""
+            ).replace("__marker__-r__marker__", r"\r")
         else:
-            generated_string = generated_string.replace('__marker__"__marker__', "&quot;").replace(
-                "__marker__-r__marker__", "&#xD;"
-            )
+            generated_string = generated_string.replace(
+                '__marker__"__marker__', "&quot;"
+            ).replace("__marker__-r__marker__", "&#xD;")
 
         return to_bytes(generated_string)
 
@@ -2341,7 +2520,9 @@ class SqsJsonResponseSerializer(JSONResponseSerializer):
     #  or AWS: "com.amazonaws.sqs#BatchRequestTooLong"
     #  LocalStack: "InvalidParameterValue"
 
-    def _add_query_compatible_error_header(self, response: Response, error: ServiceException):
+    def _add_query_compatible_error_header(
+        self, response: Response, error: ServiceException
+    ):
         if error.code in self.JSON_TO_QUERY_ERROR_CODES:
             code = self.JSON_TO_QUERY_ERROR_CODES[error.code]
         elif error.code in self.QUERY_PREFIXED_ERRORS:
@@ -2453,7 +2634,9 @@ def aws_response_serializer(
             elif "request" in kwargs:
                 request = kwargs["request"]
             else:
-                raise ValueError(f"could not find Request in signature of function {fn}")
+                raise ValueError(
+                    f"could not find Request in signature of function {fn}"
+                )
 
             # TODO: we have no context here
             # TODO: maybe try to get the request ID from the headers first before generating a new one
@@ -2476,7 +2659,9 @@ def aws_response_serializer(
             except Exception as e:
                 return serializer.serialize_error_to_response(
                     CommonServiceException(
-                        "InternalError", f"An internal error occurred: {e}", status_code=500
+                        "InternalError",
+                        f"An internal error occurred: {e}",
+                        status_code=500,
                     ),
                     operation_model,
                     request.headers,

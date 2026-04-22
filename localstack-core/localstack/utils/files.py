@@ -12,7 +12,9 @@ TMP_FILES: list[str] = []
 
 
 @overload
-def parse_config_file(file_or_str: str, single_section: Literal[True]) -> dict[str, str]: ...
+def parse_config_file(
+    file_or_str: str, single_section: Literal[True]
+) -> dict[str, str]: ...
 
 
 @overload
@@ -198,7 +200,9 @@ def ensure_readable(file_path: str, default_perms: int | None = None) -> None:
         with open(file_path, "rb"):
             pass
     except Exception:
-        LOG.info("Updating permissions as file is currently not readable: %s", file_path)
+        LOG.info(
+            "Updating permissions as file is currently not readable: %s", file_path
+        )
         os.chmod(file_path, default_perms)
 
 
@@ -284,7 +288,10 @@ def rm_rf(path: str) -> None:
 
 
 def cp_r(
-    src: str, dst: str, rm_dest_on_conflict: bool = False, ignore_copystat_errors: bool = False
+    src: str,
+    dst: str,
+    rm_dest_on_conflict: bool = False,
+    ignore_copystat_errors: bool = False,
 ) -> None | str:
     """Recursively copies file/directory"""
     # attention: this patch is not threadsafe

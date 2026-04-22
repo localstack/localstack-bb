@@ -104,7 +104,9 @@ class Patch:
         if self.old and self.name == "__getattr__":
             raise Exception("You can't patch class types implementing __getattr__")
         if not self.old and self.name != "__getattr__":
-            raise AttributeError(f"`{self.obj.__name__}` object has no attribute `{self.name}`")
+            raise AttributeError(
+                f"`{self.obj.__name__}` object has no attribute `{self.name}`"
+            )
         setattr(self.obj, self.name, self.new)
         Patch.applied_patches.append(self)
         self.is_applied = True
@@ -114,7 +116,9 @@ class Patch:
             return
 
         # If we added a method to a class type, we don't have a self.old. We just delete __getattr__
-        setattr(self.obj, self.name, self.old) if self.old else delattr(self.obj, self.name)
+        setattr(self.obj, self.name, self.old) if self.old else delattr(
+            self.obj, self.name
+        )
         Patch.applied_patches.remove(self)
         self.is_applied = False
 
@@ -130,7 +134,9 @@ class Patch:
     def extend_class(target: type, fn: Callable):
         def _getattr(obj, name):
             if name != fn.__name__:
-                raise AttributeError(f"`{target.__name__}` object has no attribute `{name}`")
+                raise AttributeError(
+                    f"`{target.__name__}` object has no attribute `{name}`"
+                )
 
             return functools.partial(fn, obj)
 

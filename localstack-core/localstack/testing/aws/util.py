@@ -47,7 +47,9 @@ def in_default_partition() -> bool:
 
 def get_lambda_logs(func_name, logs_client):
     log_group_name = f"/aws/lambda/{func_name}"
-    streams = logs_client.describe_log_streams(logGroupName=log_group_name)["logStreams"]
+    streams = logs_client.describe_log_streams(logGroupName=log_group_name)[
+        "logStreams"
+    ]
     streams = sorted(streams, key=lambda x: x["creationTime"], reverse=True)
     log_events = logs_client.get_log_events(
         logGroupName=log_group_name, logStreamName=streams[0]["logStreamName"]
@@ -64,7 +66,9 @@ def bucket_exists(client, bucket_name: str) -> bool:
 
 
 def wait_for_user(keys, region_name: str):
-    sts_client = create_client_with_keys(service="sts", keys=keys, region_name=region_name)
+    sts_client = create_client_with_keys(
+        service="sts", keys=keys, region_name=region_name
+    )
 
     def is_user_ready():
         try:
@@ -237,7 +241,9 @@ def base_aws_client_factory(session: boto3.Session) -> ClientFactory:
 
         # Prevent this fixture from using the region configured in system config
         config = config.merge(botocore.config.Config(region_name=TEST_AWS_REGION_NAME))
-        return ExternalClientFactory(session=session, config=config, endpoint=TEST_AWS_ENDPOINT_URL)
+        return ExternalClientFactory(
+            session=session, config=config, endpoint=TEST_AWS_ENDPOINT_URL
+        )
 
 
 def base_testing_aws_client(client_factory: ClientFactory) -> ServiceLevelClientFactory:

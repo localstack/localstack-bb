@@ -124,12 +124,19 @@ def aws_http_client_factory(aws_session):
         if not endpoint_url:
             if is_aws_cloud():
                 # FIXME: this is a bit raw. we should probably re-use boto in a better way
-                resolver: EndpointResolver = aws_session._session.get_component("endpoint_resolver")
-                endpoint_url = "https://" + resolver.construct_endpoint(service, region)["hostname"]
+                resolver: EndpointResolver = aws_session._session.get_component(
+                    "endpoint_resolver"
+                )
+                endpoint_url = (
+                    "https://"
+                    + resolver.construct_endpoint(service, region)["hostname"]
+                )
             else:
                 endpoint_url = config.internal_service_url()
 
-        return SigningHttpClient(signer_factory(creds, service, region), endpoint_url=endpoint_url)
+        return SigningHttpClient(
+            signer_factory(creds, service, region), endpoint_url=endpoint_url
+        )
 
     return factory
 
@@ -137,7 +144,8 @@ def aws_http_client_factory(aws_session):
 @pytest.fixture(scope="class")
 def s3_vhost_client(aws_client_factory, region_name):
     return aws_client_factory(
-        config=botocore.config.Config(s3={"addressing_style": "virtual"}), region_name=region_name
+        config=botocore.config.Config(s3={"addressing_style": "virtual"}),
+        region_name=region_name,
     ).s3
 
 
@@ -233,7 +241,9 @@ def s3_empty_bucket(aws_client):
         versions = response.get("Versions", [])
         versions.extend(response.get("DeleteMarkers", []))
 
-        object_versions = [{"Key": obj["Key"], "VersionId": obj["VersionId"]} for obj in versions]
+        object_versions = [
+            {"Key": obj["Key"], "VersionId": obj["VersionId"]} for obj in versions
+        ]
         if object_versions:
             aws_client.s3.delete_objects(
                 Bucket=bucket_name,
@@ -314,7 +324,9 @@ def sqs_receive_num_messages(sqs_receive_messages_delete):
             if len(all_messages) >= expected_messages:
                 return all_messages[:expected_messages]
 
-        raise AssertionError(f"max iterations reached with {len(all_messages)} messages received")
+        raise AssertionError(
+            f"max iterations reached with {len(all_messages)} messages received"
+        )
 
     return factory
 
@@ -386,9 +398,9 @@ def sqs_queue(sqs_create_queue):
 @pytest.fixture
 def sqs_get_queue_arn(aws_client) -> Callable:
     def _get_queue_arn(queue_url: str) -> str:
-        return aws_client.sqs.get_queue_attributes(QueueUrl=queue_url, AttributeNames=["QueueArn"])[
-            "Attributes"
-        ]["QueueArn"]
+        return aws_client.sqs.get_queue_attributes(
+            QueueUrl=queue_url, AttributeNames=["QueueArn"]
+        )["Attributes"]["QueueArn"]
 
     return _get_queue_arn
 
@@ -494,7 +506,9 @@ def sns_allow_topic_sqs_queue(aws_client):
                                 "Principal": {"Service": "sns.amazonaws.com"},
                                 "Action": "sqs:SendMessage",
                                 "Resource": sqs_queue_arn,
-                                "Condition": {"ArnEquals": {"aws:SourceArn": sns_topic_arn}},
+                                "Condition": {
+                                    "ArnEquals": {"aws:SourceArn": sns_topic_arn}
+                                },
                             }
                         ]
                     }
@@ -506,7 +520,9 @@ def sns_allow_topic_sqs_queue(aws_client):
 
 
 @pytest.fixture
-def sns_create_sqs_subscription(sns_allow_topic_sqs_queue, sqs_get_queue_arn, aws_client):
+def sns_create_sqs_subscription(
+    sns_allow_topic_sqs_queue, sqs_get_queue_arn, aws_client
+):
     subscriptions = []
 
     def _factory(topic_arn: str, queue_url: str, **kwargs) -> dict[str, str]:
@@ -524,9 +540,9 @@ def sns_create_sqs_subscription(sns_allow_topic_sqs_queue, sqs_get_queue_arn, aw
         )
 
         subscriptions.append(subscription_arn)
-        return aws_client.sns.get_subscription_attributes(SubscriptionArn=subscription_arn)[
-            "Attributes"
-        ]
+        return aws_client.sns.get_subscription_attributes(
+            SubscriptionArn=subscription_arn
+        )["Attributes"]
 
     yield _factory
 
@@ -555,7 +571,9 @@ def sns_create_http_endpoint(sns_create_topic, sns_subscription, aws_client):
         wait_for_port_open(endpoint_url)
 
         topic_arn = sns_create_topic()["TopicArn"]
-        subscription = sns_subscription(TopicArn=topic_arn, Protocol="http", Endpoint=endpoint_url)
+        subscription = sns_subscription(
+            TopicArn=topic_arn, Protocol="http", Endpoint=endpoint_url
+        )
         subscription_arn = subscription["SubscriptionArn"]
         delivery_policy = {
             "healthyRetryPolicy": {
@@ -651,7 +669,9 @@ def transcribe_create_job(s3_bucket, aws_client):
 
     for job_name in job_names:
         with contextlib.suppress(ClientError):
-            aws_client.transcribe.delete_transcription_job(TranscriptionJobName=job_name)
+            aws_client.transcribe.delete_transcription_job(
+                TranscriptionJobName=job_name
+            )
 
 
 @pytest.fixture
@@ -669,7 +689,9 @@ def kinesis_create_stream(aws_client):
 
     for stream_name in stream_names:
         try:
-            aws_client.kinesis.delete_stream(StreamName=stream_name, EnforceConsumerDeletion=True)
+            aws_client.kinesis.delete_stream(
+                StreamName=stream_name, EnforceConsumerDeletion=True
+            )
         except Exception as e:
             LOG.debug("error cleaning up kinesis stream %s: %s", stream_name, e)
 
@@ -678,7 +700,9 @@ def kinesis_create_stream(aws_client):
 def wait_for_stream_ready(aws_client):
     def _wait_for_stream_ready(stream_name: str):
         def is_stream_ready():
-            describe_stream_response = aws_client.kinesis.describe_stream(StreamName=stream_name)
+            describe_stream_response = aws_client.kinesis.describe_stream(
+                StreamName=stream_name
+            )
             return describe_stream_response["StreamDescription"]["StreamStatus"] in [
                 "ACTIVE",
                 "UPDATING",
@@ -697,7 +721,9 @@ def wait_for_delivery_stream_ready(aws_client):
                 DeliveryStreamName=delivery_stream_name
             )
             return (
-                describe_stream_response["DeliveryStreamDescription"]["DeliveryStreamStatus"]
+                describe_stream_response["DeliveryStreamDescription"][
+                    "DeliveryStreamStatus"
+                ]
                 == "ACTIVE"
             )
 
@@ -712,7 +738,10 @@ def wait_for_dynamodb_stream_ready(aws_client):
         def is_stream_ready():
             ddb_client = client or aws_client.dynamodbstreams
             describe_stream_response = ddb_client.describe_stream(StreamArn=stream_arn)
-            return describe_stream_response["StreamDescription"]["StreamStatus"] == "ENABLED"
+            return (
+                describe_stream_response["StreamDescription"]["StreamStatus"]
+                == "ENABLED"
+            )
 
         return poll_condition(is_stream_ready)
 
@@ -726,9 +755,9 @@ def kms_create_key(aws_client_factory):
     def _create_key(region_name: str = None, **kwargs):
         if "Description" not in kwargs:
             kwargs["Description"] = f"test description - {short_uid()}"
-        key_metadata = aws_client_factory(region_name=region_name).kms.create_key(**kwargs)[
-            "KeyMetadata"
-        ]
+        key_metadata = aws_client_factory(region_name=region_name).kms.create_key(
+            **kwargs
+        )["KeyMetadata"]
         key_ids.append((region_name, key_metadata["KeyId"]))
         return key_metadata
 
@@ -804,9 +833,7 @@ def kms_create_grant(kms_create_key, aws_client):
     def _create_grant(**kwargs):
         # Just a random ARN, since KMS in LocalStack currently doesn't validate GranteePrincipal,
         # but some GranteePrincipal is required to create a grant.
-        GRANTEE_PRINCIPAL_ARN = (
-            "arn:aws:kms:eu-central-1:123456789876:key/198a5a78-52c3-489f-ac70-b06a4d11027a"
-        )
+        GRANTEE_PRINCIPAL_ARN = "arn:aws:kms:eu-central-1:123456789876:key/198a5a78-52c3-489f-ac70-b06a4d11027a"
 
         if "Operations" not in kwargs:
             kwargs["Operations"] = ["Decrypt", "Encrypt"]
@@ -851,11 +878,15 @@ def kms_grant_and_key(kms_key, aws_client):
 def opensearch_wait_for_cluster(aws_client):
     def _wait_for_cluster(domain_name: str):
         def finished_processing():
-            status = aws_client.opensearch.describe_domain(DomainName=domain_name)["DomainStatus"]
+            status = aws_client.opensearch.describe_domain(DomainName=domain_name)[
+                "DomainStatus"
+            ]
             return status["DomainProcessingStatus"] == "Active" and "Endpoint" in status
 
         assert poll_condition(
-            finished_processing, timeout=25 * 60, **({"interval": 10} if is_aws_cloud() else {})
+            finished_processing,
+            timeout=25 * 60,
+            **({"interval": 10} if is_aws_cloud() else {}),
         ), f"could not start domain: {domain_name}"
 
     return _wait_for_cluster
@@ -893,7 +924,9 @@ def opensearch_domain(opensearch_create_domain) -> str:
 
 @pytest.fixture
 def opensearch_endpoint(opensearch_domain, aws_client) -> str:
-    status = aws_client.opensearch.describe_domain(DomainName=opensearch_domain)["DomainStatus"]
+    status = aws_client.opensearch.describe_domain(DomainName=opensearch_domain)[
+        "DomainStatus"
+    ]
     assert "Endpoint" in status
     return f"https://{status['Endpoint']}"
 
@@ -925,7 +958,9 @@ def cleanup_stacks(aws_client):
         for stack in stacks:
             try:
                 aws_client.cloudformation.delete_stack(StackName=stack)
-                aws_client.cloudformation.get_waiter("stack_delete_complete").wait(StackName=stack)
+                aws_client.cloudformation.get_waiter("stack_delete_complete").wait(
+                    StackName=stack
+                )
             except Exception:
                 LOG.debug("Failed to cleanup stack '%s'", stack)
 
@@ -969,25 +1004,31 @@ def create_user(aws_client):
 
     for username in usernames:
         try:
-            inline_policies = aws_client.iam.list_user_policies(UserName=username)["PolicyNames"]
+            inline_policies = aws_client.iam.list_user_policies(UserName=username)[
+                "PolicyNames"
+            ]
         except ClientError as e:
             LOG.debug(
-                "Cannot list user policies: %s. User %s probably already deleted...", e, username
+                "Cannot list user policies: %s. User %s probably already deleted...",
+                e,
+                username,
             )
             continue
 
         for inline_policy in inline_policies:
             try:
-                aws_client.iam.delete_user_policy(UserName=username, PolicyName=inline_policy)
+                aws_client.iam.delete_user_policy(
+                    UserName=username, PolicyName=inline_policy
+                )
             except Exception:
                 LOG.debug(
                     "Could not delete user policy '%s' from '%s' during cleanup",
                     inline_policy,
                     username,
                 )
-        attached_policies = aws_client.iam.list_attached_user_policies(UserName=username)[
-            "AttachedPolicies"
-        ]
+        attached_policies = aws_client.iam.list_attached_user_policies(
+            UserName=username
+        )["AttachedPolicies"]
         for attached_policy in attached_policies:
             try:
                 aws_client.iam.detach_user_policy(
@@ -999,7 +1040,9 @@ def create_user(aws_client):
                     attached_policy["PolicyArn"],
                     username,
                 )
-        access_keys = aws_client.iam.list_access_keys(UserName=username)["AccessKeyMetadata"]
+        access_keys = aws_client.iam.list_access_keys(UserName=username)[
+            "AccessKeyMetadata"
+        ]
         for access_key in access_keys:
             try:
                 aws_client.iam.delete_access_key(
@@ -1053,9 +1096,9 @@ def create_role(aws_client):
     for role_name, iam_client in role_names:
         # detach policies
         try:
-            attached_policies = iam_client.list_attached_role_policies(RoleName=role_name)[
-                "AttachedPolicies"
-            ]
+            attached_policies = iam_client.list_attached_role_policies(
+                RoleName=role_name
+            )["AttachedPolicies"]
         except ClientError as e:
             LOG.debug(
                 "Cannot list attached role policies: %s. Role %s probably already deleted...",
@@ -1077,7 +1120,9 @@ def create_role(aws_client):
         role_policies = iam_client.list_role_policies(RoleName=role_name)["PolicyNames"]
         for role_policy in role_policies:
             try:
-                iam_client.delete_role_policy(RoleName=role_name, PolicyName=role_policy)
+                iam_client.delete_role_policy(
+                    RoleName=role_name, PolicyName=role_policy
+                )
             except Exception:
                 LOG.debug(
                     "Could not delete role policy '%s' from '%s' during cleanup",
@@ -1116,7 +1161,9 @@ def create_secret(aws_client):
     yield _create_parameter
 
     for item in items:
-        aws_client.secretsmanager.delete_secret(SecretId=item, ForceDeleteWithoutRecovery=True)
+        aws_client.secretsmanager.delete_secret(
+            SecretId=item, ForceDeleteWithoutRecovery=True
+        )
 
 
 # TODO Figure out how to make cert creation tests pass against AWS.
@@ -1142,7 +1189,9 @@ def acm_request_certificate(aws_client_factory):
 
     def factory(**kwargs) -> str:
         if "DomainName" not in kwargs:
-            kwargs["DomainName"] = f"test-domain-{short_uid()}.localhost.localstack.cloud"
+            kwargs["DomainName"] = (
+                f"test-domain-{short_uid()}.localhost.localstack.cloud"
+            )
 
         region_name = kwargs.pop("region_name", None)
         acm_client = aws_client_factory(region_name=region_name).acm
@@ -1185,7 +1234,9 @@ def create_iam_role_and_attach_policy(aws_client):
         role = kwargs["RoleName"]
         role_policy = json.dumps(kwargs["RoleDefinition"])
 
-        result = aws_client.iam.create_role(RoleName=role, AssumeRolePolicyDocument=role_policy)
+        result = aws_client.iam.create_role(
+            RoleName=role, AssumeRolePolicyDocument=role_policy
+        )
         role_arn = result["Role"]["Arn"]
 
         policy_arn = kwargs["PolicyArn"]
@@ -1226,7 +1277,9 @@ def create_iam_role_with_policy(aws_client):
         policy = kwargs["PolicyName"]
         role_policy = json.dumps(kwargs["RoleDefinition"])
 
-        result = aws_client.iam.create_role(RoleName=role, AssumeRolePolicyDocument=role_policy)
+        result = aws_client.iam.create_role(
+            RoleName=role, AssumeRolePolicyDocument=role_policy
+        )
         role_arn = result["Role"]["Arn"]
 
         policy_document = json.dumps(kwargs["PolicyDefinition"])
@@ -1240,9 +1293,16 @@ def create_iam_role_with_policy(aws_client):
 
     for role_name, policy_name in roles.items():
         try:
-            aws_client.iam.delete_role_policy(RoleName=role_name, PolicyName=policy_name)
+            aws_client.iam.delete_role_policy(
+                RoleName=role_name, PolicyName=policy_name
+            )
         except Exception as exc:
-            LOG.debug("Error deleting IAM role policy '%s' '%s': %s", role_name, policy_name, exc)
+            LOG.debug(
+                "Error deleting IAM role policy '%s' '%s': %s",
+                role_name,
+                policy_name,
+                exc,
+            )
         try:
             aws_client.iam.delete_role(RoleName=role_name)
         except Exception as exc:
@@ -1266,7 +1326,9 @@ def firehose_create_delivery_stream(wait_for_delivery_stream_ready, aws_client):
 
     for delivery_stream_name in delivery_stream_names:
         try:
-            aws_client.firehose.delete_delivery_stream(DeliveryStreamName=delivery_stream_name)
+            aws_client.firehose.delete_delivery_stream(
+                DeliveryStreamName=delivery_stream_name
+            )
         except Exception:
             LOG.info("Failed to delete delivery stream %s", delivery_stream_name)
 
@@ -1286,14 +1348,18 @@ def ses_configuration_set(aws_client):
     yield factory
 
     for configuration_set_name in configuration_set_names:
-        aws_client.ses.delete_configuration_set(ConfigurationSetName=configuration_set_name)
+        aws_client.ses.delete_configuration_set(
+            ConfigurationSetName=configuration_set_name
+        )
 
 
 @pytest.fixture
 def ses_configuration_set_sns_event_destination(aws_client):
     event_destinations = []
 
-    def factory(config_set_name: str, event_destination_name: str, topic_arn: str) -> None:
+    def factory(
+        config_set_name: str, event_destination_name: str, topic_arn: str
+    ) -> None:
         aws_client.ses.create_configuration_set_event_destination(
             ConfigurationSetName=config_set_name,
             EventDestination={
@@ -1320,7 +1386,9 @@ def ses_configuration_set_sns_event_destination(aws_client):
 def ses_email_template(aws_client):
     template_names = []
 
-    def factory(name: str, contents: str, subject: str = f"Email template {short_uid()}"):
+    def factory(
+        name: str, contents: str, subject: str = f"Email template {short_uid()}"
+    ):
         aws_client.ses.create_template(
             Template={
                 "TemplateName": name,
@@ -1504,7 +1572,9 @@ def create_rest_apigw(aws_client_factory):
         for item in usage_plans.get("items", []):
             api_stages = item.get("apiStages", [])
             usage_plan_ids.extend(
-                item.get("id") for api_stage in api_stages if api_stage.get("apiId") == rest_api_id
+                item.get("id")
+                for api_stage in api_stages
+                if api_stage.get("apiId") == rest_api_id
             )
 
         # Then delete the API, as you can't delete the UsagePlan if a stage is associated with it
@@ -1513,7 +1583,9 @@ def create_rest_apigw(aws_client_factory):
 
         # finally delete the usage plans and the API Keys linked to it
         for usage_plan_id in usage_plan_ids:
-            usage_plan_keys = apigateway_client.get_usage_plan_keys(usagePlanId=usage_plan_id)
+            usage_plan_keys = apigateway_client.get_usage_plan_keys(
+                usagePlanId=usage_plan_id
+            )
             for key in usage_plan_keys.get("items", []):
                 apigateway_client.delete_api_key(apiKey=key["id"])
             apigateway_client.delete_usage_plan(usagePlanId=usage_plan_id)
@@ -1557,7 +1629,9 @@ def assert_host_customisation(monkeypatch):
 
             assert localstack_host not in url
         else:
-            assert localstack_host in url, f"Could not find `{localstack_host}` in `{url}`"
+            assert localstack_host in url, (
+                f"Could not find `{localstack_host}` in `{url}`"
+            )
 
     yield asserter
 
@@ -1617,11 +1691,15 @@ def create_policy_doc(effect: str, actions: list, resource=None) -> dict:
 
 @pytest.fixture
 def create_policy_generated_document(create_policy):
-    def _create_policy_with_doc(effect, actions, policy_name=None, resource=None, iam_client=None):
+    def _create_policy_with_doc(
+        effect, actions, policy_name=None, resource=None, iam_client=None
+    ):
         policy_name = policy_name or f"p-{short_uid()}"
         policy = create_policy_doc(effect, actions, resource=resource)
         response = create_policy(
-            PolicyName=policy_name, PolicyDocument=json.dumps(policy), iam_client=iam_client
+            PolicyName=policy_name,
+            PolicyDocument=json.dumps(policy),
+            iam_client=iam_client,
         )
         policy_arn = response["Policy"]["Arn"]
         return policy_arn
@@ -1638,7 +1716,9 @@ def create_role_with_policy(create_role, create_policy_generated_document, aws_c
 
         role_name = f"role-{short_uid()}"
         result = create_role(
-            RoleName=role_name, AssumeRolePolicyDocument=assume_policy_doc, iam_client=iam_client
+            RoleName=role_name,
+            AssumeRolePolicyDocument=assume_policy_doc,
+            iam_client=iam_client,
         )
         role_arn = result["Role"]["Arn"]
         policy_name = f"p-{short_uid()}"
@@ -1646,7 +1726,11 @@ def create_role_with_policy(create_role, create_policy_generated_document, aws_c
         if attach:
             # create role and attach role policy
             policy_arn = create_policy_generated_document(
-                effect, actions, policy_name=policy_name, resource=resource, iam_client=iam_client
+                effect,
+                actions,
+                policy_name=policy_name,
+                resource=resource,
+                iam_client=iam_client,
             )
             iam_client.attach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
         else:
@@ -1654,7 +1738,9 @@ def create_role_with_policy(create_role, create_policy_generated_document, aws_c
             policy_document = create_policy_doc(effect, actions, resource=resource)
             policy_document = json.dumps(policy_document)
             iam_client.put_role_policy(
-                RoleName=role_name, PolicyName=policy_name, PolicyDocument=policy_document
+                RoleName=role_name,
+                PolicyName=policy_name,
+                PolicyDocument=policy_document,
             )
 
         return role_name, role_arn
@@ -1663,9 +1749,13 @@ def create_role_with_policy(create_role, create_policy_generated_document, aws_c
 
 
 @pytest.fixture
-def create_user_with_policy(create_policy_generated_document, create_user, aws_client, region_name):
+def create_user_with_policy(
+    create_policy_generated_document, create_user, aws_client, region_name
+):
     def _create_user_with_policy(effect, actions, resource=None, user_name=None):
-        policy_arn = create_policy_generated_document(effect, actions, resource=resource)
+        policy_arn = create_policy_generated_document(
+            effect, actions, resource=resource
+        )
         username = user_name or f"user-{short_uid()}"
         create_user(UserName=username)
         aws_client.iam.attach_user_policy(UserName=username, PolicyArn=policy_arn)
@@ -1747,7 +1837,6 @@ def openapi_validate(monkeypatch):
     monkeypatch.setattr(config, "OPENAPI_VALIDATE_REQUEST", "true")
 
 
-
 ###############################
 # Events (EventBridge) fixtures
 ###############################
@@ -1787,7 +1876,9 @@ def events_create_event_bus(aws_client, region_name, account_id):
                                 Rule=rule, EventBusName=event_bus_name, Ids=[target]
                             )
 
-                    aws_client.events.delete_rule(Name=rule, EventBusName=event_bus_name)
+                    aws_client.events.delete_rule(
+                        Name=rule, EventBusName=event_bus_name
+                    )
                 except Exception as e:
                     LOG.warning("Failed to delete rule %s: %s", rule, e)
 
@@ -1990,7 +2081,9 @@ def get_primary_secondary_client(
             secondary_client = secondary_aws_client_factory(region_name=region_name)
 
         elif cross_scenario == "region_account":
-            secondary_client = secondary_aws_client_factory(region_name=secondary_region)
+            secondary_client = secondary_aws_client_factory(
+                region_name=secondary_region
+            )
 
         return {
             "primary_aws_client": primary_client,
@@ -2022,7 +2115,10 @@ def clean_up(
                 kwargs=dict(Rule=rule_name, Ids=target_ids, Force=True, **kwargs),
             )
         if rule_name:
-            call_safe(events_client.delete_rule, kwargs=dict(Name=rule_name, Force=True, **kwargs))
+            call_safe(
+                events_client.delete_rule,
+                kwargs=dict(Name=rule_name, Force=True, **kwargs),
+            )
         if bus_name:
             call_safe(events_client.delete_event_bus, kwargs={"Name": bus_name})
         if queue_url:
@@ -2032,10 +2128,13 @@ def clean_up(
             logs_client = aws_client.logs
 
             def _delete_log_group():
-                log_streams = logs_client.describe_log_streams(logGroupName=log_group_name)
+                log_streams = logs_client.describe_log_streams(
+                    logGroupName=log_group_name
+                )
                 for log_stream in log_streams["logStreams"]:
                     logs_client.delete_log_stream(
-                        logGroupName=log_group_name, logStreamName=log_stream["logStreamName"]
+                        logGroupName=log_group_name,
+                        logStreamName=log_stream["logStreamName"],
                     )
                 logs_client.delete_log_group(logGroupName=log_group_name)
 
@@ -2088,4 +2187,6 @@ def logs_log_stream(logs_log_group, aws_client):
     yield _create_log_stream()
 
     for stream_name in log_stream_names:
-        aws_client.logs.delete_log_stream(logStreamName=stream_name, logGroupName=logs_log_group)
+        aws_client.logs.delete_log_stream(
+            logStreamName=stream_name, logGroupName=logs_log_group
+        )
