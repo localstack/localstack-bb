@@ -82,6 +82,8 @@ dev = [
     "deptry==0.25.1",
     "ruff==0.15.10",
     "mypy==1.20.1",
+    "awscli==1.44.49",
+    "awscli-local==0.22.2",
 ]
 
 # not strictly necessary for development, but provides type hint support for a better developer experience
