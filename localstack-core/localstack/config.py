@@ -736,6 +736,9 @@ EAGER_SERVICE_LOADING = is_env_true("EAGER_SERVICE_LOADING")
 # whether to selectively load services in SERVICES
 STRICT_SERVICE_LOADING = is_env_not_false("STRICT_SERVICE_LOADING")
 
+# Whether to return and parse access key ids starting with an "A", like on AWS
+PARITY_AWS_ACCESS_KEY_ID = is_env_true("PARITY_AWS_ACCESS_KEY_ID")
+
 # Whether to skip downloading our signed SSL cert.
 SKIP_SSL_CERT_DOWNLOAD = is_env_true("SKIP_SSL_CERT_DOWNLOAD")
 
