@@ -3,6 +3,7 @@ from localstack.services.plugins import (
     aws_provider,
 )
 
+
 @aws_provider()
 def transfer():
     from localstack.services.transfer.provider import TransferProvider

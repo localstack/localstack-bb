@@ -244,7 +244,6 @@ def start_infra_locally():
     return main()
 
 
-
 @log_duration()
 def prepare_host(console):
     """

@@ -183,7 +183,11 @@ class ServiceExceptionSerializer(ExceptionHandler):
                 message = exception_message
                 error = CommonServiceException("InternalFailure", message, status_code=501)
             else:
-                op = None if isinstance(exception, PluginNotIncludedInUserLicenseError) else operation_name
+                op = (
+                    None
+                    if isinstance(exception, PluginNotIncludedInUserLicenseError)
+                    else operation_name
+                )
                 error = get_service_availability_exception(service_name, op)
                 message = error.message
             LOG.info(message)

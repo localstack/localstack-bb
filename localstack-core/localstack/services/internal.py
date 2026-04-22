@@ -262,7 +262,6 @@ class LocalstackResources(Router):
             self.add(Resource("/_localstack/config", ConfigResource()))
 
 
-
 @singleton_factory
 def get_internal_apis() -> LocalstackResources:
     """

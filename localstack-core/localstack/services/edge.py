@@ -92,7 +92,9 @@ def start_proxy(listen_str: str, target_address: HostAndPort, asynchronous: bool
     return do_start_tcp_proxy(listen, target_address, asynchronous)
 
 
-def do_start_tcp_proxy(listen: HostAndPort, target_address: HostAndPort, asynchronous: bool = False):
+def do_start_tcp_proxy(
+    listen: HostAndPort, target_address: HostAndPort, asynchronous: bool = False
+):
     from localstack.utils.server.tcp_proxy import TCPProxy
 
     src = str(listen)

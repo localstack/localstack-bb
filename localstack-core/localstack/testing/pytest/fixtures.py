@@ -1747,7 +1747,6 @@ def openapi_validate(monkeypatch):
     monkeypatch.setattr(config, "OPENAPI_VALIDATE_REQUEST", "true")
 
 
-
 ###############################
 # Events (EventBridge) fixtures
 ###############################

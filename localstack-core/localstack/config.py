@@ -440,6 +440,7 @@ FAIL_FAST = is_env_true("FAIL_FAST")
 # default encoding used to convert strings to byte arrays (mainly for Python 3 compatibility)
 DEFAULT_ENCODING = "utf-8"
 
+
 def is_trace_logging_enabled():
     if LS_LOG:
         log_level = str(LS_LOG).upper()
