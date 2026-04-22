@@ -1,3 +1,5 @@
+import logging
+
 from localstack.aws.api import RequestContext
 from localstack.aws.api.transfer import (
     Certificate,
@@ -40,6 +42,9 @@ from localstack.services.transfer.models import ServerInstance, transfer_stores
 from localstack.utils.strings import long_uid
 
 
+LOG = logging.getLogger(__name__)
+
+
 class TransferProvider(TransferApi):
     #
     # Server
@@ -75,6 +80,7 @@ class TransferProvider(TransferApi):
             region_name=context.region,
             server_id=server_id,
         )
+        LOG.info("Created server: %s", server_id)
         return CreateServerResponse(ServerId=server_id)
 
     def describe_server(
