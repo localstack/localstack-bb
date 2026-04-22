@@ -6,11 +6,13 @@ from localstack.testing.pytest import markers
 
 class TestTransferFamily:
     @markers.aws.validated
-    def test_create_server(self, aws_client, snapshot):
+    def test_create_server(self, aws_client, snapshot, cleanups):
         snapshot.add_transformer(snapshot.transform.key_value("ServerId"))
 
         response = aws_client.transfer.create_server()
-        
+        server_id = response["ServerId"]
+        cleanups.append(lambda: aws_client.transfer.delete_server(ServerId=server_id))
+
         snapshot.match("create-server", response)
 
     @markers.aws.validated
