@@ -142,6 +142,10 @@ def str_startswith_ignore_case(value: str, prefix: str) -> bool:
     return value[: len(prefix)].lower() == prefix.lower()
 
 
+def get_random_hex(length: int) -> str:
+    return "".join(random.choices(string.hexdigits[:16], k=length)).lower()
+
+
 def short_uid() -> str:
     return str(uuid.uuid4())[0:8]
 
@@ -209,10 +213,6 @@ def base64_decode(data: str | bytes) -> bytes:
     if "-" in data or "_" in data:
         return base64.urlsafe_b64decode(data)
     return base64.b64decode(data)
-
-
-def get_random_hex(length: int) -> str:
-    return "".join(random.choices(string.hexdigits[:16], k=length)).lower()
 
 
 def remove_leading_extra_slashes(input: str) -> str:
