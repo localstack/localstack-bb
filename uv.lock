@@ -30,6 +30,35 @@ wheels = [
 ]
 
 [[package]]
+name = "awscli"
+version = "1.44.49"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore" },
+    { name = "colorama" },
+    { name = "docutils" },
+    { name = "pyyaml" },
+    { name = "rsa" },
+    { name = "s3transfer" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6b/01/4ce3cc58a9100a33655eca00e397fdb811d59a0f76c3eb0af19f344a3e8a/awscli-1.44.49.tar.gz", hash = "sha256:f7c8151da43a7ebc0e6bc049771470b440dea07f25c5e8f5b0d3c01f64d84184", size = 1883684, upload-time = "2026-02-27T20:25:29.624Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/3b/c8ed065e0bb39ae1474a159e8b45e0e0e069fb626cc42b5a82c5ed3b828c/awscli-1.44.49-py3-none-any.whl", hash = "sha256:5c15ed939e6a990d90ba82af78ad6acd9e0c111a7df78b6fb873a5006e2ee688", size = 4621903, upload-time = "2026-02-27T20:25:25.414Z" },
+]
+
+[[package]]
+name = "awscli-local"
+version = "0.22.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "localstack-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7a/71/591a30da6819c96deca2286f145d5982e73b11e7f657e8cbfc5e003ca73f/awscli_local-0.22.2.tar.gz", hash = "sha256:07c532c372753bf5f15426451dc91d6eec9de8779748049329a9a882bdac8a0b", size = 11695, upload-time = "2025-08-07T06:07:49.133Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/13/80/6cb86812f8418b0464fc3418e78826d8fc99342848fdb82e7f576add1c1f/awscli_local-0.22.2-py3-none-any.whl", hash = "sha256:1901ebef343ba8cbde06f9f6406b5415ef53e93296718c2c31c9d49b0b09bd9d", size = 12280, upload-time = "2025-08-07T06:07:47.624Z" },
+]
+
+[[package]]
 name = "boto3"
 version = "1.42.59"
 source = { registry = "https://pypi.org/simple" }
@@ -615,6 +644,15 @@ wheels = [
 ]
 
 [[package]]
+name = "docutils"
+version = "0.19"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6b/5c/330ea8d383eb2ce973df34d1239b3b21e91cd8c865d21ff82902d952f91f/docutils-0.19.tar.gz", hash = "sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6", size = 2056383, upload-time = "2022-07-05T20:17:31.045Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/93/69/e391bd51bc08ed9141ecd899a0ddb61ab6465309f1eb470905c0c8868081/docutils-0.19-py3-none-any.whl", hash = "sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc", size = 570472, upload-time = "2022-07-05T20:17:26.388Z" },
+]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -961,6 +999,15 @@ wheels = [
 ]
 
 [[package]]
+name = "localstack-client"
+version = "2.11"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "boto3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/44/79/d240524248f0e675982c52586d67ea5030cf7511af9dbc8814e1d100cd15/localstack_client-2.11.tar.gz", hash = "sha256:1cbd7bf1f03b9b553ffe7ea10fe137f44e8d690a37af9c6515eba61a2379fc46", size = 11225, upload-time = "2026-01-09T10:15:19.77Z" }
+
+[[package]]
 name = "localstack-core"
 version = "0.1.dev7895"
 source = { editable = "." }
@@ -994,6 +1041,8 @@ base-runtime = [
     { name = "xmltodict" },
 ]
 dev = [
+    { name = "awscli" },
+    { name = "awscli-local" },
     { name = "boto3" },
     { name = "botocore" },
     { name = "cbor2" },
@@ -1064,6 +1113,8 @@ test = [
     { name = "xmltodict" },
 ]
 typehint = [
+    { name = "awscli" },
+    { name = "awscli-local" },
     { name = "boto3" },
     { name = "boto3-stubs", extra = ["iam", "kms", "s3", "sns", "sqs", "sts", "transfer"] },
     { name = "botocore" },
@@ -1095,6 +1146,8 @@ typehint = [
 [package.metadata]
 requires-dist = [
     { name = "asn1crypto", specifier = "==1.5.1" },
+    { name = "awscli", marker = "extra == 'dev'", specifier = "==1.44.49" },
+    { name = "awscli-local", marker = "extra == 'dev'", specifier = "==0.22.2" },
     { name = "boto3", marker = "extra == 'base-runtime'", specifier = "==1.42.59" },
     { name = "boto3-stubs", extras = ["iam", "kms", "s3", "sns", "sqs", "sts", "transfer"], marker = "extra == 'typehint'", specifier = "==1.42.89" },
     { name = "botocore", marker = "extra == 'base-runtime'", specifier = "==1.42.59" },
@@ -1130,7 +1183,7 @@ requires-dist = [
     { name = "requests", specifier = "==2.33.1" },
     { name = "rolo", marker = "extra == 'base-runtime'", specifier = "==0.8.2" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.15.10" },
-    { name = "urllib3", marker = "extra == 'base-runtime'", specifier = "==2.6.3" },
+    { name = "urllib3", marker = "extra == 'base-runtime'", specifier = "==2.7.0" },
     { name = "werkzeug", marker = "extra == 'base-runtime'", specifier = "==3.1.8" },
     { name = "xmltodict", marker = "extra == 'base-runtime'", specifier = "==1.0.4" },
 ]
@@ -1553,6 +1606,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/04/78/0acd37ca84ce3ddffaa92ef0f571e073faa6d8ff1f0559ab1272188ea2be/psutil-7.2.2-cp36-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:b58fabe35e80b264a4e3bb23e6b96f9e45a3df7fb7eed419ac0e5947c61e47cc", size = 148266, upload-time = "2026-01-28T18:15:31.597Z" },
     { url = "https://files.pythonhosted.org/packages/b4/90/e2159492b5426be0c1fef7acba807a03511f97c5f86b3caeda6ad92351a7/psutil-7.2.2-cp37-abi3-win_amd64.whl", hash = "sha256:eb7e81434c8d223ec4a219b5fc1c47d0417b12be7ea866e24fb5ad6e84b3d988", size = 137737, upload-time = "2026-01-28T18:15:33.849Z" },
     { url = "https://files.pythonhosted.org/packages/8c/c7/7bb2e321574b10df20cbde462a94e2b71d05f9bbda251ef27d104668306a/psutil-7.2.2-cp37-abi3-win_arm64.whl", hash = "sha256:8c233660f575a5a89e6d4cb65d9f938126312bca76d8fe087b947b3a1aaac9ee", size = 134617, upload-time = "2026-01-28T18:15:36.514Z" },
+]
+
+[[package]]
+name = "pyasn1"
+version = "0.6.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/5f/6583902b6f79b399c9c40674ac384fd9cd77805f9e6205075f828ef11fb2/pyasn1-0.6.3.tar.gz", hash = "sha256:697a8ecd6d98891189184ca1fa05d1bb00e2f84b5977c481452050549c8a72cf", size = 148685, upload-time = "2026-03-17T01:06:53.382Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5d/a0/7d793dce3fa811fe047d6ae2431c672364b462850c6235ae306c0efd025f/pyasn1-0.6.3-py3-none-any.whl", hash = "sha256:a80184d120f0864a52a073acc6fc642847d0be408e7c7252f31390c0f4eadcde", size = 83997, upload-time = "2026-03-17T01:06:52.036Z" },
 ]
 
 [[package]]
@@ -2023,6 +2085,18 @@ wheels = [
 ]
 
 [[package]]
+name = "rsa"
+version = "4.7.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyasn1" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/db/b5/475c45a58650b0580421746504b680cd2db4e81bc941e94ca53785250269/rsa-4.7.2.tar.gz", hash = "sha256:9d689e6ca1b3038bc82bf8d23e944b6b6037bc02301a574935b2dd946e0353b9", size = 39711, upload-time = "2021-02-24T10:55:05.846Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e9/93/0c0f002031f18b53af7a6166103c02b9c0667be528944137cc954ec921b3/rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2", size = 34505, upload-time = "2021-02-24T10:55:03.55Z" },
+]
+
+[[package]]
 name = "ruff"
 version = "0.15.10"
 source = { registry = "https://pypi.org/simple" }
@@ -2191,11 +2265,11 @@ wheels = [
 
 [[package]]
 name = "urllib3"
-version = "2.6.3"
+version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c7/24/5f1b3bdffd70275f6661c76461e25f024d5a38a46f04aaca912426a2b1d3/urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed", size = 435556, upload-time = "2026-01-07T16:24:43.925Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/0c/06f8b233b8fd13b9e5ee11424ef85419ba0d8ba0b3138bf360be2ff56953/urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c", size = 433602, upload-time = "2026-05-07T16:13:18.596Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4", size = 131584, upload-time = "2026-01-07T16:24:42.685Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897", size = 131087, upload-time = "2026-05-07T16:13:17.151Z" },
 ]
 
 [[package]]
