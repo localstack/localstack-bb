@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-USERNAME="transfer-user-tech-assessment"
-DURATION=10800  # 3 hours
+USERNAME="transfer-interview-assessment"
+
+DURATION=129_600  # 36 hours, the max limit
 
 echo "Creating IAM user"
 aws --profile user1 iam create-user --user-name "$USERNAME" > /dev/null || /bin/true
