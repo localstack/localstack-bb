@@ -7,7 +7,7 @@ USERNAME="transfer-interview-assessment"
 DURATION=129_600  # 36 hours, the max limit
 
 echo "Creating IAM user"
-aws --profile user1 iam create-user --user-name "$USERNAME" > /dev/null || /bin/true
+aws --profile user1 iam create-user --user-name "$USERNAME" > /dev/null || true
 
 echo "Creating IAM policy"
 aws --profile user1 iam put-user-policy \
@@ -31,7 +31,7 @@ aws --profile user1 iam put-user-policy \
         "Resource": "*"
       }
     ]
-  }' || /bin/true
+  }' || true
 
 echo "Deleting existing user credentials"
 aws --profile user1 iam list-access-keys --user-name "$USERNAME" \
