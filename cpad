@@ -6,7 +6,7 @@
     },
     "test": {
       "label": "tests",
-      "command": "PYTHONPATH=$PYTHONPATH:localstack-core python -m pytest tests/aws/services/transfer/"
+      "command": "PYTHONPATH=$PYTHONPATH:localstack-core python -m pytest -vv tests/aws/services/transfer/"
     }
   }
 }
